@@ -40,22 +40,29 @@ data["eh_discurso_odio"] = data["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
-# Filtros em tela
+# Filtros em tela com organização lado a lado
 st.subheader("Filtros")
-start_date = st.date_input("Data Inicial", value=data["hora_postagem"].min())
-end_date = st.date_input("Data Final", value=data["hora_postagem"].max())
 
-discurso_filter = st.multiselect(
-    "Filtrar por Tipo de Discurso", 
-    options=data["resultado_analise"].unique(),
-    default=data["resultado_analise"].unique()
-)
+# Organizar filtros em colunas
+col1, col2 = st.columns(2)
+with col1:
+    start_date = st.date_input("Data Inicial", value=data["hora_postagem"].min())
+with col2:
+    end_date = st.date_input("Data Final", value=data["hora_postagem"].max())
 
-emocao_filter = st.multiselect(
-    "Filtrar por Emoção", 
-    options=data["emocao"].unique(),
-    default=data["emocao"].unique()
-)
+col3, col4 = st.columns(2)
+with col3:
+    discurso_filter = st.multiselect(
+        "Filtrar por Tipo de Discurso", 
+        options=data["resultado_analise"].unique(),
+        default=data["resultado_analise"].unique()
+    )
+with col4:
+    emocao_filter = st.multiselect(
+        "Filtrar por Emoção", 
+        options=data["emocao"].unique(),
+        default=data["emocao"].unique()
+    )
 
 # Aplicar filtros
 data_filtered = data[
