@@ -150,25 +150,6 @@ ax_emocao.set_xlabel('Emoções')
 ax_emocao.set_ylabel('Contagem')
 st.pyplot(fig_emocao)
 
-from collections import Counter
-import pandas as pd
-
-# Filtrando os textos de discursos de ódio
-tipos_discurso = dados[dados['resultado_analise'] != 'não é discurso de ódio']
-
-# Contando palavras mais frequentes
-palavras = " ".join(tipos_discurso['texto'].astype(str)).split()
-contador_palavras = Counter(palavras)
-palavras_comuns = pd.DataFrame(contador_palavras.most_common(10), columns=['Palavra', 'Frequência'])
-
-# Gráfico de barras
-plt.figure(figsize=(10, 6))
-sns.barplot(data=palavras_comuns, y='Palavra', x='Frequência', palette="coolwarm")
-plt.title('Palavras Mais Frequentes em Discursos de Ódio', fontsize=16)
-plt.xlabel('Frequência', fontsize=12)
-plt.ylabel('Palavra', fontsize=12)
-plt.show()
-
 # Calculando métricas
 total_discursos = dados[dados['resultado_analise'] != 'não é discurso de ódio'].shape[0]
 media_palavras = tipos_discurso['texto'].apply(lambda x: len(str(x).split())).mean()
