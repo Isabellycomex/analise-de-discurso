@@ -38,8 +38,20 @@ data["eh_discurso_odio"] = data["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
+# Menu de navegação no topo
+st.markdown("""
+### Navegação
+- [Tabela de Dados](#tabela-de-dados)
+- [Publicações com Discurso de Ódio x Publicações sem Discurso de Ódio](#publicacoes-discurso-odio)
+- [Relação dos Tipos de Discursos de Ódio](#relacao-tipos-discursos)
+- [Emoções por Tipo de Discurso de Ódio](#emocoes-por-tipo)
+- [Publicações com Mais Engajamento](#mais-engajamento)
+- [Discurso de Ódio por Ordem Cronológica](#ordem-cronologica)
+- [Emoções Mais Encontradas](#emocoes-mais-encontradas)
+""")
+
 # Exibir os dados em tabela
-st.subheader("Tabela de Dados")
+st.markdown("### Tabela de Dados", anchor="tabela-de-dados")
 st.dataframe(data)
 
 # Filtro por data
@@ -70,7 +82,7 @@ data_filtered = data[
 ]
 
 # Gráfico 1: Relação entre publicações com e sem discurso de ódio
-st.subheader("Publicações com Discurso de Ódio x Publicações sem Discurso de Ódio")
+st.markdown("### Publicações com Discurso de Ódio x Publicações sem Discurso de Ódio", anchor="publicacoes-discurso-odio")
 
 contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
 fig, ax = plt.subplots()
@@ -85,7 +97,7 @@ ax.set_title("Discurso de Ódio vs Não é Discurso de Ódio")
 st.pyplot(fig)
 
 # Gráfico 2: Tipos de discurso de ódio
-st.subheader("Relação dos Tipos de Discursos de Ódio")
+st.markdown("### Relação dos Tipos de Discursos de Ódio", anchor="relacao-tipos-discursos")
 
 tipos_odio = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]["resultado_analise"].value_counts()
 fig_bar = px.bar(
@@ -98,7 +110,7 @@ fig_bar = px.bar(
 st.plotly_chart(fig_bar)
 
 # Gráfico 3: Emoções por tipo de discurso de ódio
-st.subheader("Emoções por Tipo de Discurso de Ódio")
+st.markdown("### Emoções por Tipo de Discurso de Ódio", anchor="emocoes-por-tipo")
 
 emocao_por_tipo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"].groupby(["resultado_analise", "emocao"]).size().reset_index(name="count")
 fig_emocao = px.bar(
@@ -113,7 +125,7 @@ fig_emocao = px.bar(
 st.plotly_chart(fig_emocao)
 
 # Gráfico 4: Publicações com mais engajamento
-st.subheader("Publicações com Mais Engajamento")
+st.markdown("### Publicações com Mais Engajamento", anchor="mais-engajamento")
 
 top_engajamento = data_filtered.sort_values(by="engajamento", ascending=False).head(10)
 fig_top = px.bar(
@@ -126,9 +138,8 @@ fig_top = px.bar(
 )
 st.plotly_chart(fig_top)
 
-
 # Gráfico 5: Relação de discurso de ódio por ordem cronológica
-st.subheader("Discurso de Ódio por Ordem Cronológica")
+st.markdown("### Discurso de Ódio por Ordem Cronológica", anchor="ordem-cronologica")
 
 odio_por_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"].groupby(data_filtered["hora_postagem"].dt.to_period("M")).size()
 fig_tempo = px.line(
@@ -140,7 +151,8 @@ fig_tempo = px.line(
 st.plotly_chart(fig_tempo)
 
 # Gráfico 6: Emoções Mais Encontradas
-st.subheader("Emoções Mais Encontradas")
+st.markdown("### Emoções Mais Encontradas", anchor="emocoes-mais-encontradas")
+
 emocao_counts = data_filtered['emocao'].value_counts()
 
 fig_emocao, ax_emocao = plt.subplots()
