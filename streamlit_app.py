@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
-
+from wordcloud import WordCloud
 
 st.title("Análise de Discurso de Ódio no Reddit através do ChatGpt")
 st.write("""
@@ -149,12 +149,39 @@ ax_emocao.set_title('Distribuição das Emoções')
 ax_emocao.set_xlabel('Emoções')
 ax_emocao.set_ylabel('Contagem')
 
+# Lendo o arquivo CSV
+arquivo_csv = "publicacoes.csv"
+dados = pd.read_csv(arquivo_csv)
+
+# Filtrando publicações classificadas como discurso de ódio
+# Ou seja, onde a coluna 'analise_discurso' é diferente de "não é discurso de ódio"
+discurso_odio = dados[dados['analise_discurso'] != 'não é discurso de ódio']['texto']
+
+# Concatenando todos os textos em uma única string
+texto_concatenado = " ".join(discurso_odio.astype(str))
+
+# Criando a nuvem de palavras
+nuvem_palavras = WordCloud(
+    width=800,
+    height=400,
+    background_color='black',
+    colormap='viridis',
+    max_words=100
+).generate(texto_concatenado)
+
+# Exibindo a nuvem de palavras
+plt.figure(figsize=(10, 5))
+plt.imshow(nuvem_palavras, interpolation='bilinear')
+plt.axis('off')
+plt.title('Nuvem de Palavras - Discurso de Ódio', fontsize=16)
+plt.show()
+
 st.pyplot(fig_emocao)
 
 # Nota de rodapé
 st.write("""
 ---
-**Créditos**: Isabelly Barbosa Gonçalves  
+Criado por: Isabelly Barbosa Gonçalves  
 E-mail: isabelly.barbosa@aluno.ifsp.edu.br  
 Telefone: 13988372120  
 Instituto Federal de Educação, Ciência e Tecnologia de São Paulo, Campus Cubatão
