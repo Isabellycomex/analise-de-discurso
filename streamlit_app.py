@@ -149,8 +149,9 @@ ax_emocao.set_title('Distribuição das Emoções')
 ax_emocao.set_xlabel('Emoções')
 ax_emocao.set_ylabel('Contagem')
 
-# Ou seja, onde a coluna 'resultado_analise' é diferente de "não é discurso de ódio"
-discurso_odio = dados[dados['resultado_analise'] != 'não é discurso de ódio']['texto']
+data["eh_discurso_odio"] = data["resultado_analise"].apply(
+    lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
+)
 
 # Concatenando todos os textos em uma única string
 texto_concatenado = " ".join(discurso_odio.astype(str))
