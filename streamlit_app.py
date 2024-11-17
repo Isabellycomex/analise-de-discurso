@@ -151,12 +151,6 @@ ax_emocao.set_ylabel('Contagem')
 st.pyplot(fig_emocao)
 
 
-# Criando o mapa de calor
-plt.figure(figsize=(10, 6))
-sns.heatmap(colunas_numericas.corr(), annot=True, cmap='coolwarm')
-plt.title('Mapa de Calor - Correlação entre Métricas', fontsize=16)
-plt.show()
-
 # Nota de rodapé
 st.write("""
 ---
