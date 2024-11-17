@@ -28,6 +28,9 @@ data = load_data(file_path)
 if data is None:
     st.stop()
 
+# Layout para seleção de gráficos
+st.title("Análise de Discurso de Ódio no Reddit através do ChatGpt")
+
 # Tratar dados
 data["hora_postagem"] = pd.to_datetime(data["hora_postagem"])  # Converter hora para datetime
 data["engajamento"] = data["upvotes"] + data["comentarios"]  # Criar coluna de engajamento
@@ -61,9 +64,6 @@ data_filtered = data[
     (data["resultado_analise"].isin(discurso_filter)) & 
     (data["emocao"].isin(emocao_filter))
 ]
-
-# Layout para seleção de gráficos
-st.title("Análise de Discurso de Ódio no Reddit através do ChatGpt")
 
 # Organizar gráficos em colunas
 st.subheader("Seleção de Visualização")
