@@ -148,6 +148,7 @@ ax_emocao.bar(emocao_counts.index, emocao_counts.values, color="lightcoral")
 ax_emocao.set_title('Distribuição das Emoções')
 ax_emocao.set_xlabel('Emoções')
 ax_emocao.set_ylabel('Contagem')
+st.pyplot(fig_emocao)
 
 data["eh_discurso_odio"] = data["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
@@ -171,8 +172,6 @@ plt.imshow(nuvem_palavras, interpolation='bilinear')
 plt.axis('off')
 plt.title('Nuvem de Palavras - Discurso de Ódio', fontsize=16)
 plt.show()
-
-st.pyplot(fig_emocao)
 
 # Nota de rodapé
 st.write("""
