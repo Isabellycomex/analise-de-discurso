@@ -150,17 +150,6 @@ ax_emocao.set_xlabel('Emoções')
 ax_emocao.set_ylabel('Contagem')
 st.pyplot(fig_emocao)
 
-# Calculando métricas
-total_discursos = dados[dados['resultado_analise'] != 'não é discurso de ódio'].shape[0]
-media_palavras = tipos_discurso['texto'].apply(lambda x: len(str(x).split())).mean()
-
-# Exibindo a tabela
-print(f"Total de discursos de ódio: {total_discursos}")
-print(f"Média de palavras por publicação: {media_palavras:.2f}")
-print(f"Categorias mais frequentes:\n{dados['resultado_analise'].value_counts()}")
-
-# Selecionando apenas colunas numéricas
-colunas_numericas = dados.select_dtypes(include='number')
 
 # Criando o mapa de calor
 plt.figure(figsize=(10, 6))
