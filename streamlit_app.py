@@ -150,11 +150,36 @@ ax_emocao.set_xlabel('Emoções')
 ax_emocao.set_ylabel('Contagem')
 st.pyplot(fig_emocao)
 
-data["eh_discurso_odio"] = data["resultado_analise"].apply(
-    lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
-)
+import pandas as pd
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 
-# Concatenando todos os textos em uma única string
+# Lendo o arquivo CSV
+arquivo_csv = "publicacoes.csv"
+dados = pd.read_csv(arquivo_csv)
+
+# Removendo espaços extras nos nomes das colunas
+dados.columns = dados.columns.str.strip()
+
+# Exibindo as colunas disponíveis para validação
+print("Colunas disponíveis:", dados.columns)
+
+# Verificando a existência das colunas necessárias
+if 'resultado_analise' not in dados.columns or 'texto' not in dados.columns:
+    raise KeyError("Certifique-se de que as colunas 'resultado_analise' e 'texto' existem no arquivo CSV.")
+
+# Filtrando publicações classificadas como discurso de ódio
+discurso_odio = dados[dados['resultado_analise'] != 'não é discurso de ódio']['texto']
+
+# Verificando se a filtragem gerou resultados
+if discurso_odio.empty:
+    raise ValueError("Nenhum dado encontrado após a filtragem. Verifique os critérios de filtragem no CSV.")
+
+# Verificando valores nulos na coluna de texto
+if discurso_odio.isnull().sum() > 0:
+    discurso_odio = discurso_odio.dropna()
+
+# Concatenando os textos em uma única string
 texto_concatenado = " ".join(discurso_odio.astype(str))
 
 # Criando a nuvem de palavras
@@ -172,6 +197,7 @@ plt.imshow(nuvem_palavras, interpolation='bilinear')
 plt.axis('off')
 plt.title('Nuvem de Palavras - Discurso de Ódio', fontsize=16)
 plt.show()
+
 
 # Nota de rodapé
 st.write("""
