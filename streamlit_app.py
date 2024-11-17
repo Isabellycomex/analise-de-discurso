@@ -5,21 +5,22 @@ import plotly.express as px
 from wordcloud import WordCloud
 
 # Definir estilo para botões personalizados
-def custom_button(label, key, color="#4CAF50"):
+def custom_button(label, key, color="#007bff", width="100px"):
     button_style = f"""
     <style>
     .stButton button {{
         background-color: {color};
         color: white;
         border: none;
-        padding: 10px 20px;
-        font-size: 16px;
+        padding: 5px 15px;
+        font-size: 14px;
         border-radius: 5px;
         cursor: pointer;
         transition: background-color 0.3s ease;
+        width: {width};
     }}
     .stButton button:hover {{
-        background-color: #45a049;
+        background-color: #0056b3;
     }}
     </style>
     """
@@ -85,84 +86,92 @@ data_filtered = data[
     (data["emocao"].isin(emocao_filter))
 ]
 
-# Botões de navegação
-if custom_button("Tabela de Dados", key="tabela"):
-    st.markdown("### Tabela de Dados")
+# Botões de navegação lado a lado
+col1, col2, col3, col4, col5, col6 = st.columns(6)
+
+with col1:
+    custom_button("Tabela de Dados", key="tabela", width="80px")
+with col2:
+    custom_button("Discurso de Ódio x Não Discurso de Ódio", key="grafico1", width="80px")
+with col3:
+    custom_button("Tipos de Discursos de Ódio", key="grafico2", width="80px")
+with col4:
+    custom_button("Emoções por Tipo de Discurso de Ódio", key="grafico3", width="80px")
+with col5:
+    custom_button("Top Publicações com Engajamento", key="grafico4", width="80px")
+with col6:
+    custom_button("Discurso de Ódio ao Longo do Tempo", key="grafico5", width="80px")
+
+# Exibir gráficos simultaneamente
+st.markdown("### Visualizações")
+
+# Tabela de Dados
+if st.button("Tabela de Dados", key="tabela"):
     st.dataframe(data_filtered)
 
-if custom_button("Publicações com Discurso de Ódio x Publicações sem Discurso de Ódio", key="grafico1"):
-    st.markdown("### Publicações com Discurso de Ódio x Publicações sem Discurso de Ódio")
-    contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
-    fig, ax = plt.subplots()
-    ax.pie(
-        contagem_odio.values,
-        labels=contagem_odio.index,
-        autopct='%1.1f%%',
-        startangle=90,
-        colors=["#ff9999", "#66b3ff"]
-    )
-    ax.set_title("Discurso de Ódio vs Não é Discurso de Ódio")
-    st.pyplot(fig)
+# Gráfico: Discurso de Ódio x Não Discurso de Ódio
+st.markdown("### Discurso de Ódio x Não Discurso de Ódio")
+contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
+fig1, ax1 = plt.subplots()
+ax1.pie(
+    contagem_odio.values,
+    labels=contagem_odio.index,
+    autopct='%1.1f%%',
+    startangle=90,
+    colors=["#ff9999", "#66b3ff"]
+)
+ax1.set_title("Discurso de Ódio vs Não é Discurso de Ódio")
+st.pyplot(fig1)
 
-if custom_button("Relação dos Tipos de Discursos de Ódio", key="grafico2"):
-    st.markdown("### Relação dos Tipos de Discursos de Ódio")
-    tipos_odio = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]["resultado_analise"].value_counts()
-    fig_bar = px.bar(
-        x=tipos_odio.index,
-        y=tipos_odio.values,
-        labels={"x": "Tipo de Discurso", "y": "Quantidade"},
-        title="Distribuição dos Tipos de Discursos de Ódio",
-        color=tipos_odio.index,
-    )
-    st.plotly_chart(fig_bar)
+# Gráfico: Tipos de Discursos de Ódio
+st.markdown("### Tipos de Discursos de Ódio")
+tipos_odio = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]["resultado_analise"].value_counts()
+fig2 = px.bar(
+    x=tipos_odio.index,
+    y=tipos_odio.values,
+    labels={"x": "Tipo de Discurso", "y": "Quantidade"},
+    title="Distribuição dos Tipos de Discursos de Ódio",
+    color=tipos_odio.index,
+)
+st.plotly_chart(fig2)
 
-if custom_button("Emoções por Tipo de Discurso de Ódio", key="grafico3"):
-    st.markdown("### Emoções por Tipo de Discurso de Ódio")
-    emocao_por_tipo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"].groupby(["resultado_analise", "emocao"]).size().reset_index(name="count")
-    fig_emocao = px.bar(
-        emocao_por_tipo,
-        x="resultado_analise",
-        y="count",
-        color="emocao",
-        barmode="group",
-        title="Emoções por Tipo de Discurso de Ódio",
-        labels={"resultado_analise": "Tipo de Discurso", "count": "Quantidade", "emocao": "Emoção"}
-    )
-    st.plotly_chart(fig_emocao)
+# Gráfico: Emoções por Tipo de Discurso de Ódio
+st.markdown("### Emoções por Tipo de Discurso de Ódio")
+emocao_por_tipo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"].groupby(["resultado_analise", "emocao"]).size().reset_index(name="count")
+fig3 = px.bar(
+    emocao_por_tipo,
+    x="resultado_analise",
+    y="count",
+    color="emocao",
+    barmode="group",
+    title="Emoções por Tipo de Discurso de Ódio",
+    labels={"resultado_analise": "Tipo de Discurso", "count": "Quantidade", "emocao": "Emoção"}
+)
+st.plotly_chart(fig3)
 
-if custom_button("Publicações com Mais Engajamento", key="grafico4"):
-    st.markdown("### Publicações com Mais Engajamento")
-    top_engajamento = data_filtered.sort_values(by="engajamento", ascending=False).head(10)
-    fig_top = px.bar(
-        top_engajamento,
-        x="hora_postagem",
-        y="engajamento",
-        color="resultado_analise",
-        title="Top 10 Publicações com Mais Engajamento",
-        labels={"hora_postagem": "Hora da Postagem", "engajamento": "Engajamento", "resultado_analise": "Tipo de Discurso"}
-    )
-    st.plotly_chart(fig_top)
+# Gráfico: Top Publicações com Engajamento
+st.markdown("### Top Publicações com Engajamento")
+top_engajamento = data_filtered.sort_values(by="engajamento", ascending=False).head(10)
+fig4 = px.bar(
+    top_engajamento,
+    x="hora_postagem",
+    y="engajamento",
+    color="resultado_analise",
+    title="Top 10 Publicações com Mais Engajamento",
+    labels={"hora_postagem": "Hora da Postagem", "engajamento": "Engajamento", "resultado_analise": "Tipo de Discurso"}
+)
+st.plotly_chart(fig4)
 
-if custom_button("Discurso de Ódio por Ordem Cronológica", key="grafico5"):
-    st.markdown("### Discurso de Ódio por Ordem Cronológica")
-    odio_por_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"].groupby(data_filtered["hora_postagem"].dt.to_period("M")).size()
-    fig_tempo = px.line(
-        x=odio_por_tempo.index.astype(str),
-        y=odio_por_tempo.values,
-        title="Discurso de Ódio ao Longo do Tempo",
-        labels={"x": "Mês", "y": "Quantidade de Discursos de Ódio"}
-    )
-    st.plotly_chart(fig_tempo)
-
-if custom_button("Emoções Mais Encontradas", key="grafico6"):
-    st.markdown("### Emoções Mais Encontradas")
-    emocao_counts = data_filtered['emocao'].value_counts()
-    fig_emocao, ax_emocao = plt.subplots()
-    ax_emocao.bar(emocao_counts.index, emocao_counts.values, color="lightcoral")
-    ax_emocao.set_title('Distribuição das Emoções')
-    ax_emocao.set_xlabel('Emoções')
-    ax_emocao.set_ylabel('Contagem')
-    st.pyplot(fig_emocao)
+# Gráfico: Discurso de Ódio ao Longo do Tempo
+st.markdown("### Discurso de Ódio ao Longo do Tempo")
+odio_por_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"].groupby(data_filtered["hora_postagem"].dt.to_period("M")).size()
+fig5 = px.line(
+    x=odio_por_tempo.index.astype(str),
+    y=odio_por_tempo.values,
+    title="Discurso de Ódio ao Longo do Tempo",
+    labels={"x": "Mês", "y": "Quantidade de Discursos de Ódio"}
+)
+st.plotly_chart(fig5)
 
 # Nota de rodapé
 st.write("""
