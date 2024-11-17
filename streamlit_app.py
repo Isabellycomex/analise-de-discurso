@@ -149,13 +149,8 @@ ax_emocao.set_title('Distribuição das Emoções')
 ax_emocao.set_xlabel('Emoções')
 ax_emocao.set_ylabel('Contagem')
 
-# Lendo o arquivo CSV
-arquivo_csv = "publicacoes.csv"
-dados = pd.read_csv(arquivo_csv)
-
-# Filtrando publicações classificadas como discurso de ódio
-# Ou seja, onde a coluna 'analise_discurso' é diferente de "não é discurso de ódio"
-discurso_odio = dados[dados['analise_discurso'] != 'não é discurso de ódio']['texto']
+# Ou seja, onde a coluna 'resultado_analise' é diferente de "não é discurso de ódio"
+discurso_odio = dados[dados['resultado_analise'] != 'não é discurso de ódio']['texto']
 
 # Concatenando todos os textos em uma única string
 texto_concatenado = " ".join(discurso_odio.astype(str))
@@ -164,7 +159,7 @@ texto_concatenado = " ".join(discurso_odio.astype(str))
 nuvem_palavras = WordCloud(
     width=800,
     height=400,
-    background_color='black',
+    background_color='white',
     colormap='viridis',
     max_words=100
 ).generate(texto_concatenado)
