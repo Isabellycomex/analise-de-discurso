@@ -147,127 +147,42 @@ if "Discurso de Ódio ao Longo do Tempo" in visualizacao:
 st.subheader("Relação dos Tipos de Discurso de Ódio por Upvotes")
 if "resultado_analise" in data.columns and "upvotes" in data.columns:
     # Filtrar os valores extremos para evitar distorções
-    data_filtered = data[data[
-    data_filtered = dat
-"upvotes"] < 500]
+    data_filtered = data[data["upvotes"] < 500]
     fig = px.box(
         data_filtered,
-        x=
-    fi
-"resultado_analise",
+        x="resultado_analise",
         y="upvotes",
-        title=
-        tit
-"Distribuição de Upvotes por Tipo de Discurso",
+        title="Distribuição de Upvotes por Tipo de Discurso",
         labels={"resultado_analise": "Tipo de Discurso", "upvotes": "Upvotes"},
         color="resultado_analise",
-        notched=True
+        notched=True  # Adiciona notch no box plot para maior clareza
     )
     fig.update_layout(
-        plot_bgcolor=
-    )
-    fig.update_layout(
-   
-"black",
-        paper_bgcolor=
-        p
-"black",
-        font_color=
-        
-"white",
+        plot_bgcolor="black",
+        paper_bgcolor="black",
+        font_color="white"
     )
     st.plotly_chart(fig)
-
-    )
-    st.plotly_chart(fig)
-el
-
-    )
-    st.plotly_c
-
-    )
-  
 else:
-    st.error(
-    st.
-"Colunas necessárias ('resultado_analise', 'upvotes') não encontradas.")
+    st.error("Colunas necessárias ('resultado_analise', 'upvotes') não encontradas.")
 
 # Gráfico 2: Emoções Mais Encontradas
-st.subheader(
-st.subheade
-
-st.
-"Distribuição das Emoções Mais Encontradas")
+st.subheader("Distribuição das Emoções Mais Encontradas")
 if "emocao" in data.columns:
-    emocao_counts = data[
-    emocao_coun
-
-    emoca
-
-  
-"emocao"].value_counts()
+    emocao_counts = data["emocao"].value_counts()
     
-    fig, ax = plt.subplots(facecolor=
-    
-    fig, ax = plt.subplots(f
-
-    
-    fig, ax = plt.sub
-
-    
-    fig, ax =
-
-    
-"black")
-    ax.bar(emocao_counts.index, emocao_counts.values, color=
-    ax.bar(emocao_counts.index, emocao_counts.values, co
-
-    ax.bar(emocao_counts.index, emocao_counts.v
-
-    ax.bar(emocao_counts.ind
-
-    ax.bar(emocao_coun
-
-    ax.bar(emoc
-
-    ax.
-"orange")
-    ax.set_facecolor(
-    ax.set_facec
-
-    ax.
-
- 
-"black")
-    ax.set_title(
-    ax.set_ti
-
-    ax.
-
- 
-"Frequência das Emoções", color="white")
-    ax.set_xlabel(
-    a
-"Emoções", color="white")
+    fig, ax = plt.subplots(facecolor="black")
+    ax.bar(emocao_counts.index, emocao_counts.values, color="orange")
+    ax.set_facecolor("black")
+    ax.set_title("Frequência das Emoções", color="white")
+    ax.set_xlabel("Emoções", color="white")
     ax.set_ylabel("Frequência", color="white")
-    ax.tick_params(axis=
-    ax
-"x", rotation=45, colors="white")
-    ax.tick_params(axis=
-    ax.tick_params(axis=
-
-    ax.tick_par
-"y", colors="white")
+    ax.tick_params(axis="x", rotation=45, colors="white")
+    ax.tick_params(axis="y", colors="white")
     st.pyplot(fig)
-
-    st.pyplot(fig)
-el
-
-    st.pypl
 else:
-    st.error(
-    st.error(
-"Coluna 'emocao' não encontrada.")
+    st.error("Coluna 'emocao' não encontrada.")
+
 
 
 # Nota de rodapé
