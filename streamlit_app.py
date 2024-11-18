@@ -83,7 +83,7 @@ visualizacao = st.multiselect(
      "Discurso de Ódio ao Longo do Tempo",
      "Média de Upvotes por Tipo de Discurso de Ódio",
      "Distribuição das Emoções em Discursos de Ódio",
-     "Média de Subreddits por Discurso de Ódio"],  
+     "Média de subreddits por Discurso de Ódio"],  
     default=["Discurso de Ódio x Não Discurso de Ódio"]
 )
 
@@ -200,21 +200,21 @@ if "resultado_analise" in data.columns and "emocao" in data.columns:
 else:
     st.error("Colunas necessárias ('resultado_analise', 'emocao') não encontradas.")
 
-if "Média de Subreddits por Discurso de Ódio" in visualizacao:
-    if "subreddit" in data_filtered.columns and "eh_discurso_odio" in data_filtered.columns:
+if "Média de subreddits por Discurso de Ódio" in visualizacao:
+    if "subreddits" in data_filtered.columns and "eh_discurso_odio" in data_filtered.columns:
         # Filtrar os dados apenas para discursos de ódio
         odio_data = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
         
         # Calcular a média de subreddits por tipo de discurso
-        subreddit_media = odio_data.groupby("resultado_analise")["subreddit"].count().reset_index()
-        subreddit_media.columns = ["Tipo de Discurso", "Quantidade de Subreddits"]
+        subreddits_media = odio_data.groupby("resultado_analise")["subreddits"].count().reset_index()
+        subreddits_media.columns = ["Tipo de Discurso", "Quantidade de subreddits"]
         
         # Criar o gráfico de barras
         fig = px.bar(
-            subreddit_media,
+            subreddits_media,
             x="Tipo de Discurso",
-            y="Quantidade de Subreddits",
-            title="Média de Subreddits por Tipo de Discurso de Ódio",
+            y="Quantidade de subreddits",
+            title="Média de subreddits por Tipo de Discurso de Ódio",
             color="Tipo de Discurso",
             text_auto=True,
             color_discrete_sequence=px.colors.qualitative.Set2
@@ -226,7 +226,7 @@ if "Média de Subreddits por Discurso de Ódio" in visualizacao:
         )
         st.plotly_chart(fig)
     else:
-        st.error("Colunas necessárias ('subreddit', 'resultado_analise') não encontradas.")
+        st.error("Colunas necessárias ('subreddits', 'resultado_analise') não encontradas.")
 
 
 # Nota de rodapé
