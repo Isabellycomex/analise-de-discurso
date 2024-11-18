@@ -89,6 +89,7 @@ if "Discurso de Ódio x Não Discurso de Ódio" in visualizacao:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
     fig1, ax1 = plt.subplots()
     ax1.pie(
+        ax.set_facecolor("black")
         contagem_odio.values,
         labels=contagem_odio.index,
         autopct='%1.1f%%',
