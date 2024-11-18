@@ -76,16 +76,19 @@ data_filtered = data[
 st.subheader("Seleção de Visualização")
 visualizacao = st.multiselect(
     "Escolha os gráficos que deseja visualizar", 
-    ["Discurso de Ódio x Não Discurso de Ódio", 
-     "Tipos de Discursos de Ódio", 
-     "Emoções por Tipo de Discurso de Ódio", 
-     "Top Publicações com Engajamento", 
-     "Discurso de Ódio ao Longo do Tempo",
-     "Média de Upvotes por Tipo de Discurso de Ódio",
-     "Distribuição das Emoções em Discursos de Ódio",
-     "Média de subreddits por Discurso de Ódio"],  
+    [
+        "Discurso de Ódio x Não Discurso de Ódio", 
+        "Tipos de Discursos de Ódio", 
+        "Emoções por Tipo de Discurso de Ódio", 
+        "Top Publicações com Engajamento", 
+        "Discurso de Ódio ao Longo do Tempo",
+        "Média de Subreddits por Discurso de Ódio", 
+        "Média de Upvotes por Tipo de Discurso de Ódio",  # Novo gráfico
+        "Distribuição das Emoções em Discursos de Ódio"  # Novo gráfico
+    ],
     default=["Discurso de Ódio x Não Discurso de Ódio"]
 )
+
 
 
 # Exibir gráficos de acordo com a seleção
