@@ -143,19 +143,27 @@ if "Discurso de Ódio ao Longo do Tempo" in visualizacao:
         labels={"x": "Mês", "y": "Quantidade de Discursos de Ódio"}
     )
     st.plotly_chart(fig5)
-# Gráfico 1: Relação dos Tipos de Discurso de Ódio por Upvotes
-st.subheader("Relação dos Tipos de Discurso de Ódio por Upvotes")
+
+# Gráfico 1: Relação dos Tipos de Discurso de Ódio por Média de Upvotes
+st.subheader("Média de Upvotes por Tipo de Discurso de Ódio")
 if "resultado_analise" in data.columns and "upvotes" in data.columns:
-    # Filtrar os valores extremos para evitar distorções
-    data_filtered = data[data["upvotes"] < 500]
-    fig = px.box(
-        data_filtered,
+    # Filtrar para manter apenas discursos de ódio
+    odio_data = data[data["resultado_analise"] != "não é discurso de ódio"]
+    
+    # Agrupar os dados por tipo de discurso e calcular a média de upvotes
+    tipo_upvotes = odio_data.groupby("resultado_analise")["upvotes"].mean().reset_index()
+    tipo_upvotes = tipo_upvotes.sort_values(by="upvotes", ascending=False)
+    
+    # Criar o gráfico de barras
+    fig = px.bar(
+        tipo_upvotes,
         x="resultado_analise",
         y="upvotes",
-        title="Distribuição de Upvotes por Tipo de Discurso",
-        labels={"resultado_analise": "Tipo de Discurso", "upvotes": "Upvotes"},
+        title="Média de Upvotes por Tipo de Discurso de Ódio",
+        labels={"resultado_analise": "Tipo de Discurso", "upvotes": "Média de Upvotes"},
+        text_auto=True,  # Exibir os valores nas barras
         color="resultado_analise",
-        notched=True  # Adiciona notch no box plot para maior clareza
+        color_discrete_sequence=px.colors.qualitative.Bold
     )
     fig.update_layout(
         plot_bgcolor="black",
@@ -166,22 +174,27 @@ if "resultado_analise" in data.columns and "upvotes" in data.columns:
 else:
     st.error("Colunas necessárias ('resultado_analise', 'upvotes') não encontradas.")
 
-# Gráfico 2: Emoções Mais Encontradas
-st.subheader("Distribuição das Emoções Mais Encontradas")
-if "emocao" in data.columns:
-    emocao_counts = data["emocao"].value_counts()
+# Gráfico 2: Emoções Mais Encontradas no Discurso de Ódio
+st.subheader("Distribuição das Emoções em Discursos de Ódio")
+if "resultado_analise" in data.columns and "emocao" in data.columns:
+    # Filtrar apenas publicações que são discurso de ódio
+    odio_data = data[data["resultado_analise"] != "não é discurso de ódio"]
     
+    # Contar a frequência de emoções
+    emocao_counts = odio_data["emocao"].value_counts()
+    
+    # Criar o gráfico de barras
     fig, ax = plt.subplots(facecolor="black")
     ax.bar(emocao_counts.index, emocao_counts.values, color="orange")
     ax.set_facecolor("black")
-    ax.set_title("Frequência das Emoções", color="white")
+    ax.set_title("Frequência das Emoções em Discursos de Ódio", color="white")
     ax.set_xlabel("Emoções", color="white")
     ax.set_ylabel("Frequência", color="white")
     ax.tick_params(axis="x", rotation=45, colors="white")
     ax.tick_params(axis="y", colors="white")
     st.pyplot(fig)
 else:
-    st.error("Coluna 'emocao' não encontrada.")
+    st.error("Colunas necessárias ('resultado_analise', 'emocao') não encontradas.")
 
 
 
