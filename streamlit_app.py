@@ -144,6 +144,36 @@ if "Discurso de Ódio ao Longo do Tempo" in visualizacao:
     )
     st.plotly_chart(fig5)
 
+# Gráfico 1: Relação dos Tipos de Discurso de Ódio por Upvotes
+st.subheader("Relação dos Tipos de Discurso de Ódio por Upvotes")
+if "resultado_analise" in data.columns and "upvotes" in data.columns:
+    fig = px.box(
+        data,
+        x="resultado_analise",
+        y="upvotes",
+        title="Distribuição de Upvotes por Tipo de Discurso",
+        labels={"resultado_analise": "Tipo de Discurso", "upvotes": "Upvotes"},
+        color="resultado_analise",
+        notched=True
+    )
+    st.plotly_chart(fig)
+else:
+    st.error("Colunas necessárias ('resultado_analise', 'upvotes') não encontradas.")
+
+# Gráfico 2: Emoções Mais Encontradas
+st.subheader("Distribuição das Emoções Mais Encontradas")
+if "emocao" in data.columns:
+    emocao_counts = data["emocao"].value_counts()
+    
+    fig, ax = plt.subplots()
+    ax.bar(emocao_counts.index, emocao_counts.values, color="orange")
+    ax.set_title("Frequência das Emoções")
+    ax.set_xlabel("Emoções")
+    ax.set_ylabel("Frequência")
+    st.pyplot(fig)
+else:
+    st.error("Coluna 'emocao' não encontrada.")
+
 # Nota de rodapé
 st.write("""
 ---
