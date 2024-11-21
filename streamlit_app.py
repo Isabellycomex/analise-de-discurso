@@ -79,34 +79,53 @@ data_filtered = data[
     (data["emocao"].isin(emocao_filter))
 ].head(max_publicacoes)
 
+# Menu de visualização
+visualizacao = st.selectbox(
+    "Escolha a visualização desejada:",
+    ["Gráfico de Pizza - Discurso de Ódio", "Emoções por Tipo de Discurso de Ódio"]
+)
+
 # Gráficos
 st.subheader("Visualizações")
 
-# Discurso de Ódio x Não Discurso de Ódio com interatividade
-contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
-fig1, ax1 = plt.subplots(facecolor="black")
-ax1.pie(
-    contagem_odio.values,
-    labels=contagem_odio.index,
-    autopct='%1.1f%%',
-    startangle=90,
-    colors=["#ff9999", "#66b3ff"]
-)
-ax1.set_title("Discurso de Ódio vs Não é Discurso de Ódio")
-ax1.legend(contagem_odio.index, title="Legenda", loc="center left", bbox_to_anchor=(1, 0.5))
-st.pyplot(fig1)
+if visualizacao == "Gráfico de Pizza - Discurso de Ódio":
+    # Discurso de Ódio x Não Discurso de Ódio com interatividade
+    contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
+    fig1, ax1 = plt.subplots(facecolor="black")
+    ax1.pie(
+        contagem_odio.values,
+        labels=contagem_odio.index,
+        autopct='%1.1f%%',
+        startangle=90,
+        colors=["#ff9999", "#66b3ff"]
+    )
+    ax1.set_title("Discurso de Ódio vs Não é Discurso de Ódio")
+    ax1.legend(contagem_odio.index, title="Legenda", loc="center left", bbox_to_anchor=(1, 0.5))
+    st.pyplot(fig1)
 
-# Exibir publicações ao clicar no gráfico
-selected_section = st.radio(
-    "Selecione para visualizar publicações:",
-    options=contagem_odio.index
-)
-if selected_section:
-    selected_posts = data_filtered[data_filtered["eh_discurso_odio"] == selected_section]
-    st.write(f"Exibindo publicações para: {selected_section}")
-    st.write(selected_posts[["hora_postagem", "resultado_analise", "texto"]])
+    # Exibir publicações ao clicar no gráfico
+    selected_section = st.radio(
+        "Selecione para visualizar publicações:",
+        options=contagem_odio.index
+    )
+    if selected_section:
+        selected_posts = data_filtered[data_filtered["eh_discurso_odio"] == selected_section]
+        st.write(f"Exibindo publicações para: {selected_section}")
+        st.write(selected_posts[["hora_postagem", "resultado_analise", "texto"]])
 
-# Gráficos adicionais podem ser incluídos conforme necessário
+elif visualizacao == "Emoções por Tipo de Discurso de Ódio":
+    # Emoções por Tipo de Discurso de Ódio
+    emocao_contagem = data_filtered.groupby(["eh_discurso_odio", "emocao"]).size().reset_index(name="count")
+    fig2 = px.bar(
+        emocao_contagem,
+        x="emocao",
+        y="count",
+        color="eh_discurso_odio",
+        barmode="group",
+        title="Distribuição de Emoções por Tipo de Discurso de Ódio"
+    )
+    st.plotly_chart(fig2)
+
 
 
 if "Emoções por Tipo de Discurso de Ódio" in visualizacao:
