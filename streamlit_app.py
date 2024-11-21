@@ -82,14 +82,21 @@ data_filtered = data[
 # Menu de visualização
 visualizacao = st.selectbox(
     "Escolha a visualização desejada:",
-    ["Gráfico de Pizza - Discurso de Ódio", "Emoções por Tipo de Discurso de Ódio"]
+    [
+        "Gráfico de Pizza - Discurso de Ódio",
+        "Emoções por Tipo de Discurso de Ódio",
+        "Top Publicações com Engajamento",
+        "Discurso de Ódio ao Longo do Tempo",
+        "Média de Upvotes por Tipo de Discurso de Ódio",
+        "Distribuição das Emoções em Discursos de Ódio",
+        "Média de subreddits por Discurso de Ódio"
+    ]
 )
 
 # Gráficos
 st.subheader("Visualizações")
 
 if visualizacao == "Gráfico de Pizza - Discurso de Ódio":
-    # Discurso de Ódio x Não Discurso de Ódio com interatividade
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
     fig1, ax1 = plt.subplots(facecolor="black")
     ax1.pie(
@@ -103,18 +110,7 @@ if visualizacao == "Gráfico de Pizza - Discurso de Ódio":
     ax1.legend(contagem_odio.index, title="Legenda", loc="center left", bbox_to_anchor=(1, 0.5))
     st.pyplot(fig1)
 
-    # Exibir publicações ao clicar no gráfico
-    selected_section = st.radio(
-        "Selecione para visualizar publicações:",
-        options=contagem_odio.index
-    )
-    if selected_section:
-        selected_posts = data_filtered[data_filtered["eh_discurso_odio"] == selected_section]
-        st.write(f"Exibindo publicações para: {selected_section}")
-        st.write(selected_posts[["hora_postagem", "resultado_analise", "texto"]])
-
 elif visualizacao == "Emoções por Tipo de Discurso de Ódio":
-    # Emoções por Tipo de Discurso de Ódio
     emocao_contagem = data_filtered.groupby(["eh_discurso_odio", "emocao"]).size().reset_index(name="count")
     fig2 = px.bar(
         emocao_contagem,
@@ -126,22 +122,7 @@ elif visualizacao == "Emoções por Tipo de Discurso de Ódio":
     )
     st.plotly_chart(fig2)
 
-
-
-if "Emoções por Tipo de Discurso de Ódio" in visualizacao:
-    emocao_por_tipo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"].groupby(["resultado_analise", "emocao"]).size().reset_index(name="count")
-    fig3 = px.bar(
-        emocao_por_tipo,
-        x="resultado_analise",
-        y="count",
-        color="emocao",
-        barmode="group",
-        title="Emoções por Tipo de Discurso de Ódio",
-        labels={"resultado_analise": "Tipo de Discurso", "count": "Quantidade", "emocao": "Emoção"}
-    )
-    st.plotly_chart(fig3)
-
-if "Top Publicações com Engajamento" in visualizacao:
+elif visualizacao == "Top Publicações com Engajamento":
     top_engajamento = data_filtered.sort_values(by="engajamento", ascending=False).head(10)
     fig4 = px.bar(
         top_engajamento,
@@ -153,7 +134,7 @@ if "Top Publicações com Engajamento" in visualizacao:
     )
     st.plotly_chart(fig4)
 
-if "Discurso de Ódio ao Longo do Tempo" in visualizacao:
+elif visualizacao == "Discurso de Ódio ao Longo do Tempo":
     odio_por_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"].groupby(data_filtered["hora_postagem"].dt.to_period("M")).size()
     fig5 = px.line(
         x=odio_por_tempo.index.astype(str),
@@ -163,80 +144,48 @@ if "Discurso de Ódio ao Longo do Tempo" in visualizacao:
     )
     st.plotly_chart(fig5)
 
-if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacao:
-    if "resultado_analise" in data_filtered.columns and "upvotes" in data_filtered.columns:
-        odio_data = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
-        media_upvotes = odio_data.groupby("resultado_analise")["upvotes"].mean().reset_index()
-        media_upvotes.columns = ["Tipo de Discurso", "Média de Upvotes"]
-        fig = px.bar(
-            media_upvotes,
-            x="Tipo de Discurso",
-            y="Média de Upvotes",
-            title="Média de Upvotes por Tipo de Discurso de Ódio",
-            color="Tipo de Discurso",
-            text_auto=True,
-            color_discrete_sequence=px.colors.qualitative.Set1
-        )
-        fig.update_layout(
-            plot_bgcolor="black",
-            paper_bgcolor="black",
-            font_color="white"
-        )
-        st.plotly_chart(fig)
-    else:
-        st.error("Colunas necessárias ('resultado_analise', 'upvotes') não encontradas.")
+elif visualizacao == "Média de Upvotes por Tipo de Discurso de Ódio":
+    odio_data = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
+    media_upvotes = odio_data.groupby("resultado_analise")["upvotes"].mean().reset_index()
+    media_upvotes.columns = ["Tipo de Discurso", "Média de Upvotes"]
+    fig = px.bar(
+        media_upvotes,
+        x="Tipo de Discurso",
+        y="Média de Upvotes",
+        title="Média de Upvotes por Tipo de Discurso de Ódio",
+        color="Tipo de Discurso",
+        text_auto=True,
+        color_discrete_sequence=px.colors.qualitative.Set1
+    )
+    st.plotly_chart(fig)
 
-# Gráfico: Distribuição das Emoções em Discursos de Ódio
-if "Distribuição das Emoções em Discursos de Ódio" in visualizacao:
-    if "emocao" in data_filtered.columns and "eh_discurso_odio" in data_filtered.columns:
-        odio_emocoes = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
-        emocoes_contagem = odio_emocoes["emocao"].value_counts()
-        fig = px.bar(
-            x=emocoes_contagem.index,
-            y=emocoes_contagem.values,
-            labels={"x": "Emoções", "y": "Frequência"},
-            title="Distribuição das Emoções em Discursos de Ódio",
-            text_auto=True,
-            color_discrete_sequence=["#FFA07A"]
-        )
-        fig.update_layout(
-            plot_bgcolor="black",
-            paper_bgcolor="black",
-            font_color="white"
-        )
-        st.plotly_chart(fig)
-    else:
-        st.error("Colunas necessárias ('emocao', 'eh_discurso_odio') não encontradas.")
+elif visualizacao == "Distribuição das Emoções em Discursos de Ódio":
+    odio_emocoes = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
+    emocoes_contagem = odio_emocoes["emocao"].value_counts()
+    fig = px.bar(
+        x=emocoes_contagem.index,
+        y=emocoes_contagem.values,
+        labels={"x": "Emoções", "y": "Frequência"},
+        title="Distribuição das Emoções em Discursos de Ódio",
+        text_auto=True,
+        color_discrete_sequence=["#FFA07A"]
+    )
+    st.plotly_chart(fig)
 
-
-if "Média de subreddits por Discurso de Ódio" in visualizacao:
-    if "subreddits" in data_filtered.columns and "eh_discurso_odio" in data_filtered.columns:
-        # Filtrar os dados apenas para discursos de ódio
-        odio_data = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
-        
-        # Calcular a média de subreddits por tipo de discurso
-        subreddits_media = odio_data.groupby("resultado_analise")["subreddits"].count().reset_index()
-        subreddits_media.columns = ["Tipo de Discurso", "Quantidade de subreddits"]
-        
-        # Criar o gráfico de barras
-        fig = px.bar(
-            subreddits_media,
-            x="Tipo de Discurso",
-            y="Quantidade de subreddits",
-            title="Média de subreddits por Tipo de Discurso de Ódio",
-            color="Tipo de Discurso",
-            text_auto=True,
-            color_discrete_sequence=px.colors.qualitative.Set2
-        )
-        fig.update_layout(
-            plot_bgcolor="black",
-            paper_bgcolor="black",
-            font_color="white"
-        )
-        st.plotly_chart(fig)
-    else:
-        st.error("Colunas necessárias ('subreddits', 'resultado_analise') não encontradas.")
-
+elif visualizacao == "Média de subreddits por Discurso de Ódio":
+    odio_data = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
+    subreddits_media = odio_data.groupby("resultado_analise")["subreddits"].count().reset_index()
+    subreddits_media.columns = ["Tipo de Discurso", "Quantidade de subreddits"]
+    fig = px.bar(
+        subreddits_media,
+        x="Tipo de Discurso",
+        y="Quantidade de subreddits",
+        title="Média de subreddits por Tipo de Discurso de Ódio",
+        color="Tipo de Discurso",
+        text_auto=True,
+        color_discrete_sequence=px.colors.qualitative.Set2
+    )
+    st.plotly_chart(fig)
 
 # Nota de rodapé
 st.write("""
