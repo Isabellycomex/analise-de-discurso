@@ -87,8 +87,7 @@ visualizacoes = st.multiselect(
         "Emoções por Tipo de Discurso de Ódio",
         "Top Publicações com Engajamento",
         "Discurso de Ódio ao Longo do Tempo",
-        "Média de Upvotes por Tipo de Discurso de Ódio",
-        "Distribuição das Emoções em Discursos de Ódio"
+        "Média de Upvotes por Tipo de Discurso de Ódio"
     ]
 )
 
@@ -164,17 +163,7 @@ if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
     )
     st.plotly_chart(fig5)
 
-if "Distribuição das Emoções em Discursos de Ódio" in visualizacoes:
-    odio_emocoes = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
-    emocoes_contagem = odio_emocoes["emocao"].value_counts()
-    fig6 = px.bar(
-        x=emocoes_contagem.index,
-        y=emocoes_contagem.values,
-        labels={"x": "Emoções", "y": "Frequência"},
-        title="Distribuição das Emoções em Discursos de Ódio",
-        text_auto=True
-    )
-    st.plotly_chart(fig6)
+
 
 # Nota de rodapé
 st.write("""
