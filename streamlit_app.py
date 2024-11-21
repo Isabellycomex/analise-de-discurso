@@ -117,16 +117,38 @@ if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
         st.write(selected_posts[["hora_postagem", "resultado_analise", "texto"]])
 
 if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
-    emocao_contagem = data_filtered.groupby(["eh_discurso_odio", "emocao"]).size().reset_index(name="count")
+    # Filtrar apenas discursos de ódio
+    odio_emocoes = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
+    emocao_contagem = odio_emocoes.groupby(["resultado_analise", "emocao"]).size().reset_index(name="count")
+    
     fig2 = px.bar(
         emocao_contagem,
         x="emocao",
         y="count",
-        color="eh_discurso_odio",
+        color="resultado_analise",
         barmode="group",
-        title="Distribuição de Emoções por Tipo de Discurso de Ódio"
+        title="Distribuição de Emoções por Tipo de Discurso de Ódio",
+        labels={"emocao": "Emoção", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
     )
     st.plotly_chart(fig2)
+
+if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
+    # Criar agregados por tipo de discurso e tempo
+    odio_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
+    odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M")
+    odio_por_tipo_tempo = odio_tempo.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
+    
+    fig4 = px.line(
+        odio_por_tipo_tempo,
+        x="mes_postagem",
+        y="count",
+        color="resultado_analise",
+        title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
+        labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
+        markers=True
+    )
+    st.plotly_chart(fig4)
+
 
 if "Top Publicações com Engajamento" in visualizacoes:
     top_engajamento = data_filtered.sort_values(by="engajamento", ascending=False).head(10)
@@ -139,16 +161,6 @@ if "Top Publicações com Engajamento" in visualizacoes:
         labels={"hora_postagem": "Hora da Postagem", "engajamento": "Engajamento", "resultado_analise": "Tipo de Discurso"}
     )
     st.plotly_chart(fig3)
-
-if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
-    odio_por_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"].groupby(data_filtered["hora_postagem"].dt.to_period("M")).size()
-    fig4 = px.line(
-        x=odio_por_tempo.index.astype(str),
-        y=odio_por_tempo.values,
-        title="Discurso de Ódio ao Longo do Tempo",
-        labels={"x": "Mês", "y": "Quantidade de Discursos de Ódio"}
-    )
-    st.plotly_chart(fig4)
 
 if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
     media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
