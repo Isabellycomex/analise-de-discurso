@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
-from wordcloud import WordCloud
 
 # Carregar os dados do CSV
 file_path = "publicacoes.csv"
@@ -11,7 +10,6 @@ file_path = "publicacoes.csv"
 def load_data(file_path):
     try:
         data = pd.read_csv(file_path)
-        # Verificar se as colunas necessárias existem
         required_columns = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto"]
         missing_columns = [col for col in required_columns if col not in data.columns]
         if missing_columns:
@@ -28,11 +26,6 @@ data = load_data(file_path)
 if data is None:
     st.stop()
 
-# Limitar o número de publicações analisadas
-st.sidebar.header("Configurações")
-num_publicacoes = st.sidebar.slider("Selecione o número de publicações para análise", 1, 300, 300)
-data = data.head(num_publicacoes)
-
 # Layout para seleção de gráficos
 st.title("Análise de Discurso de Ódio no Reddit através do ChatGpt")
 
@@ -45,40 +38,75 @@ data["eh_discurso_odio"] = data["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
-# Gráfico de pizza com legenda
-st.subheader("Discurso de Ódio x Não Discurso de Ódio")
-contagem_odio = data["eh_discurso_odio"].value_counts()
+# Filtros em tela com organização lado a lado
+st.subheader("Filtros")
+
+col1, col2 = st.columns(2)
+with col1:
+    start_date = st.date_input("Data Inicial", value=data["hora_postagem"].min())
+with col2:
+    end_date = st.date_input("Data Final", value=data["hora_postagem"].max())
+
+col3, col4 = st.columns(2)
+with col3:
+    discurso_filter = st.multiselect(
+        "Filtrar por Tipo de Discurso",
+        options=data["resultado_analise"].unique(),
+        default=data["resultado_analise"].unique()
+    )
+with col4:
+    emocao_filter = st.multiselect(
+        "Filtrar por Emoção",
+        options=data["emocao"].unique(),
+        default=data["emocao"].unique()
+    )
+
+# Filtro para selecionar a quantidade de publicações
+col5, _ = st.columns(2)
+with col5:
+    max_publicacoes = st.slider(
+        "Quantidade de Publicações para Analisar",
+        min_value=1,
+        max_value=min(len(data), 300),
+        value=300
+    )
+
+# Aplicar filtros
+data_filtered = data[
+    (data["hora_postagem"] >= pd.to_datetime(start_date)) &
+    (data["hora_postagem"] <= pd.to_datetime(end_date)) &
+    (data["resultado_analise"].isin(discurso_filter)) &
+    (data["emocao"].isin(emocao_filter))
+].head(max_publicacoes)
+
+# Gráficos
+st.subheader("Visualizações")
+
+# Discurso de Ódio x Não Discurso de Ódio com interatividade
+contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
 fig1, ax1 = plt.subplots(facecolor="black")
-colors = ["#ff9999", "#66b3ff"]
 ax1.pie(
     contagem_odio.values,
     labels=contagem_odio.index,
     autopct='%1.1f%%',
     startangle=90,
-    colors=colors
+    colors=["#ff9999", "#66b3ff"]
 )
-ax1.set_title("Discurso de Ódio vs Não é Discurso de Ódio", color="white")
-plt.legend(
-    contagem_odio.index,
-    title="Legenda",
-    loc="best",
-    labels=[f"{label} ({value} posts)" for label, value in zip(contagem_odio.index, contagem_odio.values)],
-    bbox_to_anchor=(1, 0.5),
-    fontsize="small",
-)
+ax1.set_title("Discurso de Ódio vs Não é Discurso de Ódio")
+ax1.legend(contagem_odio.index, title="Legenda", loc="center left", bbox_to_anchor=(1, 0.5))
 st.pyplot(fig1)
 
 # Exibir publicações ao clicar no gráfico
-st.subheader("Publicações Associadas")
-clicked_section = st.radio(
-    "Selecione para ver as publicações:",
-    ["Discurso de Ódio", "Não é Discurso de Ódio"]
+selected_section = st.radio(
+    "Selecione para visualizar publicações:",
+    options=contagem_odio.index
 )
-publicacoes_associadas = data[data["eh_discurso_odio"] == clicked_section][["hora_postagem", "texto", "upvotes", "comentarios"]]
-if not publicacoes_associadas.empty:
-    st.write(publicacoes_associadas)
-else:
-    st.warning(f"Nenhuma publicação encontrada para '{clicked_section}'.")
+if selected_section:
+    selected_posts = data_filtered[data_filtered["eh_discurso_odio"] == selected_section]
+    st.write(f"Exibindo publicações para: {selected_section}")
+    st.write(selected_posts[["hora_postagem", "resultado_analise", "texto"]])
+
+# Gráficos adicionais podem ser incluídos conforme necessário
 
 
 if "Emoções por Tipo de Discurso de Ódio" in visualizacao:
