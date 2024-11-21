@@ -108,7 +108,7 @@ if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
     st.plotly_chart(fig1)
 
     selected_section = st.radio(
-        "Selecione para visualizar publicações específicas:",
+        "Selecione para visualizar publicações:",
         options=contagem_odio.index,
         key="pie_chart_selection"
     )
