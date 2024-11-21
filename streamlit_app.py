@@ -28,6 +28,11 @@ data = load_data(file_path)
 if data is None:
     st.stop()
 
+# Limitar o número de publicações analisadas
+st.sidebar.header("Configurações")
+num_publicacoes = st.sidebar.slider("Selecione o número de publicações para análise", 1, 300, 300)
+data = data.head(num_publicacoes)
+
 # Layout para seleção de gráficos
 st.title("Análise de Discurso de Ódio no Reddit através do ChatGpt")
 
@@ -40,81 +45,41 @@ data["eh_discurso_odio"] = data["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
-# Filtros em tela com organização lado a lado
-st.subheader("Filtros")
-
-# Organizar filtros em colunas
-col1, col2 = st.columns(2)
-with col1:
-    start_date = st.date_input("Data Inicial", value=data["hora_postagem"].min())
-with col2:
-    end_date = st.date_input("Data Final", value=data["hora_postagem"].max())
-
-col3, col4 = st.columns(2)
-with col3:
-    discurso_filter = st.multiselect(
-        "Filtrar por Tipo de Discurso", 
-        options=data["resultado_analise"].unique(),
-        default=data["resultado_analise"].unique()
-    )
-with col4:
-    emocao_filter = st.multiselect(
-        "Filtrar por Emoção", 
-        options=data["emocao"].unique(),
-        default=data["emocao"].unique()
-    )
-
-# Aplicar filtros
-data_filtered = data[
-    (data["hora_postagem"] >= pd.to_datetime(start_date)) & 
-    (data["hora_postagem"] <= pd.to_datetime(end_date)) & 
-    (data["resultado_analise"].isin(discurso_filter)) & 
-    (data["emocao"].isin(emocao_filter))
-]
-
-# Organizar gráficos em colunas
-st.subheader("Seleção de Visualização")
-visualizacao = st.multiselect(
-    "Escolha os gráficos que deseja visualizar", 
-    [
-        "Discurso de Ódio x Não Discurso de Ódio", 
-        "Tipos de Discursos de Ódio", 
-        "Emoções por Tipo de Discurso de Ódio", 
-        "Top Publicações com Engajamento", 
-        "Discurso de Ódio ao Longo do Tempo",
-        "Média de Subreddits por Discurso de Ódio", 
-        "Média de Upvotes por Tipo de Discurso de Ódio",  # Novo gráfico
-        "Distribuição das Emoções em Discursos de Ódio"  # Novo gráfico
-    ],
-    default=["Discurso de Ódio x Não Discurso de Ódio"]
+# Gráfico de pizza com legenda
+st.subheader("Discurso de Ódio x Não Discurso de Ódio")
+contagem_odio = data["eh_discurso_odio"].value_counts()
+fig1, ax1 = plt.subplots(facecolor="black")
+colors = ["#ff9999", "#66b3ff"]
+ax1.pie(
+    contagem_odio.values,
+    labels=contagem_odio.index,
+    autopct='%1.1f%%',
+    startangle=90,
+    colors=colors
 )
+ax1.set_title("Discurso de Ódio vs Não é Discurso de Ódio", color="white")
+plt.legend(
+    contagem_odio.index,
+    title="Legenda",
+    loc="best",
+    labels=[f"{label} ({value} posts)" for label, value in zip(contagem_odio.index, contagem_odio.values)],
+    bbox_to_anchor=(1, 0.5),
+    fontsize="small",
+)
+st.pyplot(fig1)
 
+# Exibir publicações ao clicar no gráfico
+st.subheader("Publicações Associadas")
+clicked_section = st.radio(
+    "Selecione para ver as publicações:",
+    ["Discurso de Ódio", "Não é Discurso de Ódio"]
+)
+publicacoes_associadas = data[data["eh_discurso_odio"] == clicked_section][["hora_postagem", "texto", "upvotes", "comentarios"]]
+if not publicacoes_associadas.empty:
+    st.write(publicacoes_associadas)
+else:
+    st.warning(f"Nenhuma publicação encontrada para '{clicked_section}'.")
 
-
-# Exibir gráficos de acordo com a seleção
-if "Discurso de Ódio x Não Discurso de Ódio" in visualizacao:
-    contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
-    fig1, ax1 = plt.subplots(facecolor="black")
-    ax1.pie(
-        contagem_odio.values,
-        labels=contagem_odio.index,
-        autopct='%1.1f%%',
-        startangle=90,
-        colors=["#ff9999", "#66b3ff"]
-    )
-    ax1.set_title("Discurso de Ódio vs Não é Discurso de Ódio")
-    st.pyplot(fig1)
-
-if "Tipos de Discursos de Ódio" in visualizacao:
-    tipos_odio = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]["resultado_analise"].value_counts()
-    fig2 = px.bar(
-        x=tipos_odio.index,
-        y=tipos_odio.values,
-        labels={"x": "Tipo de Discurso", "y": "Quantidade"},
-        title="Distribuição dos Tipos de Discursos de Ódio",
-        color=tipos_odio.index,
-    )
-    st.plotly_chart(fig2)
 
 if "Emoções por Tipo de Discurso de Ódio" in visualizacao:
     emocao_por_tipo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"].groupby(["resultado_analise", "emocao"]).size().reset_index(name="count")
