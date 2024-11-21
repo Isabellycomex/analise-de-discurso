@@ -156,23 +156,33 @@ if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
     odio_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
 
     # Agrupar por mês e tipo de discurso
-    odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M")
+    odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M").astype(str)  # Converter para string
     odio_por_tipo_tempo = odio_tempo.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
 
     # Verificar se a tabela está vazia
     if odio_por_tipo_tempo.empty:
         st.error("Não há dados suficientes para gerar o gráfico de Discurso de Ódio ao Longo do Tempo.")
     else:
-        fig4 = px.line(
-            odio_por_tipo_tempo,
-            x="mes_postagem",
-            y="count",
-            color="resultado_analise",
-            title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
-            labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
-            markers=True
-        )
-        st.plotly_chart(fig4)
+        # Verificar se os dados contêm valores nulos
+        if odio_por_tipo_tempo.isnull().values.any():
+            st.warning("Alguns dados estão nulos, o que pode afetar o gráfico. Verifique os dados.")
+            odio_por_tipo_tempo = odio_por_tipo_tempo.dropna()
+
+        # Criar o gráfico
+        try:
+            fig4 = px.line(
+                odio_por_tipo_tempo,
+                x="mes_postagem",
+                y="count",
+                color="resultado_analise",
+                title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
+                labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
+                markers=True
+            )
+            st.plotly_chart(fig4)
+        except Exception as e:
+            st.error(f"Erro ao gerar o gráfico: {str(e)}")
+
 
 if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
     media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
