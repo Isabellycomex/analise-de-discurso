@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 # Exemplo de dados (substitua por seu próprio conjunto de dados)
-data = pd.read_csv("seu_arquivo.csv")
+data = pd.read_csv("publicacoes.csv")
 
 # Definição das cores
 cores = ['#FF69B4', '#00BFFF', '#32CD32', '#FF6347', '#FFD700']  # Rosa, Azul, Verde, Vermelho, Amarelo
