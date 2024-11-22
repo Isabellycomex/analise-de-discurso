@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from wordcloud import STOPWORDS
-from collections import Counter
+from datetime import datetime
 
 # Carregar os dados do CSV
 file_path = "publicacoes.csv"
@@ -80,15 +79,15 @@ data_filtered = data_filtered.iloc[int(publicacoes_min)-1:int(publicacoes_max)]
 st.subheader("Seleção de Gráficos")
 graficos = [
     "Discurso de Ódio vs Não é Discurso de Ódio",
-    "Distribuição de Upvotes por Emoção",
-    "Distribuição de Upvotes e Engajamento por Tipo de Discurso",
-    "Frequência de Palavras Associadas a Discursos de Ódio",
+    "Evolução Temporal dos Tipos de Discurso de Ódio",
     "Evolução Temporal das Emoções",
+    "Distribuição de Upvotes por Emoção",
+    "Distribuição de Engajamento por Tipo de Discurso",
     "Correlação entre Upvotes e Comentários",
-    "Número de Postagens por Tipo de Discurso",
-    "Distribuição de Engajamento por Emoção",
-    "Evolução Temporal de Discurso de Ódio",
-    "WordCloud de Palavras Associadas"
+    "Histograma de Engajamento",
+    "Boxplot de Comentários por Tipo de Discurso",
+    "Gráfico de Linhas de Upvotes Médios por Tipo de Discurso",
+    "Boxplot de Emoções por Engajamento"
 ]
 graficos_selecionados = st.multiselect("Selecione os gráficos para visualizar", options=graficos, default=graficos)
 
@@ -107,47 +106,25 @@ if "Discurso de Ódio vs Não é Discurso de Ódio" in graficos_selecionados:
     st.plotly_chart(fig1)
     st.dataframe(data_filtered[["hora_postagem", "resultado_analise", "texto"]])
 
-if "Distribuição de Upvotes por Emoção" in graficos_selecionados:
-    fig2 = px.box(
-        data_filtered,
-        x="emocao",
-        y="upvotes",
-        color="emocao",
-        title="Distribuição de Upvotes por Emoção",
+if "Evolução Temporal dos Tipos de Discurso de Ódio" in graficos_selecionados:
+    data_filtered["mes_ano"] = data_filtered["hora_postagem"].dt.to_period("M").astype(str)
+    evolucao_tipos = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
+    evolucao_tipos = evolucao_tipos.groupby(["mes_ano", "resultado_analise"]).size().reset_index(name="count")
+    fig2 = px.line(
+        evolucao_tipos,
+        x="mes_ano",
+        y="count",
+        color="resultado_analise",
+        title="Evolução Temporal dos Tipos de Discurso de Ódio",
         color_discrete_sequence=cores
     )
     st.plotly_chart(fig2)
 
-if "Distribuição de Upvotes e Engajamento por Tipo de Discurso" in graficos_selecionados:
-    fig3 = px.histogram(
-        data_filtered,
-        x="resultado_analise",
-        y=["upvotes", "engajamento"],
-        barmode="group",
-        title="Distribuição de Upvotes e Engajamento por Tipo de Discurso",
-        color_discrete_sequence=cores
-    )
-    st.plotly_chart(fig3)
-
-if "Frequência de Palavras Associadas a Discursos de Ódio" in graficos_selecionados:
-    palavras = " ".join(data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]["texto"]).lower()
-    palavras_filtradas = [p for p in palavras.split() if p not in STOPWORDS]
-    contagem_palavras = Counter(palavras_filtradas).most_common(10)
-    palavras_df = pd.DataFrame(contagem_palavras, columns=["palavra", "frequencia"])
-    fig4 = px.bar(
-        palavras_df,
-        x="palavra",
-        y="frequencia",
-        title="Frequência de Palavras Associadas a Discursos de Ódio",
-        color="frequencia",
-        color_continuous_scale=px.colors.sequential.Reds
-    )
-    st.plotly_chart(fig4)
-
 if "Evolução Temporal das Emoções" in graficos_selecionados:
     data_filtered["mes_ano"] = data_filtered["hora_postagem"].dt.to_period("M").astype(str)
-    emocao_tempo = data_filtered.groupby(["mes_ano", "emocao"]).size().reset_index(name="count")
-    fig5 = px.line(
+    emocao_tempo = data_filtered[data_filtered["emocao"] != "não identificada"]
+    emocao_tempo = emocao_tempo.groupby(["mes_ano", "emocao"]).size().reset_index(name="count")
+    fig3 = px.line(
         emocao_tempo,
         x="mes_ano",
         y="count",
@@ -155,53 +132,89 @@ if "Evolução Temporal das Emoções" in graficos_selecionados:
         title="Evolução Temporal das Emoções",
         color_discrete_sequence=cores
     )
+    st.plotly_chart(fig3)
+
+if "Distribuição de Upvotes por Emoção" in graficos_selecionados:
+    fig4 = px.violin(
+        data_filtered,
+        x="emocao",
+        y="upvotes",
+        color="emocao",
+        title="Distribuição de Upvotes por Emoção",
+        box=True,
+        color_discrete_sequence=cores
+    )
+    st.plotly_chart(fig4)
+
+if "Distribuição de Engajamento por Tipo de Discurso" in graficos_selecionados:
+    fig5 = px.box(
+        data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"],
+        x="resultado_analise",
+        y="engajamento",
+        color="resultado_analise",
+        title="Distribuição de Engajamento por Tipo de Discurso",
+        color_discrete_sequence=cores
+    )
     st.plotly_chart(fig5)
 
 if "Correlação entre Upvotes e Comentários" in graficos_selecionados:
-    fig6 = px.scatter(
+    fig6 = px.density_heatmap(
         data_filtered,
         x="upvotes",
         y="comentarios",
-        color="emocao",
         title="Correlação entre Upvotes e Comentários",
-        color_discrete_sequence=cores
+        color_continuous_scale="Viridis"
     )
     st.plotly_chart(fig6)
 
-if "Número de Postagens por Tipo de Discurso" in graficos_selecionados:
-    fig7 = px.bar(
+if "Histograma de Engajamento" in graficos_selecionados:
+    fig7 = px.histogram(
         data_filtered,
-        x="resultado_analise",
-        title="Número de Postagens por Tipo de Discurso",
-        color="resultado_analise",
+        x="engajamento",
+        nbins=20,
+        title="Histograma de Engajamento",
         color_discrete_sequence=cores
     )
     st.plotly_chart(fig7)
 
-if "Evolução Temporal de Discurso de Ódio" in graficos_selecionados:
-    data_filtered["mes_ano"] = data_filtered["hora_postagem"].dt.to_period("M").astype(str)
-    odio_tempo = data_filtered.groupby(["mes_ano", "eh_discurso_odio"]).size().reset_index(name="count")
-    fig8 = px.line(
-        odio_tempo,
-        x="mes_ano",
-        y="count",
-        color="eh_discurso_odio",
-        title="Evolução Temporal de Discurso de Ódio",
+if "Boxplot de Comentários por Tipo de Discurso" in graficos_selecionados:
+    fig8 = px.box(
+        data_filtered,
+        x="resultado_analise",
+        y="comentarios",
+        color="resultado_analise",
+        title="Boxplot de Comentários por Tipo de Discurso",
         color_discrete_sequence=cores
     )
     st.plotly_chart(fig8)
 
-if "WordCloud de Palavras Associadas" in graficos_selecionados:
-    from wordcloud import WordCloud
-    palavras = " ".join(data_filtered["texto"]).lower()
-    wordcloud = WordCloud(stopwords=STOPWORDS, background_color="white").generate(palavras)
-    st.image(wordcloud.to_array(), caption="WordCloud de Palavras Associadas", use_column_width=True)
+if "Gráfico de Linhas de Upvotes Médios por Tipo de Discurso" in graficos_selecionados:
+    upvotes_medio = data_filtered.groupby(["mes_ano", "resultado_analise"])["upvotes"].mean().reset_index()
+    fig9 = px.line(
+        upvotes_medio,
+        x="mes_ano",
+        y="upvotes",
+        color="resultado_analise",
+        title="Gráfico de Linhas de Upvotes Médios por Tipo de Discurso",
+        color_discrete_sequence=cores
+    )
+    st.plotly_chart(fig9)
 
+if "Boxplot de Emoções por Engajamento" in graficos_selecionados:
+    fig10 = px.box(
+        data_filtered,
+        x="emocao",
+        y="engajamento",
+        color="emocao",
+        title="Boxplot de Emoções por Engajamento",
+        color_discrete_sequence=cores
+    )
+    st.plotly_chart(fig10)
 # Nota de rodapé
 st.write("""
 ---
-Criado por: Isabelly Barbosa Gonçalves
-E-mail: isabelly.barbosa@aluno.ifsp.edu.br
-Telefone: (13) 98837-2120
+Criado por: Isabelly Barbosa Gonçalves  
+E-mail: isabelly.barbosa@aluno.ifsp.edu.br  
+Telefone: (13) 988372120  
 Instituição de Ensino: Instituto Federal de Educação, Ciência e Tecnologia de São Paulo, Campus Cubatão
 """)
