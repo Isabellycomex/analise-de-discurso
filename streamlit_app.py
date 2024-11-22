@@ -203,6 +203,23 @@ if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
         text_auto=True
     )
     st.plotly_chart(fig5)
+if "Tipo de Discurso de Ódio x Subreddit" in visualizacoes:
+    # Agrupar dados por subreddit e tipo de discurso de ódio
+    tipo_subreddit = data_odio.groupby(["subreddit", "resultado_analise"]).size().reset_index(name="contagem")
+
+    # Gerar gráfico de barras empilhadas
+    fig10 = px.bar(
+        tipo_subreddit,
+        x="subreddit",
+        y="contagem",
+        color="resultado_analise",
+        title="Tipo de Discurso de Ódio por Subreddit",
+        labels={"subreddit": "Subreddit", "contagem": "Quantidade de Discurso de Ódio", "resultado_analise": "Tipo de Discurso de Ódio"},
+        color_discrete_sequence=px.colors.qualitative.Set2
+    )
+
+    # Mostrar gráfico
+    st.plotly_chart(fig10)
 
 # Nota de rodapé
 st.write("""
