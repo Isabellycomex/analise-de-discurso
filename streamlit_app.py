@@ -204,8 +204,11 @@ if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
     )
     st.plotly_chart(fig5)
 if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
+    # Filtrar os dados para incluir apenas discurso de ódio
+    data_odio = data_filtered[data_filtered['resultado_analise'] == 'Discurso de Ódio']
+    
     # Agrupar os dados pela coluna 'resultado_analise' (tipo de discurso de ódio) e somar as visualizações
-    visualizacoes_por_tipo = data_filtered.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
+    visualizacoes_por_tipo = data_odio.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
 
     # Gerar gráfico de barras
     fig_visualizacoes_tipo = px.bar(
@@ -214,13 +217,12 @@ if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
         y="visualizacoes",
         title="Visualizações por Tipo de Discurso de Ódio",
         labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacoes": "Total de Visualizações"},
-        color="visualizacoes",
-        color_continuous_scale=px.colors.sequential.Plasma
+        color="visualizacoes",  # Utiliza as visualizações para colorir as barras
+        color_continuous_scale=px.colors.sequential.Blues  # Escolha de uma paleta de cores azul
     )
 
     # Mostrar o gráfico
     st.plotly_chart(fig_visualizacoes_tipo)
-
 
 
 # Nota de rodapé
