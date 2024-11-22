@@ -121,7 +121,6 @@ if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
     # Ajustar layout
     fig1.update_layout(
         showlegend=True,
-        title_x=0.5,  # Centralizar título
         title_font=dict(size=18, family="Arial, sans-serif", color="white"),  # Fonte do título
         plot_bgcolor="black",  # Cor de fundo do gráfico
         paper_bgcolor="black",  # Cor de fundo da área externa do gráfico
@@ -149,20 +148,6 @@ if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
     )
     st.plotly_chart(fig2)
 
-if "Engajamento por Tipo de Discurso de Ódio e Hora" in visualizacoes:
-    data_odio["hora_postagem"] = pd.to_datetime(data_odio["hora_postagem"]).dt.hour
-    engajamento_por_hora = data_odio.groupby(["hora_postagem", "resultado_analise"])["engajamento"].sum().reset_index()
-
-    fig3 = px.bar(
-        engajamento_por_hora,
-        x="hora_postagem",
-        y="engajamento",
-        color="resultado_analise",
-        title="Engajamento por Tipo de Discurso de Ódio e Hora do Dia",
-        labels={"hora_postagem": "Hora do Dia", "engajamento": "Engajamento"},
-        color_discrete_sequence=px.colors.qualitative.Set2
-    )
-    st.plotly_chart(fig3)
 
 
 
