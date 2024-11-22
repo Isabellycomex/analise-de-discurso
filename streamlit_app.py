@@ -207,22 +207,26 @@ if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
     # Filtrar os dados para incluir apenas discurso de ódio
     data_odio = data_filtered[data_filtered['resultado_analise'] == 'Discurso de Ódio']
     
-    # Agrupar os dados pela coluna 'resultado_analise' (tipo de discurso de ódio) e somar as visualizações
-    visualizacoes_por_tipo = data_odio.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
+    # Verificar se existe dados após o filtro
+    if not data_odio.empty:
+        # Agrupar os dados pela coluna 'resultado_analise' (tipo de discurso de ódio) e somar as visualizações
+        visualizacoes_por_tipo = data_odio.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
 
-    # Gerar gráfico de barras
-    fig_visualizacoes_tipo = px.bar(
-        visualizacoes_por_tipo,
-        x="resultado_analise",
-        y="visualizacoes",
-        title="Visualizações por Tipo de Discurso de Ódio",
-        labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacoes": "Total de Visualizações"},
-        color="visualizacoes",  # Utiliza as visualizações para colorir as barras
-        color_continuous_scale=px.colors.sequential.Blues  # Escolha de uma paleta de cores azul
-    )
+        # Gerar gráfico de barras
+        fig_visualizacoes_tipo = px.bar(
+            visualizacoes_por_tipo,
+            x="resultado_analise",
+            y="visualizacoes",
+            title="Visualizações por Tipo de Discurso de Ódio",
+            labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacoes": "Total de Visualizações"},
+            color="visualizacoes",  # Utiliza as visualizações para colorir as barras
+            color_continuous_scale=px.colors.sequential.Blues  # Escolha de uma paleta de cores azul
+        )
 
-    # Mostrar o gráfico
-    st.plotly_chart(fig_visualizacoes_tipo)
+        # Mostrar o gráfico
+        st.plotly_chart(fig_visualizacoes_tipo)
+    else:
+        st.write("Não há dados de discurso de ódio para exibir.")
 
 
 # Nota de rodapé
