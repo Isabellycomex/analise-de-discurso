@@ -101,12 +101,12 @@ st.subheader("Visualizações")
 if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
 
-    # Criando o gráfico de pizza com modificações para uma aparência mais limpa
+    # Criando o gráfico de pizza com modificações para um gráfico redondo e fundo preto
     fig1 = px.pie(
         data_filtered,
         names="eh_discurso_odio",
         title="Discurso de Ódio vs Não é Discurso de Ódio",
-        hole=0.3,
+        hole=0,  # Retira o buraco central para um gráfico totalmente redondo
         color_discrete_sequence=["#ff6666", "#4C99FF"],  # Cores mais sóbrias
     )
 
@@ -114,7 +114,6 @@ if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
     fig1.update_traces(
         hoverinfo="label+percent",  # Informação ao passar o mouse
         textinfo="value+percent",  # Exibe valor absoluto e percentagem
-        pull=[0.1, 0],  # Leve afastamento na primeira fatia
         textfont=dict(size=14, family="Arial, sans-serif"),  # Tamanho da fonte
         marker=dict(line=dict(color="white", width=2))  # Borda branca para dar um acabamento mais limpo
     )
@@ -123,10 +122,11 @@ if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
     fig1.update_layout(
         showlegend=True,
         title_x=0.5,  # Centralizar título
-        title_font=dict(size=18, family="Arial, sans-serif", color="black"),  # Fonte do título
-        plot_bgcolor="white",  # Cor de fundo do gráfico
-        paper_bgcolor="white",  # Cor de fundo da área externa do gráfico
-        margin=dict(t=40, b=40, l=40, r=40)  # Ajuste de margens para deixar o gráfico mais próximo da borda
+        title_font=dict(size=18, family="Arial, sans-serif", color="white"),  # Fonte do título
+        plot_bgcolor="black",  # Cor de fundo do gráfico
+        paper_bgcolor="black",  # Cor de fundo da área externa do gráfico
+        margin=dict(t=40, b=40, l=40, r=40),  # Ajuste de margens para deixar o gráfico mais próximo da borda
+        font=dict(color="white")  # Cor da fonte do título e do texto
     )
 
     # Exibe o gráfico
