@@ -149,49 +149,21 @@ if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
     )
     st.plotly_chart(fig2)
 
-if "Top Publicações com Engajamento" in visualizacoes:
-    # Filtra apenas as publicações que são discurso de ódio
-    data_odio = data_filtered[data_filtered["eh_discurso_odio"] == "sim"]
-    
-    # Verificando se a coluna 'resultado_analise' está presente
-    if "resultado_analise" in data_odio.columns:
-        # Agrupar por tipo de discurso de ódio e somar o engajamento
-        engajamento_por_tipo = data_odio.groupby("resultado_analise")["engajamento"].sum().reset_index()
-    else:
-        st.error("A coluna 'resultado_analise' não foi encontrada nos dados filtrados.")
-    
-    # Verificando se existem dados para o gráfico
-    if not engajamento_por_tipo.empty:
-        # Exibe os dados agrupados antes de criar o gráfico
-        st.write("Dados de Engajamento por Tipo de Discurso de Ódio:", engajamento_por_tipo)
+if "Engajamento por Tipo de Discurso de Ódio e Hora" in visualizacoes:
+    data_odio["hora_postagem"] = pd.to_datetime(data_odio["hora_postagem"]).dt.hour
+    engajamento_por_hora = data_odio.groupby(["hora_postagem", "resultado_analise"])["engajamento"].sum().reset_index()
 
-        # Criando o gráfico de barras para engajamento por tipo de discurso de ódio
-        fig3 = px.bar(
-            engajamento_por_tipo,
-            x="resultado_analise",  # Tipo de Discurso de Ódio
-            y="engajamento",  # Engajamento
-            color="resultado_analise",  # Cor por tipo de discurso de ódio
-            title="Engajamento por Tipo de Discurso de Ódio",
-            labels={"resultado_analise": "Tipo de Discurso de Ódio", "engajamento": "Engajamento"},
-            color_discrete_sequence=px.colors.qualitative.Set1  # Paleta de cores
-        )
+    fig3 = px.bar(
+        engajamento_por_hora,
+        x="hora_postagem",
+        y="engajamento",
+        color="resultado_analise",
+        title="Engajamento por Tipo de Discurso de Ódio e Hora do Dia",
+        labels={"hora_postagem": "Hora do Dia", "engajamento": "Engajamento"},
+        color_discrete_sequence=px.colors.qualitative.Set2
+    )
+    st.plotly_chart(fig3)
 
-        # Ajuste de layout para melhorar a visualização
-        fig3.update_layout(
-            xaxis_title="Tipo de Discurso de Ódio",
-            yaxis_title="Engajamento",
-            title_x=0.5,  # Centralizar título
-            title_font=dict(size=18, family="Arial, sans-serif", color="white"),  # Fonte do título
-            plot_bgcolor="black",  # Cor de fundo do gráfico
-            paper_bgcolor="black",  # Cor de fundo da área externa do gráfico
-            font=dict(color="white"),  # Cor da fonte
-            showlegend=False  # Remover legenda, pois as cores já indicam os tipos
-        )
-
-        # Exibe o gráfico
-        st.plotly_chart(fig3)
-    else:
-        st.warning("Não há dados disponíveis para o gráfico de engajamento por tipo de discurso de ódio.")
 
 
 if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
