@@ -1,154 +1,103 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from datetime import datetime
 
-# Carregar os dados do CSV
-file_path = "publicacoes.csv"
+# Exemplo de dados (substitua por seu próprio conjunto de dados)
+data = pd.read_csv("seu_arquivo.csv")
 
-def load_data(file_path):
-    try:
-        data = pd.read_csv(file_path)
-        required_columns = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto"]
-        missing_columns = [col for col in required_columns if col not in data.columns]
-        if missing_columns:
-            st.error(f"As colunas ausentes são: {missing_columns}. Verifique o arquivo CSV.")
-            return None
-        return data
-    except FileNotFoundError:
-        st.error("O arquivo não foi encontrado. Verifique o caminho.")
-    except Exception as e:
-        st.error(f"Ocorreu um erro ao carregar o arquivo: {e}")
-    return None
+# Definição das cores
+cores = ['#FF69B4', '#00BFFF', '#32CD32', '#FF6347', '#FFD700']  # Rosa, Azul, Verde, Vermelho, Amarelo
 
-data = load_data(file_path)
-if data is None:
-    st.stop()
-
-# Layout
-st.title("Análise de Discurso de Ódio no Reddit através do ChatGPT")
-
-# Tratar dados
-data["hora_postagem"] = pd.to_datetime(data["hora_postagem"])  # Converter hora para datetime
-data["engajamento"] = data["upvotes"] + data["comentarios"]  # Criar coluna de engajamento
-data["eh_discurso_odio"] = data["resultado_analise"].apply(
-    lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
+# Filtros
+graficos_selecionados = st.multiselect(
+    "Selecione os gráficos que deseja visualizar:",
+    [
+        "Discurso de Ódio vs Não é Discurso de Ódio",
+        "Evolução Temporal dos Tipos de Discurso de Ódio",
+        "Evolução Temporal das Emoções",
+        "Distribuição de Upvotes por Emoção",
+        "Distribuição de Engajamento por Tipo de Discurso",
+        "Correlação entre Upvotes e Comentários",
+        "Histograma de Engajamento",
+        "Relação de Emoção por Tipo de Discurso",
+        "Gráfico de Linhas de Upvotes Médios por Tipo de Discurso"
+    ]
 )
 
-# Filtros em tela
-st.subheader("Filtros")
+# Filtro para publicações
+filtro_publicacoes = st.selectbox(
+    "Selecione o tipo de publicação para visualizar:",
+    ["Todas as publicações", "Discurso de Ódio", "Não é Discurso de Ódio"]
+)
 
-col1, col2 = st.columns(2)
-with col1:
-    start_date = st.date_input("Data Inicial", value=data["hora_postagem"].min())
-with col2:
-    end_date = st.date_input("Data Final", value=data["hora_postagem"].max())
+# Filtrando os dados conforme a seleção
+if filtro_publicacoes == "Discurso de Ódio":
+    data_filtered = data[data['resultado_analise'] == "Discurso de Ódio"]
+elif filtro_publicacoes == "Não é Discurso de Ódio":
+    data_filtered = data[data['resultado_analise'] == "Não é Discurso de Ódio"]
+else:
+    data_filtered = data
 
-col3, col4 = st.columns(2)
-with col3:
-    discurso_filter = st.multiselect(
-        "Filtrar por Tipo de Discurso",
-        options=data["resultado_analise"].unique(),
-        default=data["resultado_analise"].unique()
-    )
-with col4:
-    emocao_filter = st.multiselect(
-        "Filtrar por Emoção",
-        options=data["emocao"].unique(),
-        default=data["emocao"].unique()
-    )
+# Mostrar as publicações filtradas
+st.subheader(f"Publicações Selecionadas ({filtro_publicacoes})")
+st.write(data_filtered)
 
-col5, col6 = st.columns(2)
-with col5:
-    publicacoes_min = st.number_input("Quantidade Mínima de Publicações", value=1, min_value=1, max_value=len(data))
-with col6:
-    publicacoes_max = st.number_input("Quantidade Máxima de Publicações", value=len(data), min_value=1, max_value=len(data))
+# Exibindo os gráficos selecionados
 
-# Aplicar filtros
-data_filtered = data[
-    (data["hora_postagem"] >= pd.to_datetime(start_date)) &
-    (data["hora_postagem"] <= pd.to_datetime(end_date)) &
-    (data["resultado_analise"].isin(discurso_filter)) &
-    (data["emocao"].isin(emocao_filter))
-]
-
-# Aplicar filtro de publicações
-data_filtered = data_filtered.iloc[int(publicacoes_min)-1:int(publicacoes_max)]
-
-# Filtro de gráficos
-st.subheader("Seleção de Gráficos")
-graficos = [
-    "Discurso de Ódio vs Não é Discurso de Ódio",
-    "Evolução Temporal dos Tipos de Discurso de Ódio",
-    "Evolução Temporal das Emoções",
-    "Distribuição de Upvotes por Emoção",
-    "Distribuição de Engajamento por Tipo de Discurso",
-    "Correlação entre Upvotes e Comentários",
-    "Histograma de Engajamento",
-    "Boxplot de Comentários por Tipo de Discurso",
-    "Gráfico de Linhas de Upvotes Médios por Tipo de Discurso",
-    "Boxplot de Emoções por Engajamento"
-]
-graficos_selecionados = st.multiselect("Selecione os gráficos para visualizar", options=graficos, default=graficos)
-
-# Cores consistentes
-cores = ["#FF69B4", "#1E90FF", "#32CD32", "#FF4500", "#FFD700"]  # Rosa, Azul, Verde, Vermelho, Amarelo
-
-# Gráficos selecionados
+# Gráfico de Pizza - Discurso de Ódio vs Não é Discurso de Ódio
 if "Discurso de Ódio vs Não é Discurso de Ódio" in graficos_selecionados:
+    discurso_odio_counts = data_filtered['resultado_analise'].value_counts()
     fig1 = px.pie(
-        data_filtered,
-        names="eh_discurso_odio",
+        names=discurso_odio_counts.index,
+        values=discurso_odio_counts.values,
         title="Discurso de Ódio vs Não é Discurso de Ódio",
-        hole=0.3,
+        color=discurso_odio_counts.index,
         color_discrete_sequence=cores
     )
     st.plotly_chart(fig1)
-    st.dataframe(data_filtered[["hora_postagem", "resultado_analise", "texto"]])
 
+# Gráfico de Linhas - Evolução Temporal dos Tipos de Discurso de Ódio
 if "Evolução Temporal dos Tipos de Discurso de Ódio" in graficos_selecionados:
-    data_filtered["mes_ano"] = data_filtered["hora_postagem"].dt.to_period("M").astype(str)
-    evolucao_tipos = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
-    evolucao_tipos = evolucao_tipos.groupby(["mes_ano", "resultado_analise"]).size().reset_index(name="count")
+    tipo_discurso_ano = data_filtered.groupby(['mes_ano', 'tipo_discurso'])['resultado_analise'].count().reset_index()
     fig2 = px.line(
-        evolucao_tipos,
+        tipo_discurso_ano,
         x="mes_ano",
-        y="count",
-        color="resultado_analise",
+        y="resultado_analise",
+        color="tipo_discurso",
         title="Evolução Temporal dos Tipos de Discurso de Ódio",
         color_discrete_sequence=cores
     )
     st.plotly_chart(fig2)
 
+# Gráfico de Linhas - Evolução Temporal das Emoções
 if "Evolução Temporal das Emoções" in graficos_selecionados:
-    data_filtered["mes_ano"] = data_filtered["hora_postagem"].dt.to_period("M").astype(str)
-    emocao_tempo = data_filtered[data_filtered["emocao"] != "não identificada"]
-    emocao_tempo = emocao_tempo.groupby(["mes_ano", "emocao"]).size().reset_index(name="count")
+    emocao_tempo = data_filtered.groupby(['mes_ano', 'emocao'])['resultado_analise'].count().reset_index()
     fig3 = px.line(
         emocao_tempo,
         x="mes_ano",
-        y="count",
+        y="resultado_analise",
         color="emocao",
         title="Evolução Temporal das Emoções",
         color_discrete_sequence=cores
     )
     st.plotly_chart(fig3)
 
+# Gráfico de Barras - Distribuição de Upvotes por Emoção
 if "Distribuição de Upvotes por Emoção" in graficos_selecionados:
-    fig4 = px.violin(
+    fig4 = px.bar(
         data_filtered,
         x="emocao",
         y="upvotes",
         color="emocao",
         title="Distribuição de Upvotes por Emoção",
-        box=True,
         color_discrete_sequence=cores
     )
     st.plotly_chart(fig4)
 
+# Gráfico de Barras - Distribuição de Engajamento por Tipo de Discurso
 if "Distribuição de Engajamento por Tipo de Discurso" in graficos_selecionados:
     fig5 = px.box(
-        data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"],
+        data_filtered,
         x="resultado_analise",
         y="engajamento",
         color="resultado_analise",
@@ -157,40 +106,32 @@ if "Distribuição de Engajamento por Tipo de Discurso" in graficos_selecionados
     )
     st.plotly_chart(fig5)
 
+# Gráfico de Correlação entre Upvotes e Comentários
 if "Correlação entre Upvotes e Comentários" in graficos_selecionados:
-    fig6 = px.density_heatmap(
+    fig6 = px.scatter(
         data_filtered,
         x="upvotes",
         y="comentarios",
+        color="resultado_analise",
         title="Correlação entre Upvotes e Comentários",
-        color_continuous_scale="Viridis"
+        color_discrete_sequence=cores
     )
     st.plotly_chart(fig6)
 
-if "Histograma de Engajamento" in graficos_selecionados:
-    fig7 = px.histogram(
+# Gráfico de Relação de Emoção por Tipo de Discurso
+if "Relação de Emoção por Tipo de Discurso" in graficos_selecionados:
+    fig7 = px.sunburst(
         data_filtered,
-        x="engajamento",
-        nbins=20,
-        title="Histograma de Engajamento",
+        path=["resultado_analise", "emocao"],
+        title="Relação de Emoção por Tipo de Discurso",
         color_discrete_sequence=cores
     )
     st.plotly_chart(fig7)
 
-if "Boxplot de Comentários por Tipo de Discurso" in graficos_selecionados:
-    fig8 = px.box(
-        data_filtered,
-        x="resultado_analise",
-        y="comentarios",
-        color="resultado_analise",
-        title="Boxplot de Comentários por Tipo de Discurso",
-        color_discrete_sequence=cores
-    )
-    st.plotly_chart(fig8)
-
+# Gráfico de Linhas de Upvotes Médios por Tipo de Discurso
 if "Gráfico de Linhas de Upvotes Médios por Tipo de Discurso" in graficos_selecionados:
     upvotes_medio = data_filtered.groupby(["mes_ano", "resultado_analise"])["upvotes"].mean().reset_index()
-    fig9 = px.line(
+    fig8 = px.line(
         upvotes_medio,
         x="mes_ano",
         y="upvotes",
@@ -198,18 +139,8 @@ if "Gráfico de Linhas de Upvotes Médios por Tipo de Discurso" in graficos_sele
         title="Gráfico de Linhas de Upvotes Médios por Tipo de Discurso",
         color_discrete_sequence=cores
     )
-    st.plotly_chart(fig9)
+    st.plotly_chart(fig8)
 
-if "Boxplot de Emoções por Engajamento" in graficos_selecionados:
-    fig10 = px.box(
-        data_filtered,
-        x="emocao",
-        y="engajamento",
-        color="emocao",
-        title="Boxplot de Emoções por Engajamento",
-        color_discrete_sequence=cores
-    )
-    st.plotly_chart(fig10)
 # Nota de rodapé
 st.write("""
 ---
