@@ -204,29 +204,30 @@ if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
     )
     st.plotly_chart(fig5)
 if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
-    # Filtrar os dados para incluir apenas discurso de ódio
-    data_odio = data_filtered[data_filtered['resultado_analise'] == 'Discurso de Ódio']
+    # Filtrar os dados para excluir "não é discurso de ódio"
+    data_odio = data_filtered[data_filtered['resultado_analise'] != 'não é discurso de ódio']
     
-    # Verificar se existe dados após o filtro
+    # Verificar se há dados após o filtro
     if not data_odio.empty:
-        # Agrupar os dados pela coluna 'resultado_analise' (tipo de discurso de ódio) e somar as visualizações
+        # Agrupar os dados por tipo de discurso e somar as visualizações
         visualizacoes_por_tipo = data_odio.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
 
-        # Gerar gráfico de barras
+        # Gerar gráfico de visualizações por tipo de discurso de ódio
         fig_visualizacoes_tipo = px.bar(
             visualizacoes_por_tipo,
             x="resultado_analise",
             y="visualizacoes",
             title="Visualizações por Tipo de Discurso de Ódio",
             labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacoes": "Total de Visualizações"},
-            color="visualizacoes",  # Utiliza as visualizações para colorir as barras
-            color_continuous_scale=px.colors.sequential.Blues  # Escolha de uma paleta de cores azul
+            color="visualizacoes",  # Cor baseada nas visualizações
+            color_continuous_scale=px.colors.sequential.Blues  # Escala de cor azul
         )
 
-        # Mostrar o gráfico
+        # Exibir o gráfico
         st.plotly_chart(fig_visualizacoes_tipo)
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
+
 
 
 # Nota de rodapé
