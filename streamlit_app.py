@@ -150,16 +150,38 @@ if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
     st.plotly_chart(fig2)
 
 if "Top Publicações com Engajamento" in visualizacoes:
-    top_engajamento = data_filtered.sort_values(by="engajamento", ascending=False).head(10)
+    # Filtra apenas as publicações de discurso de ódio
+    data_odio = data_filtered[data_filtered["eh_discurso_odio"] == "sim"]
+
+    # Agrupar por tipo de discurso de ódio e calcular a soma ou média de engajamento
+    engajamento_por_tipo = data_odio.groupby("resultado_analise")["engajamento"].sum().reset_index()
+
+    # Criando o gráfico de barras para engajamento por tipo de discurso de ódio
     fig3 = px.bar(
-        top_engajamento,
-        x="hora_postagem",
-        y="engajamento",
-        color="resultado_analise",
-        title="Top 10 Publicações com Mais Engajamento",
-        labels={"hora_postagem": "Hora da Postagem", "engajamento": "Engajamento", "resultado_analise": "Tipo de Discurso"}
+        engajamento_por_tipo,
+        x="resultado_analise",  # Tipo de Discurso de Ódio
+        y="engajamento",  # Engajamento
+        color="resultado_analise",  # Cor por tipo de discurso de ódio
+        title="Engajamento por Tipo de Discurso de Ódio",
+        labels={"resultado_analise": "Tipo de Discurso de Ódio", "engajamento": "Engajamento"},
+        color_discrete_sequence=px.colors.qualitative.Set1  # Escolhe uma paleta de cores
     )
+
+    # Ajuste de layout para melhorar a visualização
+    fig3.update_layout(
+        xaxis_title="Tipo de Discurso de Ódio",
+        yaxis_title="Engajamento",
+        title_x=0.5,  # Centralizar título
+        title_font=dict(size=18, family="Arial, sans-serif", color="white"),  # Fonte do título
+        plot_bgcolor="black",  # Cor de fundo do gráfico
+        paper_bgcolor="black",  # Cor de fundo da área externa do gráfico
+        font=dict(color="white"),  # Cor da fonte
+        showlegend=False  # Remover legenda, pois as cores já indicam os tipos
+    )
+
+    # Exibe o gráfico
     st.plotly_chart(fig3)
+
 
 if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
     # Certificar-se de que a coluna 'hora_postagem' é datetime
