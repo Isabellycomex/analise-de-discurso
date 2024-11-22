@@ -204,22 +204,27 @@ if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
     )
     st.plotly_chart(fig5)
 if "Tipo de Discurso de Ódio x Subreddit" in visualizacoes:
-    # Agrupar dados por subreddit e tipo de discurso de ódio
-    tipo_subreddit = data_odio.groupby(["subreddit", "resultado_analise"]).size().reset_index(name="contagem")
+    # Verificar se as colunas necessárias existem
+    if "subreddit" in data_filtered.columns and "resultado_analise" in data_filtered.columns:
+        # Agrupar dados por subreddit e tipo de discurso de ódio
+        tipo_subreddit = data_filtered.groupby(["subreddit", "resultado_analise"]).size().reset_index(name="contagem")
 
-    # Gerar gráfico de barras empilhadas
-    fig10 = px.bar(
-        tipo_subreddit,
-        x="subreddit",
-        y="contagem",
-        color="resultado_analise",
-        title="Tipo de Discurso de Ódio por Subreddit",
-        labels={"subreddit": "Subreddit", "contagem": "Quantidade de Discurso de Ódio", "resultado_analise": "Tipo de Discurso de Ódio"},
-        color_discrete_sequence=px.colors.qualitative.Set2
-    )
+        # Gerar gráfico de barras empilhadas
+        fig10 = px.bar(
+            tipo_subreddit,
+            x="subreddit",
+            y="contagem",
+            color="resultado_analise",
+            title="Tipo de Discurso de Ódio por Subreddit",
+            labels={"subreddit": "Subreddit", "contagem": "Quantidade de Discurso de Ódio", "resultado_analise": "Tipo de Discurso de Ódio"},
+            color_discrete_sequence=px.colors.qualitative.Set2
+        )
 
-    # Mostrar gráfico
-    st.plotly_chart(fig10)
+        # Mostrar gráfico
+        st.plotly_chart(fig10)
+    else:
+        st.error("As colunas 'subreddit' ou 'resultado_analise' não foram encontradas no DataFrame.")
+
 
 # Nota de rodapé
 st.write("""
