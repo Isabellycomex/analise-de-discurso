@@ -149,34 +149,35 @@ if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
     )
     st.plotly_chart(fig2)
 
-if "Top Publicações com Engajamento" in visualizacoes:
-    # Filtra apenas as publicações de discurso de ódio
-    data_odio = data_filtered[data_filtered["eh_discurso_odio"] == "sim"]
+if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
+    contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
 
-    # Agrupar por tipo de discurso de ódio e calcular a soma ou média de engajamento
-    engajamento_por_tipo = data_odio.groupby("resultado_analise")["engajamento"].sum().reset_index()
-
-    # Criando o gráfico de barras para engajamento por tipo de discurso de ódio
-    fig3 = px.bar(
-        engajamento_por_tipo,
-        x="resultado_analise",  # Tipo de Discurso de Ódio
-        y="engajamento",  # Engajamento
-        color="resultado_analise",  # Cor por tipo de discurso de ódio
-        title="Engajamento por Tipo de Discurso de Ódio",
-        labels={"resultado_analise": "Tipo de Discurso de Ódio", "engajamento": "Engajamento"},
-        color_discrete_sequence=px.colors.qualitative.Set1  # Escolhe uma paleta de cores
+    # Criando o gráfico de pizza com modificações para um gráfico redondo e fundo preto
+    fig1 = px.pie(
+        data_filtered,
+        names="eh_discurso_odio",
+        title="Discurso de Ódio vs Não é Discurso de Ódio",
+        hole=0,  # Retira o buraco central para um gráfico totalmente redondo
+        color_discrete_sequence=["#ff6666", "#4C99FF"],  # Cores mais sóbrias
     )
 
-    # Ajuste de layout para melhorar a visualização
-    fig3.update_layout(
-        xaxis_title="Tipo de Discurso de Ódio",
-        yaxis_title="Engajamento",
+    # Ajustes estéticos
+    fig1.update_traces(
+        hoverinfo="label+percent",  # Informação ao passar o mouse
+        textinfo="value+percent",  # Exibe valor absoluto e percentagem
+        textfont=dict(size=14, family="Arial, sans-serif"),  # Tamanho da fonte
+        marker=dict(line=dict(color="white", width=2))  # Borda branca para dar um acabamento mais limpo
+    )
+
+    # Ajustar layout
+    fig1.update_layout(
+        showlegend=True,
         title_x=0.5,  # Centralizar título
         title_font=dict(size=18, family="Arial, sans-serif", color="white"),  # Fonte do título
         plot_bgcolor="black",  # Cor de fundo do gráfico
         paper_bgcolor="black",  # Cor de fundo da área externa do gráfico
-        font=dict(color="white"),  # Cor da fonte
-        showlegend=False  # Remover legenda, pois as cores já indicam os tipos
+        margin=dict(t=40, b=40, l=40, r=40),  # Ajuste de margens para deixar o gráfico mais próximo da borda
+        font=dict(color="white")  # Cor da fonte do título e do texto
     )
 
     # Exibe o gráfico
