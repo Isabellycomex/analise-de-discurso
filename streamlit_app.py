@@ -89,7 +89,7 @@ visualizacoes = st.multiselect(
     [
         "Gráfico de Pizza - Discurso de Ódio",
         "Emoções por Tipo de Discurso de Ódio",
-        "Top Publicações com Engajamento",
+        "Tipo de Discurso de Ódio x Subreddit",
         "Discurso de Ódio ao Longo do Tempo",
         "Média de Upvotes por Tipo de Discurso de Ódio"
     ]
