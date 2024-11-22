@@ -100,15 +100,38 @@ st.subheader("Visualizações")
 
 if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
+
+    # Criando o gráfico de pizza com modificações para uma aparência mais limpa
     fig1 = px.pie(
         data_filtered,
         names="eh_discurso_odio",
         title="Discurso de Ódio vs Não é Discurso de Ódio",
         hole=0.3,
-        color_discrete_sequence=["#ff9999", "#66b3ff"]
+        color_discrete_sequence=["#ff6666", "#4C99FF"],  # Cores mais sóbrias
     )
-    fig1.update_traces(hoverinfo="label+percent", textinfo="value+percent", pull=[0.1, 0])
+
+    # Ajustes estéticos
+    fig1.update_traces(
+        hoverinfo="label+percent",  # Informação ao passar o mouse
+        textinfo="value+percent",  # Exibe valor absoluto e percentagem
+        pull=[0.1, 0],  # Leve afastamento na primeira fatia
+        textfont=dict(size=14, family="Arial, sans-serif"),  # Tamanho da fonte
+        marker=dict(line=dict(color="white", width=2))  # Borda branca para dar um acabamento mais limpo
+    )
+
+    # Ajustar layout
+    fig1.update_layout(
+        showlegend=True,
+        title_x=0.5,  # Centralizar título
+        title_font=dict(size=18, family="Arial, sans-serif", color="black"),  # Fonte do título
+        plot_bgcolor="white",  # Cor de fundo do gráfico
+        paper_bgcolor="white",  # Cor de fundo da área externa do gráfico
+        margin=dict(t=40, b=40, l=40, r=40)  # Ajuste de margens para deixar o gráfico mais próximo da borda
+    )
+
+    # Exibe o gráfico
     st.plotly_chart(fig1)
+
 
 if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
     # Filtrar apenas discursos de ódio
