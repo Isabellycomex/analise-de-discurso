@@ -79,6 +79,10 @@ data_filtered = data[
     (data["emocao"].isin(emocao_filter))
 ].head(max_publicacoes)
 
+# Tabela das publicações filtradas
+st.subheader("Publicações Filtradas")
+st.write(data_filtered[["hora_postagem", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+
 # Seleção de gráficos para visualização múltipla
 visualizacoes = st.multiselect(
     "Escolha os gráficos que deseja visualizar:",
@@ -105,16 +109,6 @@ if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
     )
     fig1.update_traces(hoverinfo="label+percent", textinfo="value+percent", pull=[0.1, 0])
     st.plotly_chart(fig1)
-
-    selected_section = st.radio(
-        "Selecione para visualizar publicações:",
-        options=contagem_odio.index,
-        key="pie_chart_selection"
-    )
-    if selected_section:
-        selected_posts = data_filtered[data_filtered["eh_discurso_odio"] == selected_section]
-        st.write(f"Exibindo publicações para: {selected_section}")
-        st.write(selected_posts[["hora_postagem", "resultado_analise", "texto"]])
 
 if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
     # Filtrar apenas discursos de ódio
@@ -196,8 +190,6 @@ if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
         text_auto=True
     )
     st.plotly_chart(fig5)
-
-
 
 # Nota de rodapé
 st.write("""
