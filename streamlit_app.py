@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 import plotly.express as px
 
 # Carregar os dados do CSV
@@ -38,7 +37,7 @@ data["eh_discurso_odio"] = data["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
-# Filtros em tela com organização lado a lado
+# Filtros em tela
 st.subheader("Filtros")
 
 col1, col2 = st.columns(2)
@@ -78,7 +77,7 @@ data_filtered = data[
     (data["emocao"].isin(emocao_filter))
 ].head(max_publicacoes)
 
-# Seleção de gráficos para visualização múltipla
+# Seleção de gráficos
 visualizacoes = st.multiselect(
     "Escolha os gráficos que deseja visualizar:",
     [
@@ -87,35 +86,32 @@ visualizacoes = st.multiselect(
         "Top Publicações com Engajamento",
         "Discurso de Ódio ao Longo do Tempo",
         "Média de Upvotes por Tipo de Discurso de Ódio",
-        "Engajamento Médio por Emoção"
+        "Engajamento Médio por Emoção",
+        "Engajamento Médio por Tipo de Discurso de Ódio"
     ]
 )
 
-# Gráficos selecionados
+# Visualizações
 st.subheader("Visualizações")
 
 if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
-    contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
     fig1 = px.pie(
         data_filtered,
         names="eh_discurso_odio",
         title="Discurso de Ódio vs Não é Discurso de Ódio",
-        hole=0.3,
-        color_discrete_sequence=["#ff9999", "#66b3ff"]
+        hole=0.3
     )
-    fig1.update_traces(hoverinfo="label+percent", textinfo="value+percent", pull=[0.1, 0])
     st.plotly_chart(fig1)
 
 if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
-    odio_emocoes = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
-    emocao_contagem = odio_emocoes.groupby(["resultado_analise", "emocao"]).size().reset_index(name="count")
+    emocao_contagem = data_filtered.groupby(["resultado_analise", "emocao"]).size().reset_index(name="count")
     fig2 = px.bar(
         emocao_contagem,
         x="emocao",
         y="count",
         color="resultado_analise",
         barmode="group",
-        title="Distribuição de Emoções por Tipo de Discurso de Ódio",
+        title="Distribuição de Emoções por Tipo de Discurso de Ódio"
     )
     st.plotly_chart(fig2)
 
@@ -126,51 +122,57 @@ if "Top Publicações com Engajamento" in visualizacoes:
         x="hora_postagem",
         y="engajamento",
         color="resultado_analise",
-        title="Top 10 Publicações com Mais Engajamento",
+        title="Top 10 Publicações com Mais Engajamento"
     )
     st.plotly_chart(fig3)
 
 if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
-    odio_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
-    odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M").astype(str)
-    odio_por_tipo_tempo = odio_tempo.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
+    data_filtered["mes_postagem"] = data_filtered["hora_postagem"].dt.to_period("M").astype(str)
+    odio_tempo = data_filtered.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
     fig4 = px.line(
-        odio_por_tipo_tempo,
+        odio_tempo,
         x="mes_postagem",
         y="count",
         color="resultado_analise",
-        title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
+        title="Discurso de Ódio ao Longo do Tempo"
     )
     st.plotly_chart(fig4)
 
 if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
     media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
-    media_upvotes.columns = ["Tipo de Discurso", "Média de Upvotes"]
     fig5 = px.bar(
         media_upvotes,
-        x="Tipo de Discurso",
-        y="Média de Upvotes",
-        title="Média de Upvotes por Tipo de Discurso de Ódio",
-        text_auto=True
+        x="resultado_analise",
+        y="upvotes",
+        title="Média de Upvotes por Tipo de Discurso de Ódio"
     )
     st.plotly_chart(fig5)
 
 if "Engajamento Médio por Emoção" in visualizacoes:
-    engajamento_emocao = data_filtered.groupby("emocao")["engajamento"].mean().reset_index()
+    emocao_engajamento = data_filtered.groupby("emocao")["engajamento"].mean().reset_index()
     fig6 = px.bar(
-        engajamento_emocao,
+        emocao_engajamento,
         x="emocao",
         y="engajamento",
-        title="Engajamento Médio por Emoção",
-        text_auto=True
+        title="Engajamento Médio por Emoção"
     )
     st.plotly_chart(fig6)
+
+if "Engajamento Médio por Tipo de Discurso de Ódio" in visualizacoes:
+    tipo_engajamento = data_filtered.groupby("resultado_analise")["engajamento"].mean().reset_index()
+    fig7 = px.bar(
+        tipo_engajamento,
+        x="resultado_analise",
+        y="engajamento",
+        title="Engajamento Médio por Tipo de Discurso de Ódio"
+    )
+    st.plotly_chart(fig7)
 
 # Nota de rodapé
 st.write("""
 ---
 Criado por: Isabelly Barbosa Gonçalves  
 E-mail: isabelly.barbosa@aluno.ifsp.edu.br  
-Telefone: (13) 988372120  
-Instituição de Ensino: Instituto Federal de Educação, Ciência e Tecnologia de São Paulo, Campus Cubatão
+Telefone: (13) 98837-2120  
+Instituição de Ensino: Instituto Federal de Educação, Ciência e Tecnologia de São Paulo, Campus Cubatão  
 """)
