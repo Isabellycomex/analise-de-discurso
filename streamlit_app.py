@@ -89,7 +89,7 @@ visualizacoes = st.multiselect(
     [
         "Gráfico de Pizza - Discurso de Ódio",
         "Emoções por Tipo de Discurso de Ódio",
-        "Tipo de Discurso de Ódio x Subreddit",
+        "Visualizações por Tipo de Discurso de Ódio",
         "Discurso de Ódio ao Longo do Tempo",
         "Média de Upvotes por Tipo de Discurso de Ódio"
     ]
@@ -203,27 +203,24 @@ if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
         text_auto=True
     )
     st.plotly_chart(fig5)
-if "Tipo de Discurso de Ódio x Subreddit" in visualizacoes:
-    # Verificar se as colunas necessárias existem
-    if "subreddit" in data_filtered.columns and "resultado_analise" in data_filtered.columns:
-        # Agrupar dados por subreddit e tipo de discurso de ódio
-        tipo_subreddit = data_filtered.groupby(["subreddit", "resultado_analise"]).size().reset_index(name="contagem")
+if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
+    # Agrupar os dados pela coluna 'resultado_analise' (tipo de discurso de ódio) e somar as visualizações
+    visualizacoes_por_tipo = data_filtered.groupby("resultado_analise")["visualizacao"].sum().reset_index()
 
-        # Gerar gráfico de barras empilhadas
-        fig10 = px.bar(
-            tipo_subreddit,
-            x="subreddit",
-            y="contagem",
-            color="resultado_analise",
-            title="Tipo de Discurso de Ódio por Subreddit",
-            labels={"subreddit": "Subreddit", "contagem": "Quantidade de Discurso de Ódio", "resultado_analise": "Tipo de Discurso de Ódio"},
-            color_discrete_sequence=px.colors.qualitative.Set2
-        )
+    # Gerar gráfico de barras
+    fig_visualizacoes_tipo = px.bar(
+        visualizacoes_por_tipo,
+        x="resultado_analise",
+        y="visualizacao",
+        title="Visualizações por Tipo de Discurso de Ódio",
+        labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacao": "Total de Visualizações"},
+        color="visualizacao",
+        color_continuous_scale=px.colors.sequential.Plasma
+    )
 
-        # Mostrar gráfico
-        st.plotly_chart(fig10)
-    else:
-        st.error("As colunas 'subreddit' ou 'resultado_analise' não foram encontradas no DataFrame.")
+    # Mostrar o gráfico
+    st.plotly_chart(fig_visualizacoes_tipo)
+
 
 
 # Nota de rodapé
