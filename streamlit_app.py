@@ -2,6 +2,11 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
+import nltk
+
+# Baixar os recursos necessários para o NLTK
+nltk.download('punkt')
+nltk.download('stopwords')
 
 # Carregar os dados do CSV
 file_path = "publicacoes.csv"
