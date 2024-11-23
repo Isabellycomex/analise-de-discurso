@@ -91,7 +91,8 @@ visualizacoes = st.multiselect(
         "Emoções por Tipo de Discurso de Ódio",
         "Visualizações por Tipo de Discurso de Ódio",
         "Discurso de Ódio ao Longo do Tempo",
-        "Média de Upvotes por Tipo de Discurso de Ódio"
+        "Média de Upvotes por Tipo de Discurso de Ódio",
+        "Palavras Mais Comuns em Discurso de Ódio"
     ]
 )
 
@@ -240,6 +241,40 @@ if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
         st.write("Não há dados de discurso de ódio para exibir.")
 
 
+if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
+    # Filtrar os dados para considerar apenas discursos de ódio
+    data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
+
+    # Verificar se há dados após o filtro
+    if not data_odio.empty:
+        from wordcloud import WordCloud, STOPWORDS
+        import matplotlib.pyplot as plt
+
+        # Combinar os textos em uma única string
+        textos = " ".join(data_odio["texto"])
+
+        # Stopwords padrão + palavras adicionais irrelevantes
+        stop_words = set(STOPWORDS)
+        stop_words.update(["de", "para", "com", "que", "em", "é", "e", "o", "a", "os", "as", "um", "uma", "na", "no"])
+
+        # Gerar nuvem de palavras
+        wordcloud = WordCloud(
+            background_color="black",
+            stopwords=stop_words,
+            colormap="coolwarm",
+            width=800,
+            height=400
+        ).generate(textos)
+
+        # Exibir gráfico no Streamlit
+        fig6, ax = plt.subplots(figsize=(10, 5))
+        ax.imshow(wordcloud, interpolation="bilinear")
+        ax.axis("off")
+        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, color="white")
+        st.pyplot(fig6)
+
+    else:
+        st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
 
 
 
