@@ -339,17 +339,24 @@ if "Frequência de Postagens por Usuário" in visualizacoes:
     st.plotly_chart(fig_frequencia)
 
 if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
-    # Agrupar por tipo de discurso e calcular a média de respostas (comentários)
-    resposta_contagem = data_filtered.groupby("resultado_analise")["comentarios"].mean().reset_index()
+    # Filtrar apenas os discursos de ódio (excluindo "não é discurso de ódio")
+    odio_respostas = data_filtered[data_filtered["resultado_analise"] == "Discurso de Ódio"]
     
+    # Agrupar por tipo de discurso (neste caso, todos serão "Discurso de Ódio") e calcular a média de respostas
+    resposta_contagem = odio_respostas.groupby("resultado_analise")["comentarios"].mean().reset_index()
+    
+    # Criando o gráfico de barras
     fig = px.bar(
         resposta_contagem,
         x="resultado_analise",
         y="comentarios",
         title="Quantidade Média de Respostas por Tipo de Discurso de Ódio",
-        labels={"resultado_analise": "Tipo de Discurso", "comentarios": "Média de Respostas (Comentários)"}
+        labels={"resultado_analise": "Tipo de Discurso", "comentarios": "Média de Respostas (Comentários)"},
+        color="comentarios",  # Usando a variável 'comentarios' para definir a cor das barras
+        color_continuous_scale="reds"  # Alterando para uma escala de cores vermelhas
     )
     st.plotly_chart(fig)
+
 
 
 
