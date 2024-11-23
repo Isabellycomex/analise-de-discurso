@@ -99,7 +99,8 @@ visualizacoes = st.multiselect(
         "Média de Upvotes por Tipo de Discurso de Ódio",
         "Palavras Mais Comuns em Discurso de Ódio", 
         "Frequência de Postagens por Usuário",
-        "Quantidade de Respostas por Tipo de Discurso"
+        "Quantidade de Respostas por Tipo de Discurso",
+        "Quantidade de Compartilhamentos por Tipo de Discurso"
     ]
 )
 
@@ -365,6 +366,20 @@ if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
     else:
         st.write("Não existem postagens classificadas como um tipo de discurso válido (diferente de 'não é discurso de ódio').")
 
+if "Quantidade de Compartilhamentos por Tipo de Discurso" in visualizacoes:
+    # Calcular a quantidade total de compartilhamentos por tipo de discurso
+    compartilhamentos_por_tipo = data_filtered.groupby("resultado_analise")["compartilhamentos"].sum().reset_index()
+    
+    # Criar gráfico de barras para os compartilhamentos por tipo de discurso
+    fig = px.bar(
+        compartilhamentos_por_tipo,
+        x="resultado_analise",
+        y="compartilhamentos",
+        color="resultado_analise",
+        title="Quantidade de Compartilhamentos por Tipo de Discurso",
+        labels={"resultado_analise": "Tipo de Discurso", "compartilhamentos": "Quantidade de Compartilhamentos"}
+    )
+    st.plotly_chart(fig)
 
 
 # Nota de rodapé
