@@ -362,6 +362,7 @@ if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
 
 
 
+
 # Nota de rodapé
 st.write("""
 ---
