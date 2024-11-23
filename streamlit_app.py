@@ -255,7 +255,7 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
 
         # Stopwords padrão + palavras adicionais irrelevantes
         stop_words = set(STOPWORDS)
-        stop_words.update(["de", "para", "com", "que", "em", "é", "e", "o", "a", "os", "as", "um", "uma", "na", "no"])
+        stop_words.update(["de", "para", "com", "que", "em", "é", "e", "o", "a", "os", "as", "um", "uma", "na", "no", "não", "mas", "ela", "eu"])
 
         # Gerar nuvem de palavras
         wordcloud = WordCloud(
