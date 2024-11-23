@@ -339,13 +339,13 @@ if "Frequência de Postagens por Usuário" in visualizacoes:
     st.plotly_chart(fig_frequencia)
 
 if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
-    # Filtrar apenas os discursos de ódio (excluindo "não é discurso de ódio")
-    odio_respostas = data_filtered[data_filtered["resultado_analise"] == "Discurso de Ódio"]
+    # Filtrar todas as postagens que não são "não é discurso de ódio"
+    discurso_filtrado = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
     
     # Verificar se existem dados após o filtro
-    if not odio_respostas.empty:
-        # Agrupar por tipo de discurso e contar a quantidade de respostas (comentários)
-        resposta_contagem = odio_respostas.groupby("resultado_analise")["comentarios"].sum().reset_index()
+    if not discurso_filtrado.empty:
+        # Agrupar por tipo de discurso e somar a quantidade de respostas (comentários)
+        resposta_contagem = discurso_filtrado.groupby("resultado_analise")["comentarios"].sum().reset_index()
         
         # Verificar se há dados após a agregação
         if not resposta_contagem.empty:
@@ -354,16 +354,17 @@ if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
                 resposta_contagem,
                 x="resultado_analise",
                 y="comentarios",
-                title="Quantidade de Respostas por Tipo de Discurso de Ódio",
+                title="Quantidade de Respostas por Tipo de Discurso",
                 labels={"resultado_analise": "Tipo de Discurso", "comentarios": "Quantidade de Respostas (Comentários)"},
                 color="comentarios",  # Cor das barras baseada no número de respostas
                 color_continuous_scale="reds",  # Usar escala de cores vermelhas
             )
             st.plotly_chart(fig)
         else:
-            st.write("Nenhuma resposta foi encontrada para 'Discurso de Ódio'.")
+            st.write("Nenhuma resposta foi encontrada para os tipos de discurso considerados.")
     else:
-        st.write("Não existem postagens classificadas como 'Discurso de Ódio'.")
+        st.write("Não existem postagens classificadas como um tipo de discurso válido (diferente de 'não é discurso de ódio').")
+
 
 
 # Nota de rodapé
