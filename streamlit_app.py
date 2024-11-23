@@ -212,21 +212,29 @@ if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
         # Agrupar os dados por tipo de discurso e somar as visualizações
         visualizacoes_por_tipo = data_odio.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
 
-        # Gerar gráfico de visualizações por tipo de discurso de ódio
-        fig_visualizacoes_tipo = px.bar(
+        # Gerar gráfico de linhas de visualizações por tipo de discurso de ódio
+        fig_visualizacoes_tipo = px.line(
             visualizacoes_por_tipo,
             x="resultado_analise",
             y="visualizacoes",
             title="Visualizações por Tipo de Discurso de Ódio",
             labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacoes": "Total de Visualizações"},
-            color="visualizacoes",  # Cor baseada nas visualizações
-            color_continuous_scale=px.colors.sequential.Blues  # Escala de cor azul
+            color_discrete_sequence=px.colors.qualitative.Set1  # Paleta de cores vibrante
+        )
+
+        # Ajustar o layout para melhorar a estética
+        fig_visualizacoes_tipo.update_traces(mode="lines+markers", line=dict(width=3))
+        fig_visualizacoes_tipo.update_layout(
+            plot_bgcolor="white",
+            xaxis=dict(title="Tipos de Discurso de Ódio", showgrid=False),
+            yaxis=dict(title="Visualizações", showgrid=True, gridcolor="lightgray"),
         )
 
         # Exibir o gráfico
         st.plotly_chart(fig_visualizacoes_tipo)
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
+
 
 
 
