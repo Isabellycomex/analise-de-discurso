@@ -99,7 +99,7 @@ visualizacoes = st.multiselect(
         "Média de Upvotes por Tipo de Discurso de Ódio",
         "Palavras Mais Comuns em Discurso de Ódio", 
         "Frequência de Postagens por Usuário",
-        "Palavras Mais Comuns por Tipo de Discurso"
+        "Quantidade de Respostas por Tipo de Discurso"
     ]
 )
 
@@ -338,80 +338,19 @@ if "Frequência de Postagens por Usuário" in visualizacoes:
     # Exibir o gráfico
     st.plotly_chart(fig_frequencia)
 
-if "Palavras Mais Comuns por Tipo de Discurso" in visualizacoes:
-    from collections import Counter
-    import nltk
-    from nltk.corpus import stopwords
-    from wordcloud import WordCloud
-    import matplotlib.pyplot as plt
+if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
+    # Agrupar por tipo de discurso e calcular a média de respostas (comentários)
+    resposta_contagem = data_filtered.groupby("resultado_analise")["comentarios"].mean().reset_index()
+    
+    fig = px.bar(
+        resposta_contagem,
+        x="resultado_analise",
+        y="comentarios",
+        title="Quantidade Média de Respostas por Tipo de Discurso de Ódio",
+        labels={"resultado_analise": "Tipo de Discurso", "comentarios": "Média de Respostas (Comentários)"}
+    )
+    st.plotly_chart(fig)
 
-    # Lista de palavras comuns (stopwords) a serem removidas
-    stop_words = set([
-        "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", "para", "com", "que", 
-        "em", "é", "e", "o", "a", "os", "as", "um", "uma", "na", "no", "não", "mas", "ela", "eu", 
-        "você", "vocês", "nós", "eles", "elas", "meu", "minha", "meus", "minhas", "teu", "tua", "teus", 
-        "tuas", "dele", "dela", "deles", "delas", "esse", "essa", "esses", "essas", "este", "esta", 
-        "estes", "estas", "aquele", "aquela", "aqueles", "aquelas", "lhe", "lhes", "do", "dos", 
-        "das", "num", "numa", "neste", "nesta", "nisto", "naquele", "naquela", "nisso", "daquilo", 
-        "e", "ou", "onde", "porque", "porquê", "lá", "aqui", "ali", "assim", "tão", "já", "então", 
-        "também", "muito", "pouco", "sempre", "tudo", "nada", "cada", "todos", "todas", "algum", 
-        "alguma", "nenhum", "nenhuma", "outro", "outra", "outros", "outras", "seu", "sua", "seus", 
-        "suas", "me", "te", "nos", "vos", "depois", "antes", "até", "ainda", "hoje", "ontem", 
-        "amanhã", "agora", "lá", "cá", "sim", "não", "pois", "porém", "como", "sobre", "entre", 
-        "contra", "sem", "baixo", "apenas", "mesmo", "era", "só", "coisa", "ser", "pessoa", "pai", "cara", "tem", "bem",
-        "foi", "pessoas", "ser", "sou", "ano", "vc", "queria", "gente", "ao", "disse", "nunca", "sempre", "casa", "tempo",
-        "nem", "mim", "q", "que", "pq", "mãe", "mulher", "sala", "dia", "estava", "tenho", "vai", "começou", "fazer", "são",
-        "amigo", "namorada", "anos", "ter", "enquanto", "homem", "aí", "tinha", "vida", "estou", "grupo", "coisas", "fui"
-    ])
-
-    # Filtrar os dados para excluir "não é discurso de ódio"
-    data_odio = data_filtered[data_filtered['resultado_analise'] != 'não é discurso de ódio']
-
-    # Verificar se há dados após o filtro
-    if not data_odio.empty:
-        # Concatenar todas as palavras dos textos, removendo as stopwords
-        all_texts = " ".join(data_odio['texto'])  # Supondo que 'texto' seja a coluna de postagens
-
-        # Tokenizar as palavras
-        words = nltk.word_tokenize(all_texts.lower())  # Convertendo para minúsculas para evitar duplicidade
-
-        # Filtrar as palavras removendo as stopwords
-        filtered_words = [word for word in words if word not in stop_words and word.isalpha()]
-
-        # Contar a frequência de cada palavra
-        word_freq = Counter(filtered_words)
-
-        # Obter as palavras mais comuns
-        most_common_words = word_freq.most_common(20)
-
-        # Converter para DataFrame para melhor visualização
-        df_common_words = pd.DataFrame(most_common_words, columns=["Palavra", "Frequência"])
-
-        # Gerar o gráfico de palavras mais comuns por tipo de discurso
-        fig_palavras_comuns = px.bar(
-            df_common_words,
-            x="Palavra",
-            y="Frequência",
-            title="Palavras Mais Comuns em Discurso de Ódio",
-            color="Palavra",
-            text_auto=True
-        )
-
-        # Estilizar o gráfico
-        fig_palavras_comuns.update_layout(
-            plot_bgcolor="black",  # Fundo preto
-            paper_bgcolor="black",  # Fundo do canvas também preto
-            font=dict(color="white"),  # Texto branco
-            xaxis=dict(title="Palavras", showgrid=True, gridcolor="gray"),
-            yaxis=dict(title="Frequência", showgrid=True, gridcolor="gray"),
-            title=dict(font=dict(size=20)),  # Título maior e em branco
-            legend=dict(title="Palavra", font=dict(color="white"))  # Legenda estilizada
-        )
-
-        # Exibir o gráfico
-        st.plotly_chart(fig_palavras_comuns)
-    else:
-        st.write("Não há dados de discurso de ódio para exibir.")
 
 
 
