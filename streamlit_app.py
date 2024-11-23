@@ -367,6 +367,9 @@ if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
         st.write("Não existem postagens classificadas como um tipo de discurso válido (diferente de 'não é discurso de ódio').")
 
 if "Quantidade de Compartilhamentos por Tipo de Discurso" in visualizacoes:
+    # Filtrar dados que não são "não é discurso de ódio"
+    data_filtered = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
+    
     # Verificar se existem valores nulos na coluna de compartilhamentos e preencher com 0, caso existam
     data_filtered["compartilhamentos"] = data_filtered["compartilhamentos"].fillna(0)
     
@@ -391,6 +394,7 @@ if "Quantidade de Compartilhamentos por Tipo de Discurso" in visualizacoes:
             color_discrete_sequence=["#FF0000", "#FF6347", "#FF4500", "#FF1493"]  # Escolha de cores mais fortes
         )
         st.plotly_chart(fig)
+
 
 
 
