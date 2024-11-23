@@ -313,10 +313,11 @@ if "Frequência de Postagens por Usuário" in visualizacoes:
         y="quantidade_postagens",
         title="Frequência de Postagens por Usuário (Discursos de Ódio)",
         labels={"usuario": "Usuário", "quantidade_postagens": "Quantidade de Postagens"},
-        color="quantidade_postagens",  # Cores baseadas na quantidade
         text_auto=True,  # Mostrar valores nas barras
-        color_continuous_scale=px.colors.sequential.Viridis  # Paleta de cores
     )
+
+    # Alterar a cor das barras para rosa
+    fig_frequencia.update_traces(marker_color="pink")
 
     # Estilo do gráfico com fundo preto
     fig_frequencia.update_layout(
@@ -326,11 +327,11 @@ if "Frequência de Postagens por Usuário" in visualizacoes:
         xaxis=dict(title="Usuários", showgrid=False),
         yaxis=dict(title="Frequência de Postagens", showgrid=True, gridcolor="gray"),
         title=dict(font=dict(size=20)),
-        coloraxis_colorbar=dict(title="Postagens"),
     )
 
     # Exibir o gráfico
     st.plotly_chart(fig_frequencia)
+
 
 
 
