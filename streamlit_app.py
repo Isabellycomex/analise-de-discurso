@@ -92,7 +92,8 @@ visualizacoes = st.multiselect(
         "Visualizações por Tipo de Discurso de Ódio",
         "Discurso de Ódio ao Longo do Tempo",
         "Média de Upvotes por Tipo de Discurso de Ódio",
-        "Palavras Mais Comuns em Discurso de Ódio"
+        "Palavras Mais Comuns em Discurso de Ódio", 
+        "Frequência de Postagens por Usuário"
     ]
 )
 
@@ -292,6 +293,44 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
 
+if "Frequência de Postagens por Usuário" in visualizacoes:
+    # Filtrar dados para incluir apenas discursos de ódio
+    data_usuarios = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
+
+    # Agrupar por usuário e contar o número de postagens
+    frequencia_postagens = (
+        data_usuarios.groupby("usuario")
+        .size()
+        .reset_index(name="quantidade_postagens")
+        .sort_values(by="quantidade_postagens", ascending=False)
+        .head(10)  # Exibir os 10 usuários mais ativos
+    )
+
+    # Criar o gráfico
+    fig_frequencia = px.bar(
+        frequencia_postagens,
+        x="usuario",
+        y="quantidade_postagens",
+        title="Frequência de Postagens por Usuário (Discursos de Ódio)",
+        labels={"usuario": "Usuário", "quantidade_postagens": "Quantidade de Postagens"},
+        color="quantidade_postagens",  # Cores baseadas na quantidade
+        text_auto=True,  # Mostrar valores nas barras
+        color_continuous_scale=px.colors.sequential.Viridis  # Paleta de cores
+    )
+
+    # Estilo do gráfico com fundo preto
+    fig_frequencia.update_layout(
+        plot_bgcolor="black",
+        paper_bgcolor="black",
+        font=dict(color="white"),
+        xaxis=dict(title="Usuários", showgrid=False),
+        yaxis=dict(title="Frequência de Postagens", showgrid=True, gridcolor="gray"),
+        title=dict(font=dict(size=20)),
+        coloraxis_colorbar=dict(title="Postagens"),
+    )
+
+    # Exibir o gráfico
+    st.plotly_chart(fig_frequencia)
 
 
 
