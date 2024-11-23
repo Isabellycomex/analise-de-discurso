@@ -267,7 +267,7 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
             "alguma", "nenhum", "nenhuma", "outro", "outra", "outros", "outras", "seu", "sua", "seus", 
             "suas", "me", "te", "nos", "vos", "depois", "antes", "até", "ainda", "hoje", "ontem", 
             "amanhã", "agora", "lá", "cá", "sim", "não", "pois", "porém", "como", "sobre", "entre", 
-            "contra", "sem", "baixo", "apenas", "mesmo"
+            "contra", "sem", "baixo", "apenas", "mesmo", "era", "só", "coisa", "ser", "pessoa"
         ])
 
         # Gerar nuvem de palavras
