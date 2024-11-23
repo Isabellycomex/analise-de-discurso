@@ -206,34 +206,39 @@ if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
 if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
     # Filtrar os dados para excluir "não é discurso de ódio"
     data_odio = data_filtered[data_filtered['resultado_analise'] != 'não é discurso de ódio']
-    
+
     # Verificar se há dados após o filtro
     if not data_odio.empty:
         # Agrupar os dados por tipo de discurso e somar as visualizações
         visualizacoes_por_tipo = data_odio.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
 
-        # Gerar gráfico de linhas de visualizações por tipo de discurso de ódio
+        # Gerar gráfico de linhas
         fig_visualizacoes_tipo = px.line(
             visualizacoes_por_tipo,
             x="resultado_analise",
             y="visualizacoes",
             title="Visualizações por Tipo de Discurso de Ódio",
             labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacoes": "Total de Visualizações"},
-            color_discrete_sequence=px.colors.qualitative.Set1  # Paleta de cores vibrante
+            color_discrete_sequence=px.colors.qualitative.Bold  # Paleta de cores vibrantes e distintas
         )
 
-        # Ajustar o layout para melhorar a estética
+        # Estilo e layout com fundo preto
         fig_visualizacoes_tipo.update_traces(mode="lines+markers", line=dict(width=3))
         fig_visualizacoes_tipo.update_layout(
-            plot_bgcolor="white",
+            plot_bgcolor="black",  # Fundo preto
+            paper_bgcolor="black",  # Fundo do canvas também preto
+            font=dict(color="white"),  # Texto branco
             xaxis=dict(title="Tipos de Discurso de Ódio", showgrid=False),
-            yaxis=dict(title="Visualizações", showgrid=True, gridcolor="lightgray"),
+            yaxis=dict(title="Visualizações", showgrid=True, gridcolor="gray"),
+            title=dict(font=dict(size=20)),  # Título maior e em branco
+            legend=dict(title="Tipos", font=dict(color="white"))  # Legenda estilizada
         )
 
         # Exibir o gráfico
         st.plotly_chart(fig_visualizacoes_tipo)
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
+
 
 
 
