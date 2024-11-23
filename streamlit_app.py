@@ -367,19 +367,31 @@ if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
         st.write("Não existem postagens classificadas como um tipo de discurso válido (diferente de 'não é discurso de ódio').")
 
 if "Quantidade de Compartilhamentos por Tipo de Discurso" in visualizacoes:
+    # Verificar se existem valores nulos na coluna de compartilhamentos e preencher com 0, caso existam
+    data_filtered["compartilhamentos"] = data_filtered["compartilhamentos"].fillna(0)
+    
     # Calcular a quantidade total de compartilhamentos por tipo de discurso
     compartilhamentos_por_tipo = data_filtered.groupby("resultado_analise")["compartilhamentos"].sum().reset_index()
     
-    # Criar gráfico de barras para os compartilhamentos por tipo de discurso
-    fig = px.bar(
-        compartilhamentos_por_tipo,
-        x="resultado_analise",
-        y="compartilhamentos",
-        color="resultado_analise",
-        title="Quantidade de Compartilhamentos por Tipo de Discurso",
-        labels={"resultado_analise": "Tipo de Discurso", "compartilhamentos": "Quantidade de Compartilhamentos"}
-    )
-    st.plotly_chart(fig)
+    # Se houver tipos de discurso sem compartilhamentos, eles serão excluídos
+    compartilhamentos_por_tipo = compartilhamentos_por_tipo[compartilhamentos_por_tipo["compartilhamentos"] > 0]
+
+    # Verifique se o DataFrame de compartilhamentos_por_tipo tem dados
+    if compartilhamentos_por_tipo.empty:
+        st.write("Não há dados de compartilhamentos disponíveis para o gráfico.")
+    else:
+        # Criar gráfico de barras para os compartilhamentos por tipo de discurso
+        fig = px.bar(
+            compartilhamentos_por_tipo,
+            x="resultado_analise",
+            y="compartilhamentos",
+            color="resultado_analise",
+            title="Quantidade de Compartilhamentos por Tipo de Discurso",
+            labels={"resultado_analise": "Tipo de Discurso", "compartilhamentos": "Quantidade de Compartilhamentos"},
+            color_discrete_sequence=["#FF0000", "#FF6347", "#FF4500", "#FF1493"]  # Escolha de cores mais fortes
+        )
+        st.plotly_chart(fig)
+
 
 
 # Nota de rodapé
