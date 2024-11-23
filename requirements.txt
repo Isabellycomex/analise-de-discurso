@@ -2,4 +2,4 @@ streamlit
 matplotlib
 plotly
 wordcloud
-nltk
+nltk==3.7
