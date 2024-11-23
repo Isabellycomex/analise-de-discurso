@@ -255,7 +255,20 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
 
         # Stopwords padrão + palavras adicionais irrelevantes
         stop_words = set(STOPWORDS)
-        stop_words.update(["de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", "para", "com", "que", "em", "é", "e", "o", "a", "os", "as", "um", "uma", "na", "no", "não", "mas", "ela", "eu"])
+        stop_words.update([
+            "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", "para", "com", "que", 
+            "em", "é", "e", "o", "a", "os", "as", "um", "uma", "na", "no", "não", "mas", "ela", "eu", 
+            "você", "vocês", "nós", "eles", "elas", "meu", "minha", "meus", "minhas", "teu", "tua", "teus", 
+            "tuas", "dele", "dela", "deles", "delas", "esse", "essa", "esses", "essas", "este", "esta", 
+            "estes", "estas", "aquele", "aquela", "aqueles", "aquelas", "lhe", "lhes", "do", "dos", 
+            "das", "num", "numa", "neste", "nesta", "nisto", "naquele", "naquela", "nisso", "daquilo", 
+            "e", "ou", "onde", "porque", "porquê", "lá", "aqui", "ali", "assim", "tão", "já", "então", 
+            "também", "muito", "pouco", "sempre", "tudo", "nada", "cada", "todos", "todas", "algum", 
+            "alguma", "nenhum", "nenhuma", "outro", "outra", "outros", "outras", "seu", "sua", "seus", 
+            "suas", "me", "te", "nos", "vos", "depois", "antes", "até", "ainda", "hoje", "ontem", 
+            "amanhã", "agora", "lá", "cá", "sim", "não", "pois", "porém", "como", "sobre", "entre", 
+            "contra", "sem", "baixo", "apenas", "mesmo"
+        ])
 
         # Gerar nuvem de palavras
         wordcloud = WordCloud(
@@ -275,6 +288,7 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
 
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
+
 
 
 
