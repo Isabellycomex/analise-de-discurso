@@ -93,7 +93,8 @@ visualizacoes = st.multiselect(
         "Discurso de Ódio ao Longo do Tempo",
         "Média de Upvotes por Tipo de Discurso de Ódio",
         "Palavras Mais Comuns em Discurso de Ódio", 
-        "Frequência de Postagens por Usuário"
+        "Frequência de Postagens por Usuário",
+        "Análise Temporal de Emoções por Tipo de Discurso"
     ]
 )
 
@@ -332,6 +333,45 @@ if "Frequência de Postagens por Usuário" in visualizacoes:
     # Exibir o gráfico
     st.plotly_chart(fig_frequencia)
 
+if "Análise Temporal de Emoções por Tipo de Discurso" in visualizacoes:
+    # Certificando-se de que a coluna 'hora_postagem' está em formato datetime
+    data_filtered['hora_postagem'] = pd.to_datetime(data_filtered['hora_postagem'])
+
+    # Filtrar os dados para excluir "não é discurso de ódio"
+    data_odio = data_filtered[data_filtered['resultado_analise'] != 'não é discurso de ódio']
+
+    # Verificar se há dados após o filtro
+    if not data_odio.empty:
+        # Agregar a contagem de emoções por data de postagem e tipo de discurso
+        emocao_temporal = data_odio.groupby([data_odio['hora_postagem'].dt.to_period('M'), 'resultado_analise', 'emocao']).size().reset_index(name="contagem")
+        
+        # Gerar gráfico de linha
+        fig_emocoes_temporal = px.line(
+            emocao_temporal,
+            x="hora_postagem",
+            y="contagem",
+            color="emocao",
+            line_group="emocao",
+            title="Análise Temporal de Emoções por Tipo de Discurso de Ódio",
+            labels={"hora_postagem": "Data", "contagem": "Contagem de Emoções", "emocao": "Emoção", "resultado_analise": "Tipo de Discurso de Ódio"},
+            markers=True
+        )
+
+        # Estilizar o gráfico
+        fig_emocoes_temporal.update_layout(
+            plot_bgcolor="black",  # Fundo preto
+            paper_bgcolor="black",  # Fundo do canvas também preto
+            font=dict(color="white"),  # Texto branco
+            xaxis=dict(title="Data", showgrid=True, gridcolor="gray"),
+            yaxis=dict(title="Contagem de Emoções", showgrid=True, gridcolor="gray"),
+            title=dict(font=dict(size=20)),  # Título maior e em branco
+            legend=dict(title="Emoção", font=dict(color="white"))  # Legenda estilizada
+        )
+
+        # Exibir o gráfico
+        st.plotly_chart(fig_emocoes_temporal)
+    else:
+        st.write("Não há dados de discurso de ódio para exibir.")
 
 
 
