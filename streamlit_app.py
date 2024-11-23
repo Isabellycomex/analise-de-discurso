@@ -357,7 +357,7 @@ if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
                 title="Quantidade de Respostas por Tipo de Discurso",
                 labels={"resultado_analise": "Tipo de Discurso", "comentarios": "Quantidade de Respostas (Comentários)"},
                 color="comentarios",  # Cor das barras baseada no número de respostas
-                color_continuous_scale="pink",  # Usar escala de cores vermelhas
+                color_continuous_scale="blue",  # Usar escala de cores vermelhas
             )
             st.plotly_chart(fig)
         else:
