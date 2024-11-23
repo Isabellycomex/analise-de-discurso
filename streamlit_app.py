@@ -270,7 +270,7 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
             "contra", "sem", "baixo", "apenas", "mesmo", "era", "só", "coisa", "ser", "pessoa", "pai", "cara", "tem", "bem",
             "foi", "pessoas", "ser", "sou", "ano", "vc", "queria", "gente", "ao", "disse", "nunca", "sempre", "casa", "tempo",
             "nem", "mim", "q", "que", "pq", "mãe", "mulher", "sala", "dia", "estava", "tenho", "vai", "começou", "fazer", "são",
-            "amigo", "namorada", "anos", "ter", "enquanto", "homem"
+            "amigo", "namorada", "anos", "ter", "enquanto", "homem", "aí", "tinha", "vida", "estou", "grupo", "coisas", "fui"
         ])
 
         # Gerar nuvem de palavras
