@@ -77,14 +77,14 @@ with col2:
 col3, col4 = st.columns(2)
 with col3:
     filtro_discurso = st.multiselect(
-        "Filtrar por Tipo de Discurso",
+        "Escolha uma ou mais opções",
         options=dados["resultado_analise"].unique(),
         default=dados["resultado_analise"].unique(),
         key="filtro_discurso"
     )
 with col4:
     filtro_emocao = st.multiselect(
-        "Filtrar por Emoção",
+        "Escolha uma ou mais opções",
         options=dados["emocao"].unique(),
         default=dados["emocao"].unique(),
         key="filtro_emocao"
@@ -116,7 +116,7 @@ st.write(dados_filtrados[["hora_postagem_formatada", "resultado_analise", "emoca
 # Seleção de gráficos
 st.subheader("Visualizações")
 visualizacoes = st.multiselect(
-    "Escolha uma ou mais opções:",
+    "Escolha uma ou mais opções",
     [
         "Gráfico de Pizza - Discurso de Ódio",
         "Emoções por Tipo de Discurso de Ódio",
@@ -127,7 +127,6 @@ visualizacoes = st.multiselect(
         "Quantidade de Compartilhamentos por Tipo de Discurso"
     ]
 )
-
 
 # Gráficos selecionados
 st.subheader("Visualizações")
