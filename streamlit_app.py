@@ -44,23 +44,25 @@ dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
-# Filtros ajustados com formato correto
+# Filtros
 st.subheader("Filtros")
 
+# Filtro por data com formato corrigido
 col1, col2 = st.columns(2)
 with col1:
     data_inicio = st.date_input(
-        "Data Inicial", 
-        value=pd.to_datetime(dados["hora_postagem"].min(), dayfirst=True).date(), 
+        "Data Inicial",
+        value=pd.to_datetime(dados["hora_postagem"].min(), format="%d/%m/%Y").date(),
         key="data_inicio"
     )
 with col2:
     data_fim = st.date_input(
-        "Data Final", 
-        value=pd.to_datetime(dados["hora_postagem"].max(), dayfirst=True).date(), 
+        "Data Final",
+        value=pd.to_datetime(dados["hora_postagem"].max(), format="%d/%m/%Y").date(),
         key="data_fim"
     )
 
+# Filtro por tipo de discurso e emoção
 col3, col4 = st.columns(2)
 with col3:
     filtro_discurso = st.multiselect(
@@ -77,6 +79,7 @@ with col4:
         key="filtro_emocao"
     )
 
+# Filtro por quantidade de publicações
 col5, _ = st.columns(2)
 with col5:
     max_publicacoes = st.slider(
@@ -87,7 +90,7 @@ with col5:
         key="max_publicacoes"
     )
 
-# Filtro aplicado
+# Aplicação de filtros
 dados_filtrados = dados[
     (pd.to_datetime(dados["hora_postagem"], format="%d/%m/%Y %H:%M:%S") >= pd.to_datetime(data_inicio)) &
     (pd.to_datetime(dados["hora_postagem"], format="%d/%m/%Y %H:%M:%S") <= pd.to_datetime(data_fim)) &
@@ -95,13 +98,14 @@ dados_filtrados = dados[
     (dados["emocao"].isin(filtro_emocao))
 ].head(max_publicacoes)
 
-# Tabela ajustada
+# Exibição dos dados filtrados
 st.subheader("Publicações Filtradas")
 st.write(dados_filtrados[["hora_postagem", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
 
-# Tradução do seletor de gráficos
+# Seleção de gráficos com tradução do texto
+st.subheader("Visualizações")
 visualizacoes = st.multiselect(
-    "Escolha uma ou mais opções:",  # Tradução aplicada
+    "Escolha uma ou mais opções:",  # Texto traduzido
     [
         "Gráfico de Pizza - Discurso de Ódio",
         "Emoções por Tipo de Discurso de Ódio",
@@ -112,9 +116,6 @@ visualizacoes = st.multiselect(
         "Quantidade de Compartilhamentos por Tipo de Discurso"
     ]
 )
-
-# Os blocos de gráficos foram mantidos idênticos, pois já estavam traduzidos.
-
 
 # Gráficos selecionados
 st.subheader("Visualizações")
