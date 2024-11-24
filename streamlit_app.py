@@ -9,37 +9,37 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 # Carregar os dados do CSV
-file_path = "publicacoes.csv"
+caminho_arquivo = "publicacoes.csv"
 
 # Função para carregar os dados e verificar erros
-def load_data(file_path):
+def carregar_dados(caminho_arquivo):
     try:
-        data = pd.read_csv(file_path)
-        required_columns = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto"]
-        missing_columns = [col for col in required_columns if col not in data.columns]
-        if missing_columns:
-            st.error(f"As colunas ausentes são: {missing_columns}. Verifique o arquivo CSV.")
+        dados = pd.read_csv(caminho_arquivo)
+        colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto"]
+        colunas_faltando = [col for col in colunas_necessarias if col not in dados.columns]
+        if colunas_faltando:
+            st.error(f"As colunas ausentes são: {colunas_faltando}. Verifique o arquivo CSV.")
             return None
-        return data
+        return dados
     except FileNotFoundError:
         st.error("O arquivo não foi encontrado. Verifique o caminho.")
     except Exception as e:
         st.error(f"Ocorreu um erro ao carregar o arquivo: {e}")
     return None
 
-data = load_data(file_path)
-if data is None:
+dados = carregar_dados(caminho_arquivo)
+if dados is None:
     st.stop()
 
 # Layout para seleção de gráficos
-st.title("Análise de Discurso de Ódio no Reddit através do ChatGpt")
+st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
 # Tratar dados
-data["hora_postagem"] = pd.to_datetime(data["hora_postagem"])  # Converter hora para datetime
-data["engajamento"] = data["upvotes"] + data["comentarios"]  # Criar coluna de engajamento
+dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"]).dt.strftime("%d/%m/%Y %H:%M:%S")  # Converter e formatar data
+dados["engajamento"] = dados["upvotes"] + dados["comentarios"]  # Criar coluna de engajamento
 
 # Marcar discursos de ódio
-data["eh_discurso_odio"] = data["resultado_analise"].apply(
+dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
@@ -48,22 +48,22 @@ st.subheader("Filtros")
 
 col1, col2 = st.columns(2)
 with col1:
-    start_date = st.date_input("Data Inicial", value=data["hora_postagem"].min())
+    data_inicio = st.date_input("Data Inicial", value=pd.to_datetime(dados["hora_postagem"].min(), dayfirst=True))
 with col2:
-    end_date = st.date_input("Data Final", value=data["hora_postagem"].max())
+    data_fim = st.date_input("Data Final", value=pd.to_datetime(dados["hora_postagem"].max(), dayfirst=True))
 
 col3, col4 = st.columns(2)
 with col3:
-    discurso_filter = st.multiselect(
+    filtro_discurso = st.multiselect(
         "Filtrar por Tipo de Discurso",
-        options=data["resultado_analise"].unique(),
-        default=data["resultado_analise"].unique()
+        options=dados["resultado_analise"].unique(),
+        default=dados["resultado_analise"].unique()
     )
 with col4:
-    emocao_filter = st.multiselect(
+    filtro_emocao = st.multiselect(
         "Filtrar por Emoção",
-        options=data["emocao"].unique(),
-        default=data["emocao"].unique()
+        options=dados["emocao"].unique(),
+        default=dados["emocao"].unique()
     )
 
 # Filtro para selecionar a quantidade de publicações
@@ -72,21 +72,21 @@ with col5:
     max_publicacoes = st.slider(
         "Quantidade de Publicações para Analisar",
         min_value=1,
-        max_value=min(len(data), 300),
+        max_value=min(len(dados), 300),
         value=300
     )
 
 # Aplicar filtros
-data_filtered = data[
-    (data["hora_postagem"] >= pd.to_datetime(start_date)) &
-    (data["hora_postagem"] <= pd.to_datetime(end_date)) &
-    (data["resultado_analise"].isin(discurso_filter)) &
-    (data["emocao"].isin(emocao_filter))
+dados_filtrados = dados[
+    (pd.to_datetime(dados["hora_postagem"], dayfirst=True) >= pd.to_datetime(data_inicio)) &
+    (pd.to_datetime(dados["hora_postagem"], dayfirst=True) <= pd.to_datetime(data_fim)) &
+    (dados["resultado_analise"].isin(filtro_discurso)) &
+    (dados["emocao"].isin(filtro_emocao))
 ].head(max_publicacoes)
 
 # Tabela das publicações filtradas
 st.subheader("Publicações Filtradas")
-st.write(data_filtered[["hora_postagem", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+st.write(dados_filtrados[["hora_postagem", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
 
 # Seleção de gráficos para visualização múltipla
 visualizacoes = st.multiselect(
@@ -97,12 +97,15 @@ visualizacoes = st.multiselect(
         "Visualizações por Tipo de Discurso de Ódio",
         "Discurso de Ódio ao Longo do Tempo",
         "Média de Upvotes por Tipo de Discurso de Ódio",
-        "Palavras Mais Comuns em Discurso de Ódio", 
+        "Palavras Mais Comuns em Discurso de Ódio",
         "Frequência de Postagens por Usuário",
         "Quantidade de Respostas por Tipo de Discurso",
         "Quantidade de Compartilhamentos por Tipo de Discurso"
     ]
 )
+
+# Os blocos de gráficos foram mantidos idênticos, pois já estavam traduzidos.
+
 
 # Gráficos selecionados
 st.subheader("Visualizações")
