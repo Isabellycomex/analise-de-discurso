@@ -49,6 +49,7 @@ dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
 # Filtros em tela com organização lado a lado
 st.subheader("Filtros")
 
+col1, col2 = st.columns(2)
 with col1:
     data_inicio = st.date_input("Data Inicial", value=pd.to_datetime(dados["hora_postagem"].min(), dayfirst=True))
 with col2:
