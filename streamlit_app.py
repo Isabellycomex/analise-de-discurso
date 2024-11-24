@@ -35,6 +35,7 @@ if dados is None:
     st.stop()
 
 # Configuração do layout e título
+# Configuração do layout e título
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
 # Tratamento de dados
@@ -64,12 +65,16 @@ with col1:
     data_inicio = st.date_input(
         "Data Inicial",
         value=data_inicio_default,
+        min_value=data_min.date(),
+        max_value=data_max.date(),
         key="data_inicio"
     )
 with col2:
     data_fim = st.date_input(
         "Data Final",
         value=data_fim_default,
+        min_value=data_min.date(),
+        max_value=data_max.date(),
         key="data_fim"
     )
 
@@ -127,7 +132,6 @@ visualizacoes = st.multiselect(
         "Quantidade de Compartilhamentos por Tipo de Discurso"
     ]
 )
-
 # Gráficos selecionados
 st.subheader("Visualizações")
 
