@@ -34,15 +34,26 @@ dados = carregar_dados(caminho_arquivo)
 if dados is None:
     st.stop()
 
-# Ajustar layout de seleção e tradução do texto do seletor
+# Configuração do layout e título
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
 # Tratamento de dados
-dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"]).dt.strftime("%d/%m/%Y %H:%M:%S")  # Garantir formato dd/mm/aaaa
-dados["engajamento"] = dados["upvotes"] + dados["comentarios"]  # Criar coluna de engajamento
+dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")  # Garantir conversão segura
+dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")  # Formatar para exibição
+
+# Adicionar coluna de engajamento e de classificação
+dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
 dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
+
+# Verificar valores mínimos e máximos para os filtros
+data_min = dados["hora_postagem"].min()
+data_max = dados["hora_postagem"].max()
+
+# Evitar erro se os dados forem vazios ou NaT
+data_inicio_default = data_min.date() if pd.notnull(data_min) else None
+data_fim_default = data_max.date() if pd.notnull(data_max) else None
 
 # Filtros
 st.subheader("Filtros")
@@ -52,13 +63,13 @@ col1, col2 = st.columns(2)
 with col1:
     data_inicio = st.date_input(
         "Data Inicial",
-        value=dados["hora_postagem"].min().date(),  # Data mínima do DataFrame
+        value=data_inicio_default,
         key="data_inicio"
     )
 with col2:
     data_fim = st.date_input(
         "Data Final",
-        value=dados["hora_postagem"].max().date(),  # Data máxima do DataFrame
+        value=data_fim_default,
         key="data_fim"
     )
 
@@ -102,10 +113,10 @@ dados_filtrados = dados[
 st.subheader("Publicações Filtradas")
 st.write(dados_filtrados[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
 
-# Seleção de gráficos com tradução do texto
+# Seleção de gráficos
 st.subheader("Visualizações")
 visualizacoes = st.multiselect(
-    "Escolha uma ou mais opções:",  # Texto traduzido
+    "Escolha uma ou mais opções:",
     [
         "Gráfico de Pizza - Discurso de Ódio",
         "Emoções por Tipo de Discurso de Ódio",
