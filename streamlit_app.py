@@ -47,18 +47,18 @@ dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
 # Filtros
 st.subheader("Filtros")
 
-# Filtro por data com formato corrigido
+# Filtro por data
 col1, col2 = st.columns(2)
 with col1:
     data_inicio = st.date_input(
         "Data Inicial",
-        value=pd.to_datetime(dados["hora_postagem"].min(), format="%d/%m/%Y").date(),
+        value=dados["hora_postagem"].min().date(),  # Data mínima do DataFrame
         key="data_inicio"
     )
 with col2:
     data_fim = st.date_input(
         "Data Final",
-        value=pd.to_datetime(dados["hora_postagem"].max(), format="%d/%m/%Y").date(),
+        value=dados["hora_postagem"].max().date(),  # Data máxima do DataFrame
         key="data_fim"
     )
 
@@ -92,15 +92,15 @@ with col5:
 
 # Aplicação de filtros
 dados_filtrados = dados[
-    (pd.to_datetime(dados["hora_postagem"], format="%d/%m/%Y %H:%M:%S") >= pd.to_datetime(data_inicio)) &
-    (pd.to_datetime(dados["hora_postagem"], format="%d/%m/%Y %H:%M:%S") <= pd.to_datetime(data_fim)) &
+    (dados["hora_postagem"].dt.date >= data_inicio) &
+    (dados["hora_postagem"].dt.date <= data_fim) &
     (dados["resultado_analise"].isin(filtro_discurso)) &
     (dados["emocao"].isin(filtro_emocao))
 ].head(max_publicacoes)
 
 # Exibição dos dados filtrados
 st.subheader("Publicações Filtradas")
-st.write(dados_filtrados[["hora_postagem", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+st.write(dados_filtrados[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
 
 # Seleção de gráficos com tradução do texto
 st.subheader("Visualizações")
@@ -116,6 +116,7 @@ visualizacoes = st.multiselect(
         "Quantidade de Compartilhamentos por Tipo de Discurso"
     ]
 )
+
 
 # Gráficos selecionados
 st.subheader("Visualizações")
