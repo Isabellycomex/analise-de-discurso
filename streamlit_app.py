@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import nltk
+from wordcloud import WordCloud, STOPWORDS
 
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
@@ -94,11 +95,9 @@ visualizacoes = st.multiselect(
     [
         "Gráfico de Pizza - Discurso de Ódio",
         "Emoções por Tipo de Discurso de Ódio",
-        "Visualizações por Tipo de Discurso de Ódio",
         "Discurso de Ódio ao Longo do Tempo",
         "Média de Upvotes por Tipo de Discurso de Ódio",
-        "Palavras Mais Comuns em Discurso de Ódio",
-        "Frequência de Postagens por Usuário",
+         "Frequência de Postagens por Usuário",
         "Quantidade de Respostas por Tipo de Discurso",
         "Quantidade de Compartilhamentos por Tipo de Discurso"
     ]
