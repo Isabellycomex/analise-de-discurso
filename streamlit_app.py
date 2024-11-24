@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import nltk
 from wordcloud import WordCloud, STOPWORDS
+import datetime as dt
+
 
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
@@ -47,11 +49,21 @@ dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
 # Filtros em tela com organização lado a lado
 st.subheader("Filtros")
 
+# Supondo que 'dados["hora_postagem"]' seja uma série de datas
+dados = pd.DataFrame({'hora_postagem': pd.date_range(start='2023-01-01', end='2023-12-31', freq='D')})
+
 col1, col2 = st.columns(2)
 with col1:
-    data_inicio = st.date_input("Data Inicial", value=pd.to_datetime(dados["hora_postagem"].min(), dayfirst=True))
+    data_inicio = st.date_input(
+        "Data Inicial", 
+        value=dt.datetime.strptime(dados["hora_postagem"].min().strftime('%d/%m/%Y'), '%d/%m/%Y')
+    )
 with col2:
-    data_fim = st.date_input("Data Final", value=pd.to_datetime(dados["hora_postagem"].max(), dayfirst=True))
+    data_fim = st.date_input(
+        "Data Final", 
+        value=dt.datetime.strptime(dados["hora_postagem"].max().strftime('%d/%m/%Y'), '%d/%m/%Y')
+    )
+
 
 col3, col4 = st.columns(2)
 with col3:
