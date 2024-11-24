@@ -34,72 +34,80 @@ dados = carregar_dados(caminho_arquivo)
 if dados is None:
     st.stop()
 
-# Layout para seleção de gráficos
+# Ajustar layout de seleção e tradução do texto do seletor
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
-# Tratar dados
-dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"]).dt.strftime("%d/%m/%Y %H:%M:%S")  # Converter e formatar data
+# Tratamento de dados
+dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"]).dt.strftime("%d/%m/%Y %H:%M:%S")  # Garantir formato dd/mm/aaaa
 dados["engajamento"] = dados["upvotes"] + dados["comentarios"]  # Criar coluna de engajamento
-
-# Marcar discursos de ódio
 dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
-# Filtros em tela com organização lado a lado
+# Filtros ajustados com formato correto
 st.subheader("Filtros")
 
 col1, col2 = st.columns(2)
 with col1:
-    data_inicio = st.date_input("Data Inicial", value=pd.to_datetime(dados["hora_postagem"].min(), dayfirst=True))
+    data_inicio = st.date_input(
+        "Data Inicial", 
+        value=pd.to_datetime(dados["hora_postagem"].min(), dayfirst=True).date(), 
+        key="data_inicio"
+    )
 with col2:
-    data_fim = st.date_input("Data Final", value=pd.to_datetime(dados["hora_postagem"].max(), dayfirst=True))
+    data_fim = st.date_input(
+        "Data Final", 
+        value=pd.to_datetime(dados["hora_postagem"].max(), dayfirst=True).date(), 
+        key="data_fim"
+    )
 
 col3, col4 = st.columns(2)
 with col3:
     filtro_discurso = st.multiselect(
         "Filtrar por Tipo de Discurso",
         options=dados["resultado_analise"].unique(),
-        default=dados["resultado_analise"].unique()
+        default=dados["resultado_analise"].unique(),
+        key="filtro_discurso"
     )
 with col4:
     filtro_emocao = st.multiselect(
         "Filtrar por Emoção",
         options=dados["emocao"].unique(),
-        default=dados["emocao"].unique()
+        default=dados["emocao"].unique(),
+        key="filtro_emocao"
     )
 
-# Filtro para selecionar a quantidade de publicações
 col5, _ = st.columns(2)
 with col5:
     max_publicacoes = st.slider(
         "Quantidade de Publicações para Analisar",
         min_value=1,
         max_value=min(len(dados), 300),
-        value=300
+        value=300,
+        key="max_publicacoes"
     )
 
-# Aplicar filtros
+# Filtro aplicado
 dados_filtrados = dados[
-    (pd.to_datetime(dados["hora_postagem"], dayfirst=True) >= pd.to_datetime(data_inicio)) &
-    (pd.to_datetime(dados["hora_postagem"], dayfirst=True) <= pd.to_datetime(data_fim)) &
+    (pd.to_datetime(dados["hora_postagem"], format="%d/%m/%Y %H:%M:%S") >= pd.to_datetime(data_inicio)) &
+    (pd.to_datetime(dados["hora_postagem"], format="%d/%m/%Y %H:%M:%S") <= pd.to_datetime(data_fim)) &
     (dados["resultado_analise"].isin(filtro_discurso)) &
     (dados["emocao"].isin(filtro_emocao))
 ].head(max_publicacoes)
 
-# Tabela das publicações filtradas
+# Tabela ajustada
 st.subheader("Publicações Filtradas")
 st.write(dados_filtrados[["hora_postagem", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
 
-# Seleção de gráficos para visualização múltipla
+# Tradução do seletor de gráficos
 visualizacoes = st.multiselect(
-    "Escolha os gráficos que deseja visualizar:",
+    "Escolha uma ou mais opções:",  # Tradução aplicada
     [
         "Gráfico de Pizza - Discurso de Ódio",
         "Emoções por Tipo de Discurso de Ódio",
         "Discurso de Ódio ao Longo do Tempo",
         "Média de Upvotes por Tipo de Discurso de Ódio",
-         "Frequência de Postagens por Usuário",
+        "Frequência de Postagens por Usuário",
         "Quantidade de Respostas por Tipo de Discurso",
         "Quantidade de Compartilhamentos por Tipo de Discurso"
     ]
