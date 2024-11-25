@@ -289,25 +289,19 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
         # Combinar os textos em uma única string
         textos = " ".join(data_odio["texto"])
 
-        # Stopwords padrão + palavras adicionais irrelevantes
-        stop_words = set(STOPWORDS)
-        stop_words.update([
-            "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", "para", "com", "que", 
-            "em", "é", "e", "o", "a", "os", "as", "um", "uma", "na", "no", "não", "mas", "ela", "eu", 
-            "você", "vocês", "nós", "eles", "elas", "meu", "minha", "meus", "minhas", "teu", "tua", "teus", 
-            "tuas", "dele", "dela", "deles", "delas", "esse", "essa", "esses", "essas", "este", "esta", 
-            "estes", "estas", "aquele", "aquela", "aqueles", "aquelas", "lhe", "lhes", "do", "dos", 
-            "das", "num", "numa", "neste", "nesta", "nisto", "naquele", "naquela", "nisso", "daquilo", 
-            "e", "ou", "onde", "porque", "porquê", "lá", "aqui", "ali", "assim", "tão", "já", "então", 
-            "também", "muito", "pouco", "sempre", "tudo", "nada", "cada", "todos", "todas", "algum", 
-            "alguma", "nenhum", "nenhuma", "outro", "outra", "outros", "outras", "seu", "sua", "seus", 
-            "suas", "me", "te", "nos", "vos", "depois", "antes", "até", "ainda", "hoje", "ontem", 
-            "amanhã", "agora", "lá", "cá", "sim", "não", "pois", "porém", "como", "sobre", "entre", 
-            "contra", "sem", "baixo", "apenas", "mesmo", "era", "só", "coisa", "ser", "pessoa", "pai", "cara", "tem", "bem",
-            "foi", "pessoas", "ser", "sou", "ano", "vc", "queria", "gente", "ao", "disse", "nunca", "sempre", "casa", "tempo",
-            "nem", "mim", "q", "que", "pq", "mãe", "mulher", "sala", "dia", "estava", "tenho", "vai", "começou", "fazer", "são",
-            "amigo", "namorada", "anos", "ter", "enquanto", "homem", "aí", "tinha", "vida", "estou", "grupo", "coisas", "fui"
-        ])
+import nltk
+from nltk.corpus import stopwords
+from wordcloud import STOPWORDS
+
+# Certifique-se de baixar o corpus de stopwords do NLTK
+nltk.download('stopwords')
+
+# Extraia as stopwords em português do NLTK
+nltk_stopwords = set(stopwords.words('portuguese'))
+
+# Combine as stopwords padrão do NLTK com as do WordCloud (se houver)
+stop_words = nltk_stopwords.union(STOPWORDS)
+
 
         # Gerar nuvem de palavras
         wordcloud = WordCloud(
