@@ -295,9 +295,6 @@ nltk.download('stopwords')
 # Extraia as stopwords em português do NLTK
 nltk_stopwords = set(stopwords.words('portuguese'))
 
-# Combine as stopwords padrão do NLTK com as do WordCloud (se houver)
-stop_words = nltk_stopwords.union(STOPWORDS)
-
 
         # Gerar nuvem de palavras
         wordcloud = WordCloud(
