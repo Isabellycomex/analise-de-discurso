@@ -355,9 +355,6 @@ if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
     # Filtrar dados para discursos de ódio
     data_respostas = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
-    # Verificando as colunas e o conteúdo do DataFrame
-    st.write(data_respostas.columns)  # Verificando as colunas
-    st.write(data_respostas.head())   # Mostrando algumas linhas para verificar os dados
 
     # Limpeza de espaços extras nas colunas, se necessário
     data_respostas.columns = data_respostas.columns.str.strip()
@@ -379,35 +376,6 @@ if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
         st.plotly_chart(fig_respostas_tipo)
     except KeyError as e:
         st.error(f"Erro ao acessar a coluna: {e}")
-
-if "Quantidade de Compartilhamentos por Tipo de Discurso" in visualizacoes:
-    # Filtrar dados que não são "não é discurso de ódio"
-    data_filtered = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
-    
-    # Verificar se existem valores nulos na coluna de compartilhamentos e preencher com 0, caso existam
-    data_filtered["compartilhamentos"] = data_filtered["compartilhamentos"].fillna(0)
-    
-    # Calcular a quantidade total de compartilhamentos por tipo de discurso
-    compartilhamentos_por_tipo = data_filtered.groupby("resultado_analise")["compartilhamentos"].sum().reset_index()
-    
-    # Se houver tipos de discurso sem compartilhamentos, eles serão excluídos
-    compartilhamentos_por_tipo = compartilhamentos_por_tipo[compartilhamentos_por_tipo["compartilhamentos"] > 0]
-
-    # Verifique se o DataFrame de compartilhamentos_por_tipo tem dados
-    if compartilhamentos_por_tipo.empty:
-        st.write("Não há dados de compartilhamentos disponíveis para o gráfico.")
-    else:
-        # Criar gráfico de barras para os compartilhamentos por tipo de discurso
-        fig = px.bar(
-            compartilhamentos_por_tipo,
-            x="resultado_analise",
-            y="compartilhamentos",
-            color="resultado_analise",
-            title="Quantidade de Compartilhamentos por Tipo de Discurso",
-            labels={"resultado_analise": "Tipo de Discurso", "compartilhamentos": "Quantidade de Compartilhamentos"},
-            color_discrete_sequence=["#FF0000", "#FF6347", "#FF4500", "#FF1493"]  # Escolha de cores mais fortes
-        )
-        st.plotly_chart(fig)
 
 
 
