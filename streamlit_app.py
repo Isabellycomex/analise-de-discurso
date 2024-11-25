@@ -277,29 +277,32 @@ if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
         st.write("Não há dados de discurso de ódio para exibir.")
 
 
+import nltk
+from nltk.corpus import stopwords
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+import streamlit as st
+
+# Verificar se a palavra-chave está presente nas visualizações
 if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
     # Filtrar os dados para considerar apenas discursos de ódio
     data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
     # Verificar se há dados após o filtro
     if not data_odio.empty:
-        from wordcloud import WordCloud, STOPWORDS
-        import matplotlib.pyplot as plt
+        # Baixar o corpus de stopwords do NLTK, se ainda não foi feito
+        nltk.download('stopwords')
+
+        # Extrair as stopwords em português do NLTK
+        nltk_stopwords = set(stopwords.words('portuguese'))
 
         # Combinar os textos em uma única string
         textos = " ".join(data_odio["texto"])
 
-# Certifique-se de baixar o corpus de stopwords do NLTK
-nltk.download('stopwords')
-
-# Extraia as stopwords em português do NLTK
-nltk_stopwords = set(stopwords.words('portuguese'))
-
-
-        # Gerar nuvem de palavras
+        # Gerar nuvem de palavras, utilizando as stopwords do NLTK
         wordcloud = WordCloud(
             background_color="black",
-            stopwords=stop_words,
+            stopwords=nltk_stopwords,
             colormap="coolwarm",
             width=800,
             height=400
@@ -314,6 +317,7 @@ nltk_stopwords = set(stopwords.words('portuguese'))
 
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
+
 
 if "Frequência de Postagens por Usuário" in visualizacoes:
     # Filtrar dados para incluir apenas discursos de ódio
