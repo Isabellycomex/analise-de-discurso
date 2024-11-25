@@ -276,7 +276,8 @@ if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
         st.plotly_chart(fig_visualizacoes_tipo)
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
-if "Palavras Mais Comuns em Discurso de Ódio" in visualizações:
+        
+if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
     # Filtrar os dados para considerar apenas discursos de ódio
     data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
     
