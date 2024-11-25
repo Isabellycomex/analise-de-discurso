@@ -289,10 +289,6 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
         # Combinar os textos em uma única string
         textos = " ".join(data_odio["texto"])
 
-import nltk
-from nltk.corpus import stopwords
-from wordcloud import STOPWORDS
-
 # Certifique-se de baixar o corpus de stopwords do NLTK
 nltk.download('stopwords')
 
