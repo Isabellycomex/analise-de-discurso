@@ -137,7 +137,7 @@ visualizacoes = st.multiselect(
 st.subheader("Visualizações")
 
 if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
-    contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
+contagem_odio = dados_filtrados["eh_discurso_odio"].value_counts()
 
     # Criando o gráfico de pizza com modificações para um gráfico redondo e fundo preto
     fig1 = px.pie(
