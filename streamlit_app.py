@@ -279,10 +279,19 @@ if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
 
 
 import nltk
+import pandas as pd
+import nltk
 from nltk.corpus import stopwords
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import streamlit as st
+
+# Baixar as stopwords
+nltk.download('stopwords')
+
+# Carregar e filtrar os dados (ajuste conforme necessário)
+data = pd.read_csv('publicacoes')  # Substitua com o caminho real
+data_filtered = data.dropna()  # Remover dados ausentes ou aplique outros filtros
 
 # Verificar se a palavra-chave está presente nas visualizações
 if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
@@ -291,9 +300,6 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
 
     # Verificar se há dados após o filtro
     if not data_odio.empty:
-        # Baixar o corpus de stopwords do NLTK, se ainda não foi feito
-        nltk.download('stopwords')
-
         # Extrair as stopwords em português do NLTK
         nltk_stopwords = set(stopwords.words('portuguese'))
 
@@ -318,6 +324,7 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
 
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
+
 
 
 if "Frequência de Postagens por Usuário" in visualizacoes:
