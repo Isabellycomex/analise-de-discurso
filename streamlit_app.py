@@ -215,63 +215,67 @@ if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
         )
         st.plotly_chart(fig3)
 
+# Verificação de se "Média de Upvotes por Tipo de Discurso de Ódio" está na lista de visualizações
 if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
+    # Agrupar e calcular a média de upvotes por tipo de discurso
     media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
     media_upvotes.columns = ["Tipo de Discurso", "Média de Upvotes"]
-    fig5 = px.bar(
-        media_upvotes,
-        x="Tipo de Discurso",
-        y="Média de Upvotes",
-        title="Média de Upvotes por Tipo de Discurso de Ódio",
-        color="Tipo de Discurso",
-        text_auto=True
-    )
-    st.plotly_chart(fig5)
+    
+    # Verificar se há dados
+    if not media_upvotes.empty:
+        fig5 = px.bar(
+            media_upvotes,
+            x="Tipo de Discurso",
+            y="Média de Upvotes",
+            title="Média de Upvotes por Tipo de Discurso de Ódio",
+            color="Tipo de Discurso",
+            text_auto=True
+        )
+        st.plotly_chart(fig5)
+    else:
+        st.write("Não há dados de upvotes para os tipos de discurso de ódio.")
+
+# Visualizações por Tipo de Discurso de Ódio
 if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
     # Filtrar os dados para excluir "não é discurso de ódio"
     data_odio = data_filtered[data_filtered['resultado_analise'] != 'não é discurso de ódio']
-
+    
     # Verificar se há dados após o filtro
     if not data_odio.empty:
-        # Agrupar os dados por tipo de discurso e somar as visualizações
         visualizacoes_por_tipo = data_odio.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
-
-        # Gerar gráfico de linhas
         fig_visualizacoes_tipo = px.line(
             visualizacoes_por_tipo,
             x="resultado_analise",
             y="visualizacoes",
             title="Visualizações por Tipo de Discurso de Ódio",
             labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacoes": "Total de Visualizações"},
-            color_discrete_sequence=px.colors.qualitative.Bold  # Paleta de cores vibrantes e distintas
+            color_discrete_sequence=px.colors.qualitative.Bold
         )
 
         # Estilo e layout com fundo preto
         fig_visualizacoes_tipo.update_traces(mode="lines+markers", line=dict(width=3))
         fig_visualizacoes_tipo.update_layout(
-            plot_bgcolor="black",  # Fundo preto
-            paper_bgcolor="black",  # Fundo do canvas também preto
-            font=dict(color="white"),  # Texto branco
+            plot_bgcolor="black",
+            paper_bgcolor="black",
+            font=dict(color="white"),
             xaxis=dict(title="Tipos de Discurso de Ódio", showgrid=False),
             yaxis=dict(title="Visualizações", showgrid=True, gridcolor="gray"),
-            title=dict(font=dict(size=20)),  # Título maior e em branco
-            legend=dict(title="Tipos", font=dict(color="white"))  # Legenda estilizada
+            title=dict(font=dict(size=20)),
+            legend=dict(title="Tipos", font=dict(color="white"))
         )
-
-        # Exibir o gráfico
         st.plotly_chart(fig_visualizacoes_tipo)
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
-        
+
+# Palavras Mais Comuns em Discurso de Ódio
 if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
     # Filtrar os dados para considerar apenas discursos de ódio
     data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
     
-    # Verifique se há dados após o filtro
     if not data_odio.empty:
-        from wordcloud import WordCloud
-        stop_words = set(STOPWORDS)
+        from wordcloud import WordCloud, STOPWORDS
         
+        stop_words = set(STOPWORDS)
         stop_words.update([
             "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", 
             "para", "com", "que", "em", "é", "e", "o", "a", "os", "como", "um", "uma", 
@@ -293,8 +297,8 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
             "fazer", "são", "amigo", "namorada", "anos", "ter", "enquanto", "homem", "aí", 
             "tinha", "vida", "estou", "grupo", "coisas", "fui"
         ])
-        
-        # Gerar nuvem de palavras
+
+        textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
         wordcloud = WordCloud(
             background_color="black",
             stopwords=stop_words,
@@ -303,23 +307,19 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
             height=400
         ).generate(textos)
 
-        # Exibir gráficos no Streamlit
         fig6, ax = plt.subplots(figsize=(10, 5))
         ax.imshow(wordcloud, interpolation="bilinear")
         ax.axis("off")
         ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, color="white")
-
         st.pyplot(fig6)
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
 
-
-
+# Frequência de Postagens por Usuário
 if "Frequência de Postagens por Usuário" in visualizacoes:
     # Filtrar dados para incluir apenas discursos de ódio
     data_usuarios = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
-    # Agrupar por usuário e contar o número de postagens
     frequencia_postagens = (
         data_usuarios.groupby("usuario")
         .size()
@@ -328,20 +328,16 @@ if "Frequência de Postagens por Usuário" in visualizacoes:
         .head(10)  # Exibir os 10 usuários mais ativos
     )
 
-    # Criar o gráfico
     fig_frequencia = px.bar(
         frequencia_postagens,
         x="usuario",
         y="quantidade_postagens",
         title="Frequência de Postagens por Usuário (Discursos de Ódio)",
         labels={"usuario": "Usuário", "quantidade_postagens": "Quantidade de Postagens"},
-        text_auto=True,  # Mostrar valores nas barras
+        text_auto=True,
     )
 
-    # Alterar a cor das barras para rosa
     fig_frequencia.update_traces(marker_color="pink")
-
-    # Estilo do gráfico com fundo preto
     fig_frequencia.update_layout(
         plot_bgcolor="black",
         paper_bgcolor="black",
@@ -351,35 +347,24 @@ if "Frequência de Postagens por Usuário" in visualizacoes:
         title=dict(font=dict(size=20)),
     )
 
-    # Exibir o gráfico
     st.plotly_chart(fig_frequencia)
 
+# Quantidade de Respostas por Tipo de Discurso
 if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
-    # Filtrar todas as postagens que não são "não é discurso de ódio"
-    discurso_filtrado = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
-    
-    # Verificar se existem dados após o filtro
-    if not discurso_filtrado.empty:
-        # Agrupar por tipo de discurso e somar a quantidade de respostas (comentários)
-        resposta_contagem = discurso_filtrado.groupby("resultado_analise")["comentarios"].sum().reset_index()
-        
-        # Verificar se há dados após a agregação
-        if not resposta_contagem.empty:
-            # Criar gráfico de barras com escala vermelha
-            fig = px.bar(
-                resposta_contagem,
-                x="resultado_analise",
-                y="comentarios",
-                title="Quantidade de Respostas por Tipo de Discurso",
-                labels={"resultado_analise": "Tipo de Discurso", "comentarios": "Quantidade de Respostas (Comentários)"},
-                color="comentarios",  # Cor das barras baseada no número de respostas
-                color_continuous_scale="Viridis",  # Usar escala de cores vermelhas
-            )
-            st.plotly_chart(fig)
-        else:
-            st.write("Nenhuma resposta foi encontrada para os tipos de discurso considerados.")
-    else:
-        st.write("Não existem postagens classificadas como um tipo de discurso válido (diferente de 'não é discurso de ódio').")
+    # Filtrar dados para discursos de ódio
+    data_respostas = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
+
+    respostas_por_tipo = data_respostas.groupby("resultado_analise")["respostas"].sum().reset_index()
+
+    fig_respostas_tipo = px.bar(
+        respostas_por_tipo,
+        x="resultado_analise",
+        y="respostas",
+        title="Quantidade de Respostas por Tipo de Discurso de Ódio",
+        labels={"resultado_analise": "Tipo de Discurso de Ódio", "respostas": "Total de Respostas"}
+    )
+
+    st.plotly_chart(fig_respostas_tipo)
 
 if "Quantidade de Compartilhamentos por Tipo de Discurso" in visualizacoes:
     # Filtrar dados que não são "não é discurso de ódio"
