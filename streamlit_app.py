@@ -107,7 +107,7 @@ with col5:
     )
 
 # Aplicação de filtros
-dados_filtrados = dados[
+data_filtered = dados[
     (dados["hora_postagem"].dt.date >= data_inicio) &
     (dados["hora_postagem"].dt.date <= data_fim) &
     (dados["resultado_analise"].isin(filtro_discurso)) &
@@ -116,7 +116,7 @@ dados_filtrados = dados[
 
 # Exibição dos dados filtrados
 st.subheader("Publicações Filtradas")
-st.write(dados_filtrados[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+st.write(data_filtered[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
 
 # Seleção de gráficos
 st.subheader("Visualizações")
