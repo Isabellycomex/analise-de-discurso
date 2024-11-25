@@ -350,25 +350,35 @@ if "Frequência de Postagens por Usuário" in visualizacoes:
     st.plotly_chart(fig_frequencia)
 
 # Quantidade de Respostas por Tipo de Discurso
+# Quantidade de Respostas por Tipo de Discurso
 if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
     # Filtrar dados para discursos de ódio
     data_respostas = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
+    # Verificando as colunas e o conteúdo do DataFrame
+    st.write(data_respostas.columns)  # Verificando as colunas
+    st.write(data_respostas.head())   # Mostrando algumas linhas para verificar os dados
+
+    # Limpeza de espaços extras nas colunas, se necessário
+    data_respostas.columns = data_respostas.columns.str.strip()
+
     # Agrupar pelos tipos de discurso e somar os comentários
-    respostas_por_tipo = data_respostas.groupby("resultado_analise")["comentários"].sum().reset_index()
+    try:
+        respostas_por_tipo = data_respostas.groupby("resultado_analise")["comentarios"].sum().reset_index()  # Alteração aqui
 
-    # Criando o gráfico de barras
-    fig_respostas_tipo = px.bar(
-        respostas_por_tipo,
-        x="resultado_analise",
-        y="comentários",  # Alterado de 'respostas' para 'comentários'
-        title="Quantidade de Respostas por Tipo de Discurso de Ódio",
-        labels={"resultado_analise": "Tipo de Discurso de Ódio", "comentários": "Total de Respostas"}  # Alterado aqui também
-    )
+        # Criando o gráfico de barras
+        fig_respostas_tipo = px.bar(
+            respostas_por_tipo,
+            x="resultado_analise",
+            y="comentarios",  # Alterado de 'comentários' para 'comentarios'
+            title="Quantidade de Respostas por Tipo de Discurso de Ódio",
+            labels={"resultado_analise": "Tipo de Discurso de Ódio", "comentarios": "Total de Respostas"}  # Alterado aqui também
+        )
 
-    # Exibindo o gráfico
-    st.plotly_chart(fig_respostas_tipo)
-
+        # Exibindo o gráfico
+        st.plotly_chart(fig_respostas_tipo)
+    except KeyError as e:
+        st.error(f"Erro ao acessar a coluna: {e}")
 
 if "Quantidade de Compartilhamentos por Tipo de Discurso" in visualizacoes:
     # Filtrar dados que não são "não é discurso de ódio"
