@@ -5,7 +5,6 @@ import plotly.express as px
 import nltk
 from wordcloud import WordCloud, STOPWORDS
 import datetime as dt
-st.write(data_respostas.columns)
 
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
