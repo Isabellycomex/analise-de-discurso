@@ -6,7 +6,6 @@ import nltk
 from wordcloud import WordCloud, STOPWORDS
 import datetime as dt
 
-
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -34,7 +33,6 @@ dados = carregar_dados(caminho_arquivo)
 if dados is None:
     st.stop()
 
-# Configuração do layout e título
 # Configuração do layout e título
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
@@ -107,7 +105,7 @@ with col5:
     )
 
 # Aplicação de filtros
-data_filtered = dados[
+data_filtered = dados[ 
     (dados["hora_postagem"].dt.date >= data_inicio) &
     (dados["hora_postagem"].dt.date <= data_fim) &
     (dados["resultado_analise"].isin(filtro_discurso)) &
@@ -133,11 +131,12 @@ visualizacoes = st.multiselect(
         "Palavras Mais Comuns em Discurso de Ódio"
     ]
 )
+
 # Gráficos selecionados
 st.subheader("Visualizações")
 
 if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
-contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
+    contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
 
     # Criando o gráfico de pizza com modificações para um gráfico redondo e fundo preto
     fig1 = px.pie(
@@ -169,7 +168,6 @@ contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
     # Exibe o gráfico
     st.plotly_chart(fig1)
 
-
 if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
     # Filtrar apenas discursos de ódio
     odio_emocoes = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
@@ -185,9 +183,6 @@ if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
         labels={"emocao": "Emoção", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
     )
     st.plotly_chart(fig2)
-
-
-
 
 if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
     # Certificar-se de que a coluna 'hora_postagem' é datetime
@@ -208,26 +203,17 @@ if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
     if odio_por_tipo_tempo.empty:
         st.error("Não há dados suficientes para gerar o gráfico de Discurso de Ódio ao Longo do Tempo.")
     else:
-        # Verificar se os dados contêm valores nulos
-        if odio_por_tipo_tempo.isnull().values.any():
-            st.warning("Alguns dados estão nulos, o que pode afetar o gráfico. Verifique os dados.")
-            odio_por_tipo_tempo = odio_por_tipo_tempo.dropna()
-
-        # Criar o gráfico
-        try:
-            fig4 = px.line(
-                odio_por_tipo_tempo,
-                x="mes_postagem",
-                y="count",
-                color="resultado_analise",
-                title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
-                labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
-                markers=True
-            )
-            st.plotly_chart(fig4)
-        except Exception as e:
-            st.error(f"Erro ao gerar o gráfico: {str(e)}")
-
+        # Criar o gráfico de linha
+        fig3 = px.line(
+            odio_por_tipo_tempo,
+            x="mes_postagem",
+            y="count",
+            color="resultado_analise",
+            title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
+            labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
+            markers=True
+        )
+        st.plotly_chart(fig3)
 
 if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
     media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
