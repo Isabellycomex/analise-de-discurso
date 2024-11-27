@@ -268,20 +268,17 @@ if "Visualizações" in visualizacoes:
             color_discrete_sequence=px.colors.qualitative.Bold
         )
 
-        # Estilo e layout com fundo preto
+        # Aplicar estilo e layout
         fig_visualizacoes_tipo.update_traces(mode="lines+markers", line=dict(width=3))
-        fig_visualizacoes_tipo.update_layout(
-            plot_bgcolor="black",
-            paper_bgcolor="black",
-            font=dict(color="white"),
-            xaxis=dict(title="Tipos de Discurso de Ódio", showgrid=False),
-            yaxis=dict(title="Visualizações", showgrid=True, gridcolor="gray"),
-            title=dict(font=dict(size=20)),
-            legend=dict(title="Tipos", font=dict(color="white"))
-        )
+
+        # Função para aplicar o estilo de fundo e fontes
+        aplicar_estilo(fig_visualizacoes_tipo)
+
+        # Exibir o gráfico
         st.plotly_chart(fig_visualizacoes_tipo)
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
+
 
 if "Palavras mais comuns" in visualizacoes:
     # Filtrar os dados para considerar apenas discursos de ódio
@@ -377,7 +374,7 @@ if "Frequência por usuário" in visualizacoes:
         yaxis=dict(title="Frequência de Postagens", showgrid=True, gridcolor="gray"),
         title=dict(font=dict(size=20)),
     )
-
+    aplicar_estilo(fig_frequencia)
     st.plotly_chart(fig_frequencia)
 
 # Quantidade de Respostas por Tipo de Discurso
@@ -402,7 +399,7 @@ if "Quantidade de Comentários" in visualizacoes:
             title="Quantidade de Respostas por Tipo de Discurso de Ódio",
             labels={"resultado_analise": "Tipo de Discurso de Ódio", "comentarios": "Total de Respostas"}  # Alterado aqui também
         )
-
+        aplicar_estilo(fig_respostas_tipo)
         # Exibindo o gráfico
         st.plotly_chart(fig_respostas_tipo)
     except KeyError as e:
