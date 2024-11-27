@@ -227,7 +227,7 @@ if "Frequência por tipo de discurso" in visualizacoes:
             labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
             markers=True
         )
-         fig3 = aplicar_estilo(fig3)
+        fig3 = aplicar_estilo(fig3)
         st.plotly_chart(fig3)
 
 # Verificação de se "Média de Upvotes por Tipo de Discurso de Ódio" está na lista de visualizações
