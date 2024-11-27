@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 import plotly.express as px
 import nltk
 from wordcloud import WordCloud, STOPWORDS
@@ -136,6 +135,17 @@ visualizacoes = st.multiselect(
 
 # Gráficos selecionados
 st.subheader("Visualizações")
+
+# Função para aplicar padrão de estilo de gráfico
+def aplicar_estilo(fig):
+    fig.update_layout(
+        plot_bgcolor="black",
+        paper_bgcolor="black",
+        font=dict(color="white"),
+        title_font=dict(size=18, family="Arial, sans-serif", color="white"),
+        margin=dict(t=40, b=40, l=40, r=40)
+    )
+    return fig
 
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
