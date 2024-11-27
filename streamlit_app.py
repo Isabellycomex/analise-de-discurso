@@ -309,10 +309,11 @@ if "Palavras mais comuns" in visualizacoes:
             height=400
         ).generate(textos)
 
+        
         fig6, ax = plt.subplots(figsize=(10, 5))
         ax.imshow(wordcloud, interpolation="bilinear")
         ax.axis("off")
-        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, color="white")
+        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, color="black")
         st.pyplot(fig6)
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
