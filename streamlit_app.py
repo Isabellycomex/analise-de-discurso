@@ -279,14 +279,15 @@ if "Visualizações" in visualizacoes:
         st.write("Não há dados de discurso de ódio para exibir.")
 
 
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud, STOPWORDS
+import streamlit as st
+
 if "Palavras mais comuns" in visualizacoes:
     # Filtrar os dados para considerar apenas discursos de ódio
     data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
     
     if not data_odio.empty:
-        from wordcloud import WordCloud, STOPWORDS
-        import matplotlib.pyplot as plt
-
         stop_words = set(STOPWORDS)
         stop_words.update([
             "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", 
@@ -310,37 +311,32 @@ if "Palavras mais comuns" in visualizacoes:
             "tinha", "vida", "estou", "grupo", "coisas", "fui"
         ])
 
+        # Gerar a nuvem de palavras a partir dos textos
         textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
         wordcloud = WordCloud(
-            background_color=None,  # Fundo transparente para a nuvem de palavras
+            background_color="black",  # Fundo preto
             stopwords=stop_words,
-            colormap="coolwarm",
+            colormap="coolwarm",  # Escolher a coloração do gráfico
             width=800,
             height=400
         ).generate(textos)
 
-        # Criando o gráfico com matplotlib
+        # Criando o gráfico com Matplotlib
         fig6, ax = plt.subplots(figsize=(10, 5))
         ax.imshow(wordcloud, interpolation="bilinear")
-        ax.axis("off")
-        
-        # Estilo padronizado para o título
-        fig6.update_layout(
-        plot_bgcolor="black",
-        paper_bgcolor="black",
-        font=dict(color="white"),
-        title_font=dict(size=18, family="Arial, sans-serif", color="white"),
-        margin=dict(t=40, b=40, l=40, r=40)
-        )
+        ax.axis("off")  # Remover os eixos
 
-        fig6.update_layout(title="Palavras Mais Comuns em Discurso de Ódio")
-
-        fig6.patch.set_facecolor('none')  
-
-        # Aplicando estilo no gráfico (fundo, borda, etc.)
+        # Estilo padronizado para o gráfico
         ax.set_facecolor("black")  # Cor do fundo do gráfico
-        ax.title.set_color(title_color)  # Cor do título
-
+        ax.title.set_color("white")  # Cor do título
+        ax.xaxis.label.set_color("white")  # Cor do rótulo do eixo X
+        ax.yaxis.label.set_color("white")  # Cor do rótulo do eixo Y
+        ax.tick_params(axis='x', colors='white')  # Cor dos ticks do eixo X
+        ax.tick_params(axis='y', colors='white')  # Cor dos ticks do eixo Y
+        
+        # Título
+        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, fontweight='bold', color="white", family="Arial, sans-serif")
+        
         # Exibindo o gráfico com Streamlit
         st.pyplot(fig6)
     else:
