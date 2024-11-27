@@ -315,7 +315,7 @@ if "Palavras mais comuns" in visualizacoes:
         ax.axis("off")
         
         # Adicionando título mais destacado
-        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=24, fontweight='bold', color="white")
+        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, fontweight='bold', color="white")
         
         # Remover fundo branco
         fig6.patch.set_facecolor('none')  # Definir o fundo da figura como transparente
