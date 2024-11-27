@@ -325,10 +325,17 @@ if "Palavras mais comuns" in visualizacoes:
         ax.axis("off")
         
         # Estilo padronizado para o título
-        title_fontsize = 18
-        title_fontweight = 'bold'
-        title_color = "white"  # A mesma cor usada para os outros gráficos
-        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=title_fontsize, fontweight=title_fontweight, color=title_color)
+        fig6.update_layout(
+        plot_bgcolor="black",
+        paper_bgcolor="black",
+        font=dict(color="white"),
+        title_font=dict(size=18, family="Arial, sans-serif", color="white"),
+        margin=dict(t=40, b=40, l=40, r=40)
+        )
+
+# Adicionando o título à nuvem de palavras
+fig6.update_layout(title="Palavras Mais Comuns em Discurso de Ódio")
+
         
         # Remover fundo branco
         fig6.patch.set_facecolor('none')  # Definir o fundo da figura como transparente
@@ -336,9 +343,6 @@ if "Palavras mais comuns" in visualizacoes:
         # Aplicando estilo no gráfico (fundo, borda, etc.)
         ax.set_facecolor("black")  # Cor do fundo do gráfico
         ax.title.set_color(title_color)  # Cor do título
-
-        # Aplicando estilo no gráfico usando a função padrão
-        aplicar_estilo(fig6)
 
         # Exibindo o gráfico com Streamlit
         st.pyplot(fig6)
