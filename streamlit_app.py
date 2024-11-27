@@ -136,24 +136,15 @@ visualizacoes = st.multiselect(
 # Gráficos selecionados
 st.subheader("Visualizações")
 
-import matplotlib.pyplot as plt
-
 def aplicar_estilo(fig):
-    if isinstance(fig, plt.Figure):
-        # Estilo para gráficos Matplotlib
-        fig.patch.set_facecolor('none')  # Fundo transparente para a figura
-        for ax in fig.get_axes():
-            ax.set_facecolor("black")  # Cor do fundo do gráfico
-            ax.title.set_color("white")  # Cor do título
-            ax.xaxis.label.set_color("white")  # Cor do label do eixo x
-            ax.yaxis.label.set_color("white")  # Cor do label do eixo y
-            ax.tick_params(axis='x', colors='white')  # Cor dos ticks do eixo x
-            ax.tick_params(axis='y', colors='white')  # Cor dos ticks do eixo y
-    else:
-        print("O objeto não é um gráfico Matplotlib.")
+    fig.update_layout(
+        plot_bgcolor="black",
+        paper_bgcolor="black",
+        font=dict(color="white"),
+        title_font=dict(size=18, family="Arial, sans-serif", color="white"),
+        margin=dict(t=40, b=40, l=40, r=40)
+    )
     return fig
-
-
 
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
