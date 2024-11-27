@@ -136,16 +136,23 @@ visualizacoes = st.multiselect(
 # Gráficos selecionados
 st.subheader("Visualizações")
 
+import matplotlib.pyplot as plt
+
 def aplicar_estilo(fig):
-    # Aplicar estilo ao gráfico de nuvem de palavras
-    fig.patch.set_facecolor('none')  # Fundo transparente para a figura
-    for ax in fig.get_axes():
-        ax.set_facecolor("black")  # Cor do fundo do gráfico
-        ax.title.set_color("white")  # Cor do título
-        ax.xaxis.label.set_color("white")  # Cor do label do eixo x
-        ax.yaxis.label.set_color("white")  # Cor do label do eixo y
-        ax.tick_params(axis='x', colors='white')  # Cor dos ticks do eixo x
-        ax.tick_params(axis='y', colors='white')  # Cor dos ticks do eixo y
+    if isinstance(fig, plt.Figure):
+        # Estilo para gráficos Matplotlib
+        fig.patch.set_facecolor('none')  # Fundo transparente para a figura
+        for ax in fig.get_axes():
+            ax.set_facecolor("black")  # Cor do fundo do gráfico
+            ax.title.set_color("white")  # Cor do título
+            ax.xaxis.label.set_color("white")  # Cor do label do eixo x
+            ax.yaxis.label.set_color("white")  # Cor do label do eixo y
+            ax.tick_params(axis='x', colors='white')  # Cor dos ticks do eixo x
+            ax.tick_params(axis='y', colors='white')  # Cor dos ticks do eixo y
+    else:
+        print("O objeto não é um gráfico Matplotlib.")
+    return fig
+
 
 
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
