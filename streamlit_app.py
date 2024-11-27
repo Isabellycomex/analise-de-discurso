@@ -328,7 +328,7 @@ if "Palavras mais comuns" in visualizacoes:
 
         # Estilo padronizado para o gráfico
         ax.set_facecolor("black")  # Cor do fundo do gráfico
-        ax.title.set_color("white")  # Cor do título
+        ax.title.set_color("black")  # Cor do título
         ax.xaxis.label.set_color("white")  # Cor do rótulo do eixo X
         ax.yaxis.label.set_color("white")  # Cor do rótulo do eixo Y
         ax.tick_params(axis='x', colors='white')  # Cor dos ticks do eixo X
