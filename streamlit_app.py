@@ -283,7 +283,6 @@ if "Visualizações" in visualizacoes:
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
 
-# Palavras Mais Comuns em Discurso de Ódio
 if "Palavras mais comuns" in visualizacoes:
     # Filtrar os dados para considerar apenas discursos de ódio
     data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
@@ -324,16 +323,25 @@ if "Palavras mais comuns" in visualizacoes:
             height=400
         ).generate(textos)
 
+        # Criando o gráfico com matplotlib
         fig6, ax = plt.subplots(figsize=(10, 5))
         ax.imshow(wordcloud, interpolation="bilinear")
         ax.axis("off")
         
-        # Adicionando título mais destacado
-        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, fontweight='bold', color="white")
+        # Estilo padronizado para o título
+        title_fontsize = 18
+        title_fontweight = 'bold'
+        title_color = "white"  # A mesma cor usada para os outros gráficos
+        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=title_fontsize, fontweight=title_fontweight, color=title_color)
         
         # Remover fundo branco
         fig6.patch.set_facecolor('none')  # Definir o fundo da figura como transparente
-        fig6 = aplicar_estilo(fig6)
+
+        # Aplicando estilo no gráfico (fundo, borda, etc.)
+        ax.set_facecolor("black")  # Cor do fundo do gráfico
+        ax.title.set_color(title_color)  # Cor do título
+        
+        # Exibindo o gráfico com Streamlit
         st.pyplot(fig6)
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
