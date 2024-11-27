@@ -121,20 +121,23 @@ st.subheader("Visualizações")
 visualizacoes = st.multiselect(
     "Escolha uma ou mais opções",
     [
-        "Gráfico de Pizza - Discurso de Ódio",
-        "Emoções por Tipo de Discurso de Ódio",
-        "Discurso de Ódio ao Longo do Tempo",
-        "Média de Upvotes por Tipo de Discurso de Ódio",
-        "Frequência de Postagens por Usuário",
-        "Quantidade de Respostas por Tipo de Discurso",
-        "Palavras Mais Comuns em Discurso de Ódio"
+        "Discurso (Ódio/Não Ódio)",
+        "Tipo de Discurso de Ódio",
+        "Emoções",
+        "Quantidade de Comentários",
+        "Quantidade de Compartilhamentos",
+        "Visualizações",
+        "Likes (Upvotes)",
+        "Frequência por tipo de discurso",
+        "Frequência por usuário",
+        "Palavras mais comuns"
     ]
 )
 
 # Gráficos selecionados
 st.subheader("Visualizações")
 
-if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
+if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
 
     # Criando o gráfico de pizza com modificações para um gráfico redondo e fundo preto
@@ -167,7 +170,7 @@ if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
     # Exibe o gráfico
     st.plotly_chart(fig1)
 
-if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
+if "Emoções" in visualizacoes:
     # Filtrar apenas discursos de ódio
     odio_emocoes = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
     emocao_contagem = odio_emocoes.groupby(["resultado_analise", "emocao"]).size().reset_index(name="count")
@@ -183,7 +186,7 @@ if "Emoções por Tipo de Discurso de Ódio" in visualizacoes:
     )
     st.plotly_chart(fig2)
 
-if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
+if "Frequência por tipo de discurso" in visualizacoes:
     # Certificar-se de que a coluna 'hora_postagem' é datetime
     if 'hora_postagem' in data_filtered.columns:
         data_filtered['hora_postagem'] = pd.to_datetime(data_filtered['hora_postagem'], errors='coerce')
@@ -215,7 +218,7 @@ if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
         st.plotly_chart(fig3)
 
 # Verificação de se "Média de Upvotes por Tipo de Discurso de Ódio" está na lista de visualizações
-if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
+if "Likes (Upvotes)" in visualizacoes:
     # Agrupar e calcular a média de upvotes por tipo de discurso
     media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
     media_upvotes.columns = ["Tipo de Discurso", "Média de Upvotes"]
@@ -235,7 +238,7 @@ if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
         st.write("Não há dados de upvotes para os tipos de discurso de ódio.")
 
 # Visualizações por Tipo de Discurso de Ódio
-if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
+if "Visualizações" in visualizacoes:
     # Filtrar os dados para excluir "não é discurso de ódio"
     data_odio = data_filtered[data_filtered['resultado_analise'] != 'não é discurso de ódio']
     
@@ -267,7 +270,7 @@ if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
         st.write("Não há dados de discurso de ódio para exibir.")
 
 # Palavras Mais Comuns em Discurso de Ódio
-if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
+if "Palavras mais comuns" in visualizacoes:
     # Filtrar os dados para considerar apenas discursos de ódio
     data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
     
@@ -315,7 +318,7 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
 
 # Frequência de Postagens por Usuário
-if "Frequência de Postagens por Usuário" in visualizacoes:
+if "Frequência por usuário" in visualizacoes:
     # Filtrar dados para incluir apenas discursos de ódio
     data_usuarios = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
@@ -350,7 +353,7 @@ if "Frequência de Postagens por Usuário" in visualizacoes:
 
 # Quantidade de Respostas por Tipo de Discurso
 # Quantidade de Respostas por Tipo de Discurso
-if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
+if "Quantidade de Comentários" in visualizacoes:
     # Filtrar dados para discursos de ódio
     data_respostas = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
