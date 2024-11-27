@@ -178,6 +178,7 @@ if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     )
 
     # Exibe o gráfico
+    fig1 = aplicar_estilo(fig1)
     st.plotly_chart(fig1)
 
 if "Emoções" in visualizacoes:
@@ -194,6 +195,7 @@ if "Emoções" in visualizacoes:
         title="Distribuição de Emoções por Tipo de Discurso de Ódio",
         labels={"emocao": "Emoção", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
     )
+    fig2 = aplicar_estilo(fig2)
     st.plotly_chart(fig2)
 
 if "Frequência por tipo de discurso" in visualizacoes:
@@ -225,6 +227,7 @@ if "Frequência por tipo de discurso" in visualizacoes:
             labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
             markers=True
         )
+         fig3 = aplicar_estilo(fig3)
         st.plotly_chart(fig3)
 
 # Verificação de se "Média de Upvotes por Tipo de Discurso de Ódio" está na lista de visualizações
@@ -243,6 +246,7 @@ if "Likes (Upvotes)" in visualizacoes:
             color="Tipo de Discurso",
             text_auto=True
         )
+        fig5 = aplicar_estilo(fig5)
         st.plotly_chart(fig5)
     else:
         st.write("Não há dados de upvotes para os tipos de discurso de ódio.")
@@ -329,7 +333,7 @@ if "Palavras mais comuns" in visualizacoes:
         
         # Remover fundo branco
         fig6.patch.set_facecolor('none')  # Definir o fundo da figura como transparente
-
+        fig6 = aplicar_estilo(fig6)
         st.pyplot(fig6)
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
