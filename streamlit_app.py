@@ -337,7 +337,10 @@ if "Palavras mais comuns" in visualizacoes:
         # Aplicando estilo no gráfico (fundo, borda, etc.)
         ax.set_facecolor("black")  # Cor do fundo do gráfico
         ax.title.set_color(title_color)  # Cor do título
-        
+
+        # Aplicando estilo no gráfico usando a função padrão
+        aplicar_estilo(fig6)
+
         # Exibindo o gráfico com Streamlit
         st.pyplot(fig6)
     else:
