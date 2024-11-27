@@ -333,12 +333,9 @@ if "Palavras mais comuns" in visualizacoes:
         margin=dict(t=40, b=40, l=40, r=40)
         )
 
-# Adicionando o título à nuvem de palavras
-fig6.update_layout(title="Palavras Mais Comuns em Discurso de Ódio")
+        fig6.update_layout(title="Palavras Mais Comuns em Discurso de Ódio")
 
-        
-        # Remover fundo branco
-        fig6.patch.set_facecolor('none')  # Definir o fundo da figura como transparente
+        fig6.patch.set_facecolor('none')  
 
         # Aplicando estilo no gráfico (fundo, borda, etc.)
         ax.set_facecolor("black")  # Cor do fundo do gráfico
