@@ -328,19 +328,23 @@ if "Palavras mais comuns" in visualizacoes:
 
         # Estilo padronizado para o gráfico
         ax.set_facecolor("black")  # Cor do fundo do gráfico
-        ax.title.set_color("black")  # Cor do título
+        ax.title.set_color("white")  # Cor do título
         ax.xaxis.label.set_color("white")  # Cor do rótulo do eixo X
         ax.yaxis.label.set_color("white")  # Cor do rótulo do eixo Y
         ax.tick_params(axis='x', colors='white')  # Cor dos ticks do eixo X
         ax.tick_params(axis='y', colors='white')  # Cor dos ticks do eixo Y
         
-        # Título
+        # Título do gráfico
         ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, fontweight='bold', color="white", family="Arial, sans-serif")
         
+        # Tornando o fundo da figura transparente
+        fig6.patch.set_facecolor('none')  # Fundo transparente para o gráfico
+
         # Exibindo o gráfico com Streamlit
         st.pyplot(fig6)
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
+
 
 # Frequência de Postagens por Usuário
 if "Frequência por usuário" in visualizacoes:
