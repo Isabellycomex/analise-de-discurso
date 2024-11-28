@@ -416,25 +416,26 @@ if "Tipos de Discurso de Ódio" in visualizacoes:
         st.error("A coluna 'hora_postagem' não está presente nos dados.")
         raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
     
-    # Verificando os filtros aplicados
-    st.write("Valores únicos de hora_postagem:", data_filtered['hora_postagem'].unique())  # Mostra os valores únicos de hora_postagem
-    st.write("Valores únicos de resultado_analise:", data_filtered['resultado_analise'].unique())  # Mostra os valores únicos de resultado_analise
-            fig8 = px.bar(
-            discurso_tipo,
-            x="Tipo de Discurso",
-            y="Quantidade",
-            title="Distribuição dos Tipos de Discurso de Ódio",
-            labels={"Tipo de Discurso": "Tipo de Discurso de Ódio", "Quantidade": "Quantidade"},
-            color="Tipo de Discurso",  # Diferencia as barras por tipo de discurso de ódio
-            color_discrete_sequence=px.colors.qualitative.Set1  # Paleta de cores definida
-        )
-        
-        # Aplicando o estilo ao gráfico
-        fig8 = aplicar_estilo(fig8)
-        
-        # Exibindo o gráfico
-        st.plotly_chart(fig8)
-
+    # Contar a quantidade de cada tipo de discurso de ódio
+    discurso_tipo = data_filtered["resultado_analise"].value_counts().reset_index()
+    discurso_tipo.columns = ["Tipo de Discurso", "Quantidade"]
+    
+    # Criando o gráfico de barras para visualizar os tipos de discurso de ódio
+    fig8 = px.bar(
+        discurso_tipo,
+        x="Tipo de Discurso",
+        y="Quantidade",
+        title="Distribuição dos Tipos de Discurso de Ódio",
+        labels={"Tipo de Discurso": "Tipo de Discurso de Ódio", "Quantidade": "Quantidade"},
+        color="Tipo de Discurso",  # Diferencia as barras por tipo de discurso de ódio
+        color_discrete_sequence=px.colors.qualitative.Set1  # Paleta de cores definida
+    )
+    
+    # Aplicando o estilo ao gráfico
+    fig8 = aplicar_estilo(fig8)
+    
+    # Exibindo apenas o gráfico
+    st.plotly_chart(fig8)
 
 
 # Nota de rodapé
