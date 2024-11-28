@@ -60,38 +60,35 @@ import streamlit as st
 from datetime import datetime, date
 
 # Valores padrão e limites para o filtro de datas
-data_inicio_default = datetime(2023, 1, 1)  # Data inicial padrão
-data_fim_default = datetime(2023, 12, 31)  # Data final padrão
-data_min = datetime(2017, 1, 1)  # Data mínima permitida
-data_max = datetime(2024, 12, 31)  # Data máxima permitida
+data_inicio_default = datetime(2023, 1, 1).date()  # Garantindo o tipo 'date'
+data_fim_default = datetime(2023, 12, 31).date()
+data_min = datetime(2017, 1, 1).date()
+data_max = datetime(2024, 12, 31).date()
 
-# Filtro por data
+# Filtro por data com formatação interna
 col1, col2 = st.columns(2)
 
 with col1:
     data_inicio = st.date_input(
-        "Data Inicial",
-        value=data_inicio_default.date(),  # Converta para 'date' se necessário
-        min_value=data_min.date(),
-        max_value=data_max.date(),
+        "Data Inicial (dd/mm/aaaa)",
+        value=data_inicio_default,
+        min_value=data_min,
+        max_value=data_max,
         key="data_inicio"
     )
-    # Máscara para exibição
-    st.text(f"Data Inicial (dd/mm/aaaa): {data_inicio.strftime('%d/%m/%Y')}")
 
 with col2:
     data_fim = st.date_input(
-        "Data Final",
-        value=data_fim_default.date(),  # Converta para 'date' se necessário
-        min_value=data_min.date(),
-        max_value=data_max.date(),
+        "Data Final (dd/mm/aaaa)",
+        value=data_fim_default,
+        min_value=data_min,
+        max_value=data_max,
         key="data_fim"
     )
-    # Máscara para exibição
-    st.text(f"Data Final (dd/mm/aaaa): {data_fim.strftime('%d/%m/%Y')}")
 
-# Debug interno (opcional)
+# Debug interno opcional
 st.write("Internamente (ISO):", data_inicio, data_fim)
+
 
 
 # Filtro por tipo de discurso e emoção
