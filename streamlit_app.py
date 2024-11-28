@@ -409,16 +409,23 @@ if "Quantidade de Comentários" in visualizacoes:
         st.error(f"Erro ao acessar a coluna: {e}")
 
 if "Tipos de Discurso de Ódio" in visualizacoes:
-    # Certificando que os filtros foram aplicados corretamente
+    # Certificando que a coluna 'hora_postagem' está em formato datetime
     if 'hora_postagem' in data_filtered.columns:
         data_filtered['hora_postagem'] = pd.to_datetime(data_filtered['hora_postagem'], errors='coerce')
     else:
         st.error("A coluna 'hora_postagem' não está presente nos dados.")
         raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
     
-    # Verificando se os dados estão sendo filtrados corretamente
-    st.write("Dados após filtro:")
-    st.write(data_filtered.head())  # Exibe as primeiras linhas do dataframe filtrado
+    # Verificando os filtros aplicados
+    st.write("Valores únicos de hora_postagem:", data_filtered['hora_postagem'].unique())  # Mostra os valores únicos de hora_postagem
+    st.write("Valores únicos de resultado_analise:", data_filtered['resultado_analise'].unique())  # Mostra os valores únicos de resultado_analise
+    
+    # Verificando a filtragem dos dados
+    if len(data_filtered) == 0:
+        st.error("Após a aplicação dos filtros, nenhum dado foi retornado.")
+    else:
+        st.write("Dados após filtro:")
+        st.write(data_filtered.head())  # Exibe as primeiras linhas do dataframe filtrado
     
     # Verificando se a coluna 'resultado_analise' existe e se não está vazia
     if 'resultado_analise' not in data_filtered.columns:
@@ -448,7 +455,6 @@ if "Tipos de Discurso de Ódio" in visualizacoes:
         
         # Exibindo o gráfico
         st.plotly_chart(fig8)
-
 
 
 
