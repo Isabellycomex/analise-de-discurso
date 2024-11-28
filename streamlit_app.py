@@ -419,25 +419,7 @@ if "Tipos de Discurso de Ódio" in visualizacoes:
     # Verificando os filtros aplicados
     st.write("Valores únicos de hora_postagem:", data_filtered['hora_postagem'].unique())  # Mostra os valores únicos de hora_postagem
     st.write("Valores únicos de resultado_analise:", data_filtered['resultado_analise'].unique())  # Mostra os valores únicos de resultado_analise
-    
-    # Verificando a filtragem dos dados
-    if len(data_filtered) == 0:
-        st.error("Após a aplicação dos filtros, nenhum dado foi retornado.")
-    else:
-        st.write("Dados após filtro:")
-        st.write(data_filtered.head())  # Exibe as primeiras linhas do dataframe filtrado
-    
-    # Verificando se a coluna 'resultado_analise' existe e se não está vazia
-    if 'resultado_analise' not in data_filtered.columns:
-        st.error("A coluna 'resultado_analise' não foi encontrada nos dados filtrados.")
-    else:
-        # Contar a quantidade de cada tipo de discurso de ódio
-        discurso_tipo = data_filtered["resultado_analise"].value_counts().reset_index()
-        discurso_tipo.columns = ["Tipo de Discurso", "Quantidade"]
-        
-        # Verificando se a contagem foi bem-sucedida
-        st.write("Contagem dos tipos de discurso de ódio:")
-        st.write(discurso_tipo)
+
         
         # Criando o gráfico de barras para visualizar os tipos de discurso de ódio
         fig8 = px.bar(
