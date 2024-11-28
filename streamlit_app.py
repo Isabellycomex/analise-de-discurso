@@ -419,10 +419,7 @@ if "Tipos de Discurso de Ódio" in visualizacoes:
     # Verificando os filtros aplicados
     st.write("Valores únicos de hora_postagem:", data_filtered['hora_postagem'].unique())  # Mostra os valores únicos de hora_postagem
     st.write("Valores únicos de resultado_analise:", data_filtered['resultado_analise'].unique())  # Mostra os valores únicos de resultado_analise
-
-        
-        # Criando o gráfico de barras para visualizar os tipos de discurso de ódio
-        fig8 = px.bar(
+            fig8 = px.bar(
             discurso_tipo,
             x="Tipo de Discurso",
             y="Quantidade",
