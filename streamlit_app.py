@@ -74,7 +74,7 @@ with col1:
         key="data_inicio"
     )
     # Máscara para exibição
-    st.text(f"Data Inicial: {data_inicio.strftime('%d/%m/%Y')}")
+    st.text(f"Data Inicial (dd/mm/aaaa): {data_inicio.strftime('%d/%m/%Y')}")
 
 with col2:
     data_fim = st.date_input(
@@ -85,10 +85,11 @@ with col2:
         key="data_fim"
     )
     # Máscara para exibição
-    st.text(f"Data Final: {data_fim.strftime('%d/%m/%Y')}")
+    st.text(f"Data Final (dd/mm/aaaa): {data_fim.strftime('%d/%m/%Y')}")
 
 # Debug interno (opcional)
-st.write("Internamente (ISO):", data_inicio, data_fim
+st.write("Internamente (ISO):", data_inicio, data_fim)
+
 
 # Filtro por tipo de discurso e emoção
 col3, col4 = st.columns(2)
