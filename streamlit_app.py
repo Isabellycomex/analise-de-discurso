@@ -57,15 +57,15 @@ data_fim_default = data_max.date() if pd.notnull(data_max) else None
 st.subheader("Filtros")
 
 import streamlit as st
-from datetime import datetime, date
+from datetime import datetime
 
 # Valores padrão e limites para o filtro de datas
-data_inicio_default = datetime(2023, 1, 1).date()  # Garantindo o tipo 'date'
+data_inicio_default = datetime(2023, 1, 1).date()
 data_fim_default = datetime(2023, 12, 31).date()
 data_min = datetime(2017, 1, 1).date()
 data_max = datetime(2024, 12, 31).date()
 
-# Filtro por data com formatação interna
+# Filtro por data com a formatação ajustada
 col1, col2 = st.columns(2)
 
 with col1:
@@ -86,9 +86,8 @@ with col2:
         key="data_fim"
     )
 
-# Debug interno opcional
-st.write("Internamente (ISO):", data_inicio, data_fim)
-
+# Exibição formatada para o usuário (opcional)
+st.write(f"Período selecionado: {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}")
 
 
 # Filtro por tipo de discurso e emoção
