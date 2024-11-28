@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px
 import nltk
 from wordcloud import WordCloud, STOPWORDS
-import datetime as dt
 
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
@@ -28,12 +27,16 @@ def carregar_dados(caminho_arquivo):
         st.error(f"Ocorreu um erro ao carregar o arquivo: {e}")
     return None
 
+# Carregar os dados
 dados = carregar_dados(caminho_arquivo)
 if dados is None:
     st.stop()
 
 # Configuração do layout e título
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
+
+# Exibir o período dos dados
+st.info("Os dados aqui exibidos foram extraídos entre **27/09/2017** e **17/11/2024**.")
 
 # Tratamento de dados
 dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")  # Garantir conversão segura
@@ -45,89 +48,41 @@ dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
-# Verificar valores mínimos e máximos para os filtros
-data_min = dados["hora_postagem"].min()
-data_max = dados["hora_postagem"].max()
-
-# Evitar erro se os dados forem vazios ou NaT
-data_inicio_default = data_min.date() if pd.notnull(data_min) else None
-data_fim_default = data_max.date() if pd.notnull(data_max) else None
-
-# Filtros
+# Filtros opcionais de discurso e emoção
 st.subheader("Filtros")
-
-import streamlit as st
-from datetime import datetime
-
-# Função para validar datas no formato brasileiro
-def validar_data(data_str):
-    try:
-        return datetime.strptime(data_str, "%d/%m/%Y").date()
-    except ValueError:
-        st.error("Data inválida! Use o formato dd/mm/aaaa.")
-        return None
-
-# Layout do filtro de datas
 col1, col2 = st.columns(2)
-
 with col1:
-    data_inicio_str = st.text_input(
-        "Data Inicial (dd/mm/aaaa)",
-        value="01/01/2023",  # Valor padrão
-    )
-    data_inicio = validar_data(data_inicio_str)
-
-with col2:
-    data_fim_str = st.text_input(
-        "Data Final (dd/mm/aaaa)",
-        value="31/12/2023",  # Valor padrão
-    )
-    data_fim = validar_data(data_fim_str)
-
-# Verificar se as datas são válidas antes de prosseguir
-if data_inicio and data_fim:
-    st.success(f"Período selecionado: {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}")
-
-
-# Filtro por tipo de discurso e emoção
-col3, col4 = st.columns(2)
-with col3:
     filtro_discurso = st.multiselect(
-        "Escolha uma ou mais opções",
+        "Escolha uma ou mais opções de discurso",
         options=dados["resultado_analise"].unique(),
-        default=dados["resultado_analise"].unique(),
-        key="filtro_discurso"
+        default=dados["resultado_analise"].unique()
     )
-with col4:
+with col2:
     filtro_emocao = st.multiselect(
-        "Escolha uma ou mais opções",
+        "Escolha uma ou mais opções de emoção",
         options=dados["emocao"].unique(),
-        default=dados["emocao"].unique(),
-        key="filtro_emocao"
+        default=dados["emocao"].unique()
     )
 
 # Filtro por quantidade de publicações
-col5, _ = st.columns(2)
-with col5:
+col3, _ = st.columns(2)
+with col3:
     max_publicacoes = st.slider(
         "Quantidade de Publicações para Analisar",
         min_value=1,
         max_value=min(len(dados), 300),
-        value=300,
-        key="max_publicacoes"
+        value=300
     )
 
-# Aplicação de filtros
-data_filtered = dados[ 
-    (dados["hora_postagem"].dt.date >= data_inicio) &
-    (dados["hora_postagem"].dt.date <= data_fim) &
+# Aplicar filtros
+dados_filtrados = dados[
     (dados["resultado_analise"].isin(filtro_discurso)) &
     (dados["emocao"].isin(filtro_emocao))
 ].head(max_publicacoes)
 
 # Exibição dos dados filtrados
 st.subheader("Publicações Filtradas")
-st.write(data_filtered[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+st.write(dados_filtrados[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
 
 # Seleção de gráficos
 st.subheader("Visualizações")
