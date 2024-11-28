@@ -121,7 +121,7 @@ visualizacoes = st.multiselect(
     "Escolha uma ou mais opções",
     [
         "Discurso (Ódio/Não Ódio)",
-        "Tipo de Discurso de Ódio",
+        "Tipos de Discurso de Ódio",
         "Emoções",
         "Quantidade de Comentários",
         "Quantidade de Compartilhamentos",
