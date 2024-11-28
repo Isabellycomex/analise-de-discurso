@@ -416,26 +416,39 @@ if "Tipos de Discurso de Ódio" in visualizacoes:
         st.error("A coluna 'hora_postagem' não está presente nos dados.")
         raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
     
-    # Contar a quantidade de cada tipo de discurso de ódio (coluna 'resultado_analise')
-    discurso_tipo = data_filtered["resultado_analise"].value_counts().reset_index()
-    discurso_tipo.columns = ["Tipo de Discurso", "Quantidade"]
+    # Verificando se os dados estão sendo filtrados corretamente
+    st.write("Dados após filtro:")
+    st.write(data_filtered.head())  # Exibe as primeiras linhas do dataframe filtrado
     
-    # Criando o gráfico de barras para visualizar os tipos de discurso de ódio
-    fig8 = px.bar(
-        discurso_tipo,
-        x="Tipo de Discurso",
-        y="Quantidade",
-        title="Distribuição dos Tipos de Discurso de Ódio",
-        labels={"Tipo de Discurso": "Tipo de Discurso de Ódio", "Quantidade": "Quantidade"},
-        color="Tipo de Discurso",  # Diferencia as barras por tipo de discurso de ódio
-        color_discrete_sequence=px.colors.qualitative.Set1  # Paleta de cores definida
-    )
-    
-    # Aplicando o estilo ao gráfico
-    fig8 = aplicar_estilo(fig8)
-    
-    # Exibindo o gráfico
-    st.plotly_chart(fig8)
+    # Verificando se a coluna 'resultado_analise' existe e se não está vazia
+    if 'resultado_analise' not in data_filtered.columns:
+        st.error("A coluna 'resultado_analise' não foi encontrada nos dados filtrados.")
+    else:
+        # Contar a quantidade de cada tipo de discurso de ódio
+        discurso_tipo = data_filtered["resultado_analise"].value_counts().reset_index()
+        discurso_tipo.columns = ["Tipo de Discurso", "Quantidade"]
+        
+        # Verificando se a contagem foi bem-sucedida
+        st.write("Contagem dos tipos de discurso de ódio:")
+        st.write(discurso_tipo)
+        
+        # Criando o gráfico de barras para visualizar os tipos de discurso de ódio
+        fig8 = px.bar(
+            discurso_tipo,
+            x="Tipo de Discurso",
+            y="Quantidade",
+            title="Distribuição dos Tipos de Discurso de Ódio",
+            labels={"Tipo de Discurso": "Tipo de Discurso de Ódio", "Quantidade": "Quantidade"},
+            color="Tipo de Discurso",  # Diferencia as barras por tipo de discurso de ódio
+            color_discrete_sequence=px.colors.qualitative.Set1  # Paleta de cores definida
+        )
+        
+        # Aplicando o estilo ao gráfico
+        fig8 = aplicar_estilo(fig8)
+        
+        # Exibindo o gráfico
+        st.plotly_chart(fig8)
+
 
 
 
