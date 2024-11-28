@@ -59,35 +59,34 @@ st.subheader("Filtros")
 import streamlit as st
 from datetime import datetime
 
-# Valores padrão e limites para o filtro de datas
-data_inicio_default = datetime(2023, 1, 1).date()
-data_fim_default = datetime(2023, 12, 31).date()
-data_min = datetime(2017, 1, 1).date()
-data_max = datetime(2024, 12, 31).date()
+# Função para validar datas no formato brasileiro
+def validar_data(data_str):
+    try:
+        return datetime.strptime(data_str, "%d/%m/%Y").date()
+    except ValueError:
+        st.error("Data inválida! Use o formato dd/mm/aaaa.")
+        return None
 
-# Filtro por data com a formatação ajustada
+# Layout do filtro de datas
 col1, col2 = st.columns(2)
 
 with col1:
-    data_inicio = st.date_input(
+    data_inicio_str = st.text_input(
         "Data Inicial (dd/mm/aaaa)",
-        value=data_inicio_default,
-        min_value=data_min,
-        max_value=data_max,
-        key="data_inicio"
+        value="01/01/2023",  # Valor padrão
     )
+    data_inicio = validar_data(data_inicio_str)
 
 with col2:
-    data_fim = st.date_input(
+    data_fim_str = st.text_input(
         "Data Final (dd/mm/aaaa)",
-        value=data_fim_default,
-        min_value=data_min,
-        max_value=data_max,
-        key="data_fim"
+        value="31/12/2023",  # Valor padrão
     )
+    data_fim = validar_data(data_fim_str)
 
-# Exibição formatada para o usuário (opcional)
-st.write(f"Período selecionado: {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}")
+# Verificar se as datas são válidas antes de prosseguir
+if data_inicio and data_fim:
+    st.success(f"Período selecionado: {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}")
 
 
 # Filtro por tipo de discurso e emoção
