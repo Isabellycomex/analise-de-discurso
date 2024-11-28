@@ -56,8 +56,15 @@ data_fim_default = data_max.date() if pd.notnull(data_max) else None
 # Filtros
 st.subheader("Filtros")
 
+# Valores padrão e limites para o filtro de datas (exemplo)
+data_inicio_default = datetime(2023, 1, 1)
+data_fim_default = datetime(2023, 12, 31)
+data_min = datetime(2017, 1, 1)
+data_max = datetime(2024, 12, 31)
+
 # Filtro por data
 col1, col2 = st.columns(2)
+
 with col1:
     data_inicio = st.date_input(
         "Data Inicial",
@@ -66,6 +73,9 @@ with col1:
         max_value=data_max.date(),
         key="data_inicio"
     )
+    # Máscara para exibição
+    st.text(f"Data Inicial: {data_inicio.strftime('%d/%m/%Y')}")
+
 with col2:
     data_fim = st.date_input(
         "Data Final",
@@ -74,6 +84,11 @@ with col2:
         max_value=data_max.date(),
         key="data_fim"
     )
+    # Máscara para exibição
+    st.text(f"Data Final: {data_fim.strftime('%d/%m/%Y')}")
+
+# Debug interno (opcional)
+st.write("Internamente (ISO):", data_inicio, data_fim
 
 # Filtro por tipo de discurso e emoção
 col3, col4 = st.columns(2)
