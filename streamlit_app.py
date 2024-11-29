@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 import plotly.express as px
 import nltk
 from wordcloud import WordCloud, STOPWORDS
+import datetime as dt
 
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
@@ -27,7 +29,6 @@ def carregar_dados(caminho_arquivo):
         st.error(f"Ocorreu um erro ao carregar o arquivo: {e}")
     return None
 
-# Carregar os dados
 dados = carregar_dados(caminho_arquivo)
 if dados is None:
     st.stop()
@@ -35,94 +36,89 @@ if dados is None:
 # Configuração do layout e título
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
-# Converter a coluna de hora_postagem para datetime
-dados["data_postagem"] = pd.to_datetime(dados["hora_postagem"], errors='coerce')
+# Tratamento de dados
+dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")  # Garantir conversão segura
+dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")  # Formatar para exibição
 
-# Seleção de intervalo de datas
-data_min = dados["data_postagem"].min()
-data_max = dados["data_postagem"].max()
+# Adicionar coluna de engajamento e de classificação
+dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
+dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
+    lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
+)
 
-# Criação de filtros por data
-st.subheader("Filtros de Data")
+# Verificar valores mínimos e máximos para os filtros
+data_min = dados["hora_postagem"].min()
+data_max = dados["hora_postagem"].max()
+
+# Evitar erro se os dados forem vazios ou NaT
+data_inicio_default = data_min.date() if pd.notnull(data_min) else None
+data_fim_default = data_max.date() if pd.notnull(data_max) else None
+
+# Filtros
+st.subheader("Filtros")
+
+# Filtro por data
 col1, col2 = st.columns(2)
 with col1:
     data_inicio = st.date_input(
         "Data Inicial",
-        value=data_min.date(),
+        value=data_inicio_default,
         min_value=data_min.date(),
-        max_value=data_max.date()
+        max_value=data_max.date(),
+        key="data_inicio"
     )
 with col2:
     data_fim = st.date_input(
         "Data Final",
-        value=data_max.date(),
+        value=data_fim_default,
         min_value=data_min.date(),
-        max_value=data_max.date()
+        max_value=data_max.date(),
+        key="data_fim"
     )
 
-# Filtro por discurso e emoção
-st.subheader("Filtros Avançados")
-col1, col2 = st.columns(2)
-with col1:
+# Filtro por tipo de discurso e emoção
+col3, col4 = st.columns(2)
+with col3:
     filtro_discurso = st.multiselect(
-        "Escolha um ou mais tipos de discurso",
+        "Escolha uma ou mais opções",
         options=dados["resultado_analise"].unique(),
-        default=dados["resultado_analise"].unique()
+        default=dados["resultado_analise"].unique(),
+        key="filtro_discurso"
     )
-with col2:
+with col4:
     filtro_emocao = st.multiselect(
-        "Escolha uma ou mais emoções",
+        "Escolha uma ou mais opções",
         options=dados["emocao"].unique(),
-        default=dados["emocao"].unique()
+        default=dados["emocao"].unique(),
+        key="filtro_emocao"
     )
 
-# Filtro por quantidade máxima de publicações
-st.subheader("Filtro por Quantidade")
-max_publicacoes = st.slider(
-    "Selecione a quantidade máxima de publicações para analisar",
-    min_value=1,
-    max_value=min(len(dados), 500),
-    value=300
-)
+# Filtro por quantidade de publicações
+col5, _ = st.columns(2)
+with col5:
+    max_publicacoes = st.slider(
+        "Quantidade de Publicações para Analisar",
+        min_value=1,
+        max_value=min(len(dados), 300),
+        value=300,
+        key="max_publicacoes"
+    )
 
-# Aplicar os filtros
-dados_filtrados = dados[
-    (dados["data_postagem"] >= pd.to_datetime(data_inicio)) &
-    (dados["data_postagem"] <= pd.to_datetime(data_fim)) &
+# Aplicação de filtros
+data_filtered = dados[ 
+    (dados["hora_postagem"].dt.date >= data_inicio) &
+    (dados["hora_postagem"].dt.date <= data_fim) &
     (dados["resultado_analise"].isin(filtro_discurso)) &
     (dados["emocao"].isin(filtro_emocao))
 ].head(max_publicacoes)
 
-# Exibir os dados filtrados
-st.write(f"Exibindo dados entre {data_inicio} e {data_fim}, com base nos filtros aplicados:")
-st.write(dados_filtrados)
+# Exibição dos dados filtrados
+st.subheader("Publicações Filtradas")
+st.write(data_filtered[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
 
-# Adicionar colunas derivadas para análises
-dados_filtrados["engajamento"] = dados_filtrados["upvotes"] + dados_filtrados["comentarios"]
-dados_filtrados["eh_discurso_odio"] = dados_filtrados["resultado_analise"].apply(
-    lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
-)
-
-# Seleção de visualizações
-st.subheader("Selecione os Gráficos para Visualização")
-visualizacoes = st.multiselect(
-    "Escolha uma ou mais opções",
-    [
-        "Discurso (Ódio/Não Ódio)",
-        "Tipo de Discurso de Ódio",
-        "Emoções",
-        "Quantidade de Comentários",
-        "Visualizações",
-        "Likes (Upvotes)",
-        "Frequência por tipo de discurso",
-        "Frequencia por usuário",
-        "Palavras mais comuns",
-        "Tipos de Discurso de Ódio"
-    ]
-)
-
-# Gráficos selecionados
+# Seleção de gráficos
 st.subheader("Visualizações")
+visualizacoes = st.multiselect(
 def aplicar_estilo(fig):
     fig.update_layout(
         plot_bgcolor="black",
