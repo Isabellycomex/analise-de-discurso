@@ -135,7 +135,15 @@ visualizacoes = st.multiselect(
 
 # Gráficos selecionados
 st.subheader("Visualizações")
-
+def aplicar_estilo(fig):
+    fig.update_layout(
+        plot_bgcolor="black",
+        paper_bgcolor="black",
+        font=dict(color="white"),
+        title_font=dict(size=18, family="Arial, sans-serif", color="white"),
+        margin=dict(t=40, b=40, l=40, r=40)
+    )
+    return fig
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
 
@@ -166,6 +174,7 @@ if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     )
 
     # Exibe o gráfico
+    fig1 = aplicar_estilo(fig1)
     st.plotly_chart(fig1)
 
 if "Emoções" in visualizacoes:
@@ -182,6 +191,7 @@ if "Emoções" in visualizacoes:
         title="Distribuição de Emoções por Tipo de Discurso de Ódio",
         labels={"emocao": "Emoção", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
     )
+    fig2 = aplicar_estilo(fig2)
     st.plotly_chart(fig2)
 
 if "Frequência por tipo de discurso" in visualizacoes:
@@ -213,6 +223,7 @@ if "Frequência por tipo de discurso" in visualizacoes:
             labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
             markers=True
         )
+        fig3 = aplicar_estilo(fig3)
         st.plotly_chart(fig3)
 
 # Verificação de se "Média de Upvotes por Tipo de Discurso de Ódio" está na lista de visualizações
@@ -220,7 +231,9 @@ if "Likes (Upvotes)" in visualizacoes:
     # Agrupar e calcular a média de upvotes por tipo de discurso
     media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
     media_upvotes.columns = ["Tipo de Discurso", "Média de Upvotes"]
-    
+
+    fig5 = aplicar_estilo(fig5)
+
     # Verificar se há dados
     if not media_upvotes.empty:
         fig5 = px.bar(
@@ -251,6 +264,8 @@ if "Visualizações" in visualizacoes:
             labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacoes": "Total de Visualizações"},
             color_discrete_sequence=px.colors.qualitative.Bold
         )
+
+        aplicar_estilo(fig_visualizacoes_tipo)
 
         # Estilo e layout com fundo preto
         fig_visualizacoes_tipo.update_traces(mode="lines+markers", line=dict(width=3))
@@ -354,7 +369,7 @@ if "Frequencia por usuário" in visualizacoes:
         yaxis=dict(title="Frequência de Postagens", showgrid=True, gridcolor="gray"),
         title=dict(font=dict(size=20)),
     )
-
+    aplicar_estilo(fig_frequencia)
     st.plotly_chart(fig_frequencia)
 
 # Quantidade de Respostas por Tipo de Discurso
@@ -375,5 +390,6 @@ if "Quantidade de Comentários" in visualizacoes:
     )
 
     # Exibindo o gráfico
+    aplicar_estilo(fig_respostas_tipo)
     st.plotly_chart(fig_respostas_tipo)
 
