@@ -129,15 +129,11 @@ def aplicar_estilo(fig):
 # Seleção de gráficos
 st.subheader("Visualizações")
 visualizacoes = st.multiselect(
-def aplicar_estilo(fig):
-    fig.update_layout(
-        plot_bgcolor="black",
-        paper_bgcolor="black",
-        font=dict(color="white"),
-        title_font=dict(size=18, family="Arial, sans-serif", color="white"),
-        margin=dict(t=40, b=40, l=40, r=40)
+visualizacoes = st.multiselect(
+    "Escolha as visualizações que deseja gerar",
+    options=["Discurso (Ódio/Não Ódio)", "Emoções", "Frequência por tipo de discurso", "Likes (Upvotes)", "Visualizações", "Palavras mais comuns"],
+    default=["Discurso (Ódio/Não Ódio)", "Emoções", "Frequência por tipo de discurso", "Likes (Upvotes)"]
 )
-    return fig
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
 
