@@ -116,7 +116,10 @@ def aplicar_estilo(fig):
     return fig
 
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
+if "eh_discurso_odio" in data_filtered.columns:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
+else:
+    st.error("A coluna 'eh_discurso_odio' não foi encontrada nos dados.")
 
     # Criando o gráfico de pizza com modificações para um gráfico redondo e fundo preto
     fig1 = px.pie(
