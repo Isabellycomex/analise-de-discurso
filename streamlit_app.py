@@ -359,11 +359,6 @@ if "Quantidade de Comentários" in visualizacoes:
 
 if "Tipos de Discurso de Ódio" in visualizacoes:
     
-    
-    # Contar a quantidade de cada tipo de discurso de ódio (coluna 'resultado_analise')
-    discurso_tipo = data_filtered["resultado_analise"].value_counts().reset_index()
-    discurso_tipo.columns = ["Tipo de Discurso", "Quantidade"]
-    
     # Criando o gráfico de barras para visualizar os tipos de discurso de ódio
     fig8 = px.bar(
         discurso_tipo,
