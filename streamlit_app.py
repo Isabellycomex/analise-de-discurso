@@ -404,4 +404,12 @@ if "Tipos de Discurso de Ódio" in visualizacoes:
     
     # Exibindo apenas o gráfico
     st.plotly_chart(fig8)
-
+    
+    # Nota de rodapé
+    st.write("""
+    ---
+    Criado por: Isabelly Barbosa Gonçalves  
+    E-mail: isabelly.barbosa@aluno.ifsp.edu.br  
+    Telefone: (13) 988372120  
+    Instituição de Ensino: Instituto Federal de Educação, Ciência e Tecnologia de São Paulo, Campus Cubatão
+    """)
