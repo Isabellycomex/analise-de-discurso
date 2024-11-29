@@ -126,7 +126,7 @@ def aplicar_estilo(fig):
         font=dict(color="white"),
         title_font=dict(size=18, family="Arial, sans-serif", color="white"),
         margin=dict(t=40, b=40, l=40, r=40)
-    )
+)
     return fig
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
