@@ -35,92 +35,76 @@ if dados is None:
 # Configuração do layout e título
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
-# Supondo que data_min e data_max sejam calculados a partir da coluna de datas no DataFrame
-data["data_postagem"] = pd.to_datetime(data["hora_postagem"])  # Certifique-se de que as datas estejam no formato datetime
-data_min = data["data_postagem"].min()
-data_max = data["data_postagem"].max()
+# Converter a coluna de hora_postagem para datetime
+dados["data_postagem"] = pd.to_datetime(dados["hora_postagem"], errors='coerce')
 
-# Valores padrão para as datas (ajuste se necessário)
-data_inicio_default = data_min
-data_fim_default = data_max
+# Seleção de intervalo de datas
+data_min = dados["data_postagem"].min()
+data_max = dados["data_postagem"].max()
 
-# Criação de colunas para os inputs de data
+# Criação de filtros por data
+st.subheader("Filtros de Data")
 col1, col2 = st.columns(2)
 with col1:
     data_inicio = st.date_input(
         "Data Inicial",
-        value=data_inicio_default.date(),  # Converta para date apenas para exibição
+        value=data_min.date(),
         min_value=data_min.date(),
-        max_value=data_max.date(),
-        key="data_inicio"
+        max_value=data_max.date()
     )
 with col2:
     data_fim = st.date_input(
         "Data Final",
-        value=data_fim_default.date(),  # Converta para date apenas para exibição
+        value=data_max.date(),
         min_value=data_min.date(),
-        max_value=data_max.date(),
-        key="data_fim"
+        max_value=data_max.date()
     )
 
-# Filtro do DataFrame pelas datas selecionadas
-data_inicio = pd.to_datetime(data_inicio)  # Converta novamente para datetime
-data_fim = pd.to_datetime(data_fim)  # Converta novamente para datetime
-
-# Filtrando o DataFrame
-data_filtered = data[
-    (data["data_postagem"] >= data_inicio) & (data["data_postagem"] <= data_fim)
-]
-
-# Exibindo as informações filtradas
-st.write(f"Exibindo dados entre {data_inicio.date()} e {data_fim.date()}:")
-st.write(data_filtered)
-
-
-# Adicionar coluna de engajamento e de classificação
-dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
-dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
-    lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
-)
-
-# Filtros opcionais de discurso e emoção
-st.subheader("Filtros")
+# Filtro por discurso e emoção
+st.subheader("Filtros Avançados")
 col1, col2 = st.columns(2)
 with col1:
     filtro_discurso = st.multiselect(
-        "Escolha uma ou mais opções de discurso",
+        "Escolha um ou mais tipos de discurso",
         options=dados["resultado_analise"].unique(),
         default=dados["resultado_analise"].unique()
     )
 with col2:
     filtro_emocao = st.multiselect(
-        "Escolha uma ou mais opções de emoção",
+        "Escolha uma ou mais emoções",
         options=dados["emocao"].unique(),
         default=dados["emocao"].unique()
     )
 
-# Filtro por quantidade de publicações
-col3, _ = st.columns(2)
-with col3:
-    max_publicacoes = st.slider(
-        "Quantidade de Publicações para Analisar",
-        min_value=1,
-        max_value=min(len(dados), 300),
-        value=300
-    )
+# Filtro por quantidade máxima de publicações
+st.subheader("Filtro por Quantidade")
+max_publicacoes = st.slider(
+    "Selecione a quantidade máxima de publicações para analisar",
+    min_value=1,
+    max_value=min(len(dados), 500),
+    value=300
+)
 
-# Aplicar filtros
+# Aplicar os filtros
 dados_filtrados = dados[
+    (dados["data_postagem"] >= pd.to_datetime(data_inicio)) &
+    (dados["data_postagem"] <= pd.to_datetime(data_fim)) &
     (dados["resultado_analise"].isin(filtro_discurso)) &
     (dados["emocao"].isin(filtro_emocao))
 ].head(max_publicacoes)
 
-# Exibição dos dados filtrados
-st.subheader("Publicações Filtradas")
-st.write(dados_filtrados[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+# Exibir os dados filtrados
+st.write(f"Exibindo dados entre {data_inicio} e {data_fim}, com base nos filtros aplicados:")
+st.write(dados_filtrados)
 
-# Seleção de gráficos
-st.subheader("Visualizações")
+# Adicionar colunas derivadas para análises
+dados_filtrados["engajamento"] = dados_filtrados["upvotes"] + dados_filtrados["comentarios"]
+dados_filtrados["eh_discurso_odio"] = dados_filtrados["resultado_analise"].apply(
+    lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
+)
+
+# Seleção de visualizações
+st.subheader("Selecione os Gráficos para Visualização")
 visualizacoes = st.multiselect(
     "Escolha uma ou mais opções",
     [
