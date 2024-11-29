@@ -355,15 +355,15 @@ if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
     data_respostas = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
     # Agrupar pelos tipos de discurso e somar os comentários
-    respostas_por_tipo = data_respostas.groupby("resultado_analise")["comentários"].sum().reset_index()
+    respostas_por_tipo = data_respostas.groupby("resultado_analise")["comentarios"].sum().reset_index()
 
     # Criando o gráfico de barras
     fig_respostas_tipo = px.bar(
         respostas_por_tipo,
         x="resultado_analise",
-        y="comentários",  # Alterado de 'respostas' para 'comentários'
+        y="comentarios",  # Alterado de 'respostas' para 'comentários'
         title="Quantidade de Respostas por Tipo de Discurso de Ódio",
-        labels={"resultado_analise": "Tipo de Discurso de Ódio", "comentários": "Total de Respostas"}  # Alterado aqui também
+        labels={"resultado_analise": "Tipo de Discurso de Ódio", "comentarios": "Total de Respostas"}  # Alterado aqui também
     )
 
     # Exibindo o gráfico
