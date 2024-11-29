@@ -129,7 +129,8 @@ visualizacoes = st.multiselect(
         "Likes (Upvotes)",
         "Frequência por tipo de discurso",
         "Frequencia por usuário",
-        "Palavras mais comuns"
+        "Palavras mais comuns",
+        "Tipos de Discurso de Ódio"
     ]
 )
 
@@ -388,3 +389,31 @@ if "Quantidade de Comentários" in visualizacoes:
     aplicar_estilo(fig_respostas_tipo)
     st.plotly_chart(fig_respostas_tipo)
 
+if "Tipos de Discurso de Ódio" in visualizacoes:
+    # Certificando que os filtros foram aplicados corretamente
+    if 'hora_postagem' in data_filtered.columns:
+        data_filtered['hora_postagem'] = pd.to_datetime(data_filtered['hora_postagem'], errors='coerce')
+    else:
+        st.error("A coluna 'hora_postagem' não está presente nos dados.")
+        raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
+    
+    # Contar a quantidade de cada tipo de discurso de ódio (coluna 'resultado_analise')
+    discurso_tipo = data_filtered["resultado_analise"].value_counts().reset_index()
+    discurso_tipo.columns = ["Tipo de Discurso", "Quantidade"]
+    
+    # Criando o gráfico de barras para visualizar os tipos de discurso de ódio
+    fig8 = px.bar(
+        discurso_tipo,
+        x="Tipo de Discurso",
+        y="Quantidade",
+        title="Distribuição dos Tipos de Discurso de Ódio",
+        labels={"Tipo de Discurso": "Tipo de Discurso de Ódio", "Quantidade": "Quantidade"},
+        color="Tipo de Discurso",  # Diferencia as barras por tipo de discurso de ódio
+        color_discrete_sequence=px.colors.qualitative.Set1  # Paleta de cores definida
+    )
+    
+    # Aplicando o estilo ao gráfico
+    fig8 = aplicar_estilo(fig8)
+    
+    # Exibindo o gráfico
+    st.plotly_chart(fig8)
