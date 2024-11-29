@@ -115,7 +115,7 @@ def aplicar_estilo(fig):
     )
     return fig
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
-    if "eh_discurso_odio" in data_filtered.columns:
+    if isinstance(data_filtered, pd.DataFrame) and "eh_discurso_odio" in data_filtered.columns:
         # Contagem de discurso de ódio
         contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
         
@@ -132,9 +132,11 @@ if "Discurso (Ódio/Não Ódio)" in visualizacoes:
         )
         st.plotly_chart(fig1)
     else:
-        # Caso a coluna 'eh_discurso_odio' não exista
-        st.error("A coluna 'eh_discurso_odio' não foi encontrada nos dados.")
-        
+        if not isinstance(data_filtered, pd.DataFrame):
+            st.error("O objeto 'data_filtered' não é um DataFrame válido.")
+        elif "eh_discurso_odio" not in data_filtered.columns:
+            st.error("A coluna 'eh_discurso_odio' não foi encontrada nos dados.")
+
  # Ajustes estéticos
     fig1.update_traces(
         hoverinfo="label+percent",  # Informação ao passar o mouse
