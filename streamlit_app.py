@@ -277,14 +277,17 @@ if "Visualizações" in visualizacoes:
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
 
-# Palavras Mais Comuns em Discurso de Ódio
+import matplotlib.pyplot as plt
+import streamlit as st
+from wordcloud import WordCloud, STOPWORDS
+
+# Supondo que você já tenha um dataframe 'data_filtered'
+# Filtrar os dados para considerar apenas discursos de ódio
 if "Palavras Mais Comuns" in visualizacoes:
-    # Filtrar os dados para considerar apenas discursos de ódio
     data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
     
     if not data_odio.empty:
-        from wordcloud import WordCloud, STOPWORDS
-        
+        # Definir as stopwords
         stop_words = set(STOPWORDS)
         stop_words.update([
             "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", 
@@ -308,22 +311,31 @@ if "Palavras Mais Comuns" in visualizacoes:
             "tinha", "vida", "estou", "grupo", "coisas", "fui"
         ])
 
+        # Combinar todos os textos para gerar a nuvem de palavras
         textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
-        wordcloud = WordCloud(
-            background_color="black",
-            stopwords=stop_words,
-            colormap="coolwarm",
-            width=800,
-            height=400
-        ).generate(textos)
 
-        fig6, ax = plt.subplots(figsize=(10, 5))
-        ax.imshow(wordcloud, interpolation="bilinear")
-        ax.axis("off")
-        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, color="white")
-        st.pyplot(fig6)
+        # Verificar se há texto para gerar a nuvem de palavras
+        if textos.strip():
+            # Gerar a nuvem de palavras
+            wordcloud = WordCloud(
+                background_color="black",
+                stopwords=stop_words,
+                colormap="coolwarm",
+                width=800,
+                height=400
+            ).generate(textos)
+
+            # Exibir a nuvem de palavras com Streamlit
+            fig6, ax = plt.subplots(figsize=(10, 5))
+            ax.imshow(wordcloud, interpolation="bilinear")
+            ax.axis("off")
+            ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, color="white")
+            st.pyplot(fig6, use_container_width=True)
+        else:
+            st.write("Nenhum texto disponível para gerar a nuvem de palavras.")
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
+
 
 # Frequência de Postagens por Usuário
 if "Frequência por usuário" in visualizacoes:
