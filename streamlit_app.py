@@ -358,12 +358,7 @@ if "Quantidade de Comentários" in visualizacoes:
     st.plotly_chart(fig_respostas_tipo)
 
 if "Tipos de Discurso de Ódio" in visualizacoes:
-    # Certificando que os filtros foram aplicados corretamente
-    if 'hora_postagem' in data_filtered.columns:
-        data_filtered['hora_postagem'] = pd.to_datetime(data_filtered['hora_postagem'], errors='coerce')
-    else:
-        st.error("A coluna 'hora_postagem' não está presente nos dados.")
-        raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
+    
     
     # Contar a quantidade de cada tipo de discurso de ódio (coluna 'resultado_analise')
     discurso_tipo = data_filtered["resultado_analise"].value_counts().reset_index()
