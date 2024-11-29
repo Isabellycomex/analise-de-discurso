@@ -115,29 +115,25 @@ def aplicar_estilo(fig):
         margin=dict(t=40, b=40, l=40, r=40)
     )
     return fig
-if "Discurso (Ódio/Não Ódio)" in visualizacoes:
-contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
+if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
+    # Contagem de discurso de ódio
+    contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
 
-        # Criando o gráfico de pizza com modificações para um gráfico redondo e fundo preto
-        fig1 = px.pie(
-            data_filtered,
-            names="eh_discurso_odio",
-            title="Discurso de Ódio vs Não é Discurso de Ódio",
-            hole=0,  # Retira o buraco central para um gráfico totalmente redondo
-            color_discrete_sequence=["#ff6666", "#4C99FF"],  # Cores mais sóbrias
-        )
-        st.plotly_chart(fig1)
-    else:
-        if not isinstance(data_filtered, pd.DataFrame):
-            st.error("O objeto 'data_filtered' não é um DataFrame válido.")
-        elif "eh_discurso_odio" not in data_filtered.columns:
-            st.error("A coluna 'eh_discurso_odio' não foi encontrada nos dados.")
+    # Criando o gráfico de pizza com modificações para um gráfico redondo e fundo preto
+    fig1 = px.pie(
+        data_filtered,
+        names="eh_discurso_odio",
+        title="Discurso de Ódio vs Não é Discurso de Ódio",
+        hole=0,  # Retira o buraco central para um gráfico totalmente redondo
+        color_discrete_sequence=["#ff6666", "#4C99FF"],  # Cores mais sóbrias
+    )
 
- # Ajustes estéticos
+    # Ajustes estéticos
     fig1.update_traces(
         hoverinfo="label+percent",  # Informação ao passar o mouse
         textinfo="value+percent",  # Exibe valor absoluto e percentagem
         textfont=dict(size=14, family="Arial, sans-serif"),  # Tamanho da fonte
+        marker=dict(line=dict(color="white", width=2))  # Borda branca para dar um acabamento mais limpo
     )
 
     # Ajustar layout
@@ -151,8 +147,8 @@ contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
     )
 
     # Exibe o gráfico
-    fig1 = aplicar_estilo(fig1)
     st.plotly_chart(fig1)
+
 
 if "Emoções" in visualizacoes:
     # Filtrar apenas discursos de ódio
