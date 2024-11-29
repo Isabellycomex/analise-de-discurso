@@ -152,22 +152,25 @@ if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
 
 if "Emoções" in visualizacoes:
     # Filtrar apenas discursos de ódio
-    odio_emocoes = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
-    emocao_contagem = odio_emocoes.groupby(["resultado_analise", "emocao"]).size().reset_index(name="count")
-    
-    fig2 = px.bar(
-        emocao_contagem,
-        x="emocao",
-        y="count",
-        color="resultado_analise",
-        barmode="group",
-        title="Distribuição de Emoções por Tipo de Discurso de Ódio",
-        labels={"emocao": "Emoção", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
-    )
-    fig2 = aplicar_estilo(fig2)
-    st.plotly_chart(fig2)
+    if "eh_discurso_odio" in data_filtered.columns:
+        odio_emocoes = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
+        emocao_contagem = odio_emocoes.groupby(["resultado_analise", "emocao"]).size().reset_index(name="count")
+        
+        fig2 = px.bar(
+            emocao_contagem,
+            x="emocao",
+            y="count",
+            color="resultado_analise",
+            barmode="group",
+            title="Distribuição de Emoções por Tipo de Discurso de Ódio",
+            labels={"emocao": "Emoção", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
+        )
+        st.plotly_chart(fig2)
+    else:
+        st.error("A coluna 'eh_discurso_odio' não está presente nos dados.")
+        raise ValueError("A coluna 'eh_discurso_odio' não foi encontrada.")
 
-if "Frequência por tipo de discurso" in visualizacoes:
+if "Frequencia por tipo de discurso" in visualizacoes:
     # Certificar-se de que a coluna 'hora_postagem' é datetime
     if 'hora_postagem' in data_filtered.columns:
         data_filtered['hora_postagem'] = pd.to_datetime(data_filtered['hora_postagem'], errors='coerce')
@@ -179,25 +182,30 @@ if "Frequência por tipo de discurso" in visualizacoes:
     odio_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
 
     # Agrupar por mês e tipo de discurso
-    odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M").astype(str)  # Converter para string
-    odio_por_tipo_tempo = odio_tempo.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
+    if "hora_postagem" in odio_tempo.columns:
+        odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M").astype(str)  # Converter para string
+        odio_por_tipo_tempo = odio_tempo.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
 
-    # Verificar se a tabela está vazia
-    if odio_por_tipo_tempo.empty:
-        st.error("Não há dados suficientes para gerar o gráfico de Discurso de Ódio ao Longo do Tempo.")
+        # Verificar se a tabela está vazia
+        if odio_por_tipo_tempo.empty:
+            st.error("Não há dados suficientes para gerar o gráfico de Discurso de Ódio ao Longo do Tempo.")
+        else:
+            # Verificar se os dados contêm valores nulos
+            if odio_por_tipo_tempo.isnull().values.any():
+                st.error("Existem valores nulos nos dados de 'Discurso de Ódio ao Longo do Tempo'.")
+            else:
+                fig3 = px.line(
+                    odio_por_tipo_tempo,
+                    x="mes_postagem",
+                    y="count",
+                    color="resultado_analise",
+                    title="Discurso de Ódio ao Longo do Tempo",
+                    labels={"mes_postagem": "Mês de Postagem", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"}
+                )
+                st.plotly_chart(fig3)
     else:
-        # Criar o gráfico de linha
-        fig3 = px.line(
-            odio_por_tipo_tempo,
-            x="mes_postagem",
-            y="count",
-            color="resultado_analise",
-            title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
-            labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
-            markers=True
-        )
-        fig3 = aplicar_estilo(fig3)
-        st.plotly_chart(fig3)
+        st.error("A coluna 'hora_postagem' não está corretamente formatada ou não está presente.")
+
 
 # Verificação de se "Média de Upvotes por Tipo de Discurso de Ódio" está na lista de visualizações
 if "Likes (Upvotes)" in visualizacoes:
