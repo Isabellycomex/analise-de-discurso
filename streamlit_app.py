@@ -353,14 +353,14 @@ if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
     # Filtrar dados para discursos de ódio
     data_respostas = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
-    respostas_por_tipo = data_respostas.groupby("resultado_analise")["respostas"].sum().reset_index()
+    respostas_por_tipo = data_respostas.groupby("resultado_analise")["comentarios"].sum().reset_index()
 
     fig_respostas_tipo = px.bar(
         respostas_por_tipo,
         x="resultado_analise",
-        y="respostas",
+        y="comentarios",
         title="Quantidade de Respostas por Tipo de Discurso de Ódio",
-        labels={"resultado_analise": "Tipo de Discurso de Ódio", "respostas": "Total de Respostas"}
+        labels={"resultado_analise": "Tipo de Discurso de Ódio", "comentarios": "Total de Respostas"}
     )
 
     st.plotly_chart(fig_respostas_tipo)
