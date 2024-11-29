@@ -1,10 +1,8 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 import plotly.express as px
 import nltk
-from wordcloud import WordCloud, STOPWORDS
-import datetime as dt
+from wordcloud import STOPWORDS
 
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
@@ -29,6 +27,7 @@ def carregar_dados(caminho_arquivo):
         st.error(f"Ocorreu um erro ao carregar o arquivo: {e}")
     return None
 
+# Carregar os dados
 dados = carregar_dados(caminho_arquivo)
 if dados is None:
     st.stop()
@@ -115,6 +114,17 @@ data_filtered = dados[
 # Exibição dos dados filtrados
 st.subheader("Publicações Filtradas")
 st.write(data_filtered[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+
+# Função de estilo para gráficos
+def aplicar_estilo(fig):
+    fig.update_layout(
+        plot_bgcolor="black",
+        paper_bgcolor="black",
+        font=dict(color="white"),
+        title_font=dict(size=18, family="Arial, sans-serif", color="white"),
+        margin=dict(t=40, b=40, l=40, r=40)
+    )
+    return fig
 
 # Seleção de gráficos
 st.subheader("Visualizações")
