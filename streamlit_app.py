@@ -251,17 +251,14 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import streamlit as st
 
-# Supondo que você tenha a variável `visualizacoes` e `data_filtered`
-# para verificar se o gráfico deve ser exibido e para filtrar os dados
-
+# Supondo que as variáveis `visualizacoes` e `data_filtered` já estejam definidas
 if "Palavras mais comuns" in visualizacoes:
-    # Filtrar os dados para considerar apenas discursos de ódio
+    # Filtrar os dados para discursos de ódio
     data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
     
     if not data_odio.empty:
-        # Configurar as stopwords
-        stop_words = set(STOPWORDS)
-        stop_words.update([
+        # Configurar stopwords personalizadas
+        stop_words = set(STOPWORDS).union({
             "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", 
             "para", "com", "que", "em", "é", "e", "o", "a", "os", "como", "um", "uma", 
             "na", "no", "não", "mas", "ela", "eu", "você", "vocês", "nós", "eles", "elas", 
@@ -281,48 +278,38 @@ if "Palavras mais comuns" in visualizacoes:
             "que", "pq", "mãe", "mulher", "sala", "dia", "estava", "tenho", "vai", "começou", 
             "fazer", "são", "amigo", "namorada", "anos", "ter", "enquanto", "homem", "aí", 
             "tinha", "vida", "estou", "grupo", "coisas", "fui"
-        ])
+        })
 
-        # Gerar a nuvem de palavras a partir dos textos
-        textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
+        # Gerar textos para a nuvem de palavras
+        textos = " ".join(data_odio["texto"])
+        
+        # Gerar a nuvem de palavras
         wordcloud = WordCloud(
-            background_color="black",  # Fundo preto
+            background_color="black",
             stopwords=stop_words,
-            colormap="coolwarm",  # Escolher a coloração do gráfico
+            colormap="coolwarm",
             width=800,
             height=400
         ).generate(textos)
 
-        # Criando o gráfico com Matplotlib
+        # Criar gráfico usando Matplotlib
         fig6, ax = plt.subplots(figsize=(10, 5))
         ax.imshow(wordcloud, interpolation="bilinear")
-        ax.axis("off")  # Remover os eixos
-
-        # Estilo padronizado para o gráfico
-        ax.set_facecolor("black")  # Cor do fundo do gráfico
-        ax.title.set_color("white")  # Cor do título
-        ax.xaxis.label.set_color("white")  # Cor do rótulo do eixo X
-        ax.yaxis.label.set_color("white")  # Cor do rótulo do eixo Y
-        ax.tick_params(axis='x', colors='white')  # Cor dos ticks do eixo X
-        ax.tick_params(axis='y', colors='white')  # Cor dos ticks do eixo Y
-
-        # Título do gráfico alinhado à esquerda
+        ax.axis("off")
         ax.set_title(
             "Palavras Mais Comuns em Discurso de Ódio",
             fontsize=18,
             fontweight='bold',
             color="white",
-            family="Arial, sans-serif",
-            loc="left"  # Alinhamento à esquerda
+            loc="left"
         )
+        fig6.patch.set_facecolor('none')
 
-        # Tornando o fundo da figura transparente
-        fig6.patch.set_facecolor('none')  # Fundo transparente para o gráfico
-
-        # Exibindo o gráfico com Streamlit
+        # Mostrar gráfico no Streamlit
         st.pyplot(fig6)
     else:
-        st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
+        st.warning("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
+
 
 # Frequência de Postagens por Usuário
 if "Frequência por usuário" in visualizacoes:
