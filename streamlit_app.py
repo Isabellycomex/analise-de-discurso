@@ -35,12 +35,47 @@ if dados is None:
 # Configuração do layout e título
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
-# Exibir o período dos dados
-st.info("Os dados aqui exibidos foram extraídos entre **27/09/2017** e **17/11/2024**.")
+# Supondo que data_min e data_max sejam calculados a partir da coluna de datas no DataFrame
+data["data_postagem"] = pd.to_datetime(data["hora_postagem"])  # Certifique-se de que as datas estejam no formato datetime
+data_min = data["data_postagem"].min()
+data_max = data["data_postagem"].max()
 
-# Tratamento de dados
-dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")  # Garantir conversão segura
-dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")  # Formatar para exibição
+# Valores padrão para as datas (ajuste se necessário)
+data_inicio_default = data_min
+data_fim_default = data_max
+
+# Criação de colunas para os inputs de data
+col1, col2 = st.columns(2)
+with col1:
+    data_inicio = st.date_input(
+        "Data Inicial",
+        value=data_inicio_default.date(),  # Converta para date apenas para exibição
+        min_value=data_min.date(),
+        max_value=data_max.date(),
+        key="data_inicio"
+    )
+with col2:
+    data_fim = st.date_input(
+        "Data Final",
+        value=data_fim_default.date(),  # Converta para date apenas para exibição
+        min_value=data_min.date(),
+        max_value=data_max.date(),
+        key="data_fim"
+    )
+
+# Filtro do DataFrame pelas datas selecionadas
+data_inicio = pd.to_datetime(data_inicio)  # Converta novamente para datetime
+data_fim = pd.to_datetime(data_fim)  # Converta novamente para datetime
+
+# Filtrando o DataFrame
+data_filtered = data[
+    (data["data_postagem"] >= data_inicio) & (data["data_postagem"] <= data_fim)
+]
+
+# Exibindo as informações filtradas
+st.write(f"Exibindo dados entre {data_inicio.date()} e {data_fim.date()}:")
+st.write(data_filtered)
+
 
 # Adicionar coluna de engajamento e de classificação
 dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
