@@ -330,6 +330,7 @@ if "Palavras mais comuns" in visualizacoes:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
 
 
+
 # Frequência de Postagens por Usuário
 if "Frequência de Postagens por Usuário" in visualizacoes:
     # Filtrar dados para incluir apenas discursos de ódio
