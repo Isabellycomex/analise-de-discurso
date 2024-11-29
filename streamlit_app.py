@@ -152,7 +152,8 @@ if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     fig1.update_traces(
         hoverinfo="label+percent",  # Informação ao passar o mouse
         textinfo="value+percent",  # Exibe valor absoluto e percentagem
-        textfont=dict(size=14, family="Arial, sans-serif"),  # Tamanho da fonte    )
+        textfont=dict(size=14, family="Arial, sans-serif"),  # Tamanho da fonte    
+    )
 
     # Ajustar layout
     fig1.update_layout(
