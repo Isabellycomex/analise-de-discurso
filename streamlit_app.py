@@ -231,9 +231,6 @@ if "Likes (Upvotes)" in visualizacoes:
     # Agrupar e calcular a média de upvotes por tipo de discurso
     media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
     media_upvotes.columns = ["Tipo de Discurso", "Média de Upvotes"]
-
-    fig5 = aplicar_estilo(fig5)
-
     # Verificar se há dados
     if not media_upvotes.empty:
         fig5 = px.bar(
@@ -244,10 +241,10 @@ if "Likes (Upvotes)" in visualizacoes:
             color="Tipo de Discurso",
             text_auto=True
         )
+        fig5 = aplicar_estilo(fig5)
         st.plotly_chart(fig5)
     else:
         st.write("Não há dados de upvotes para os tipos de discurso de ódio.")
-
 # Visualizações por Tipo de Discurso de Ódio
 if "Visualizações" in visualizacoes:
     # Filtrar os dados para excluir "não é discurso de ódio"
@@ -264,9 +261,6 @@ if "Visualizações" in visualizacoes:
             labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacoes": "Total de Visualizações"},
             color_discrete_sequence=px.colors.qualitative.Bold
         )
-
-        aplicar_estilo(fig_visualizacoes_tipo)
-
         # Estilo e layout com fundo preto
         fig_visualizacoes_tipo.update_traces(mode="lines+markers", line=dict(width=3))
         fig_visualizacoes_tipo.update_layout(
@@ -278,6 +272,7 @@ if "Visualizações" in visualizacoes:
             title=dict(font=dict(size=20)),
             legend=dict(title="Tipos", font=dict(color="white"))
         )
+        aplicar_estilo(fig_visualizacoes_tipo)
         st.plotly_chart(fig_visualizacoes_tipo)
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
