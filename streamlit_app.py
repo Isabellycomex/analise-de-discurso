@@ -251,6 +251,19 @@ import pandas as pd
 from wordcloud import WordCloud, STOPWORDS
 import streamlit as st
 import plotly.graph_objects as go
+
+# Função aplicar_estilo para personalização
+def aplicar_estilo(fig, titulo):
+    fig.update_layout(
+        title=dict(
+            text=titulo,
+            font=dict(
+                size=18,
+                color="white",
+                family="Arial, sans-serif"
+            ),
+            x=0.5,  # Centraliza o título
+        ),
         paper_bgcolor='rgba(0,0,0,0)',  # Fundo transparente
         plot_bgcolor='rgba(0,0,0,0)',  # Fundo do gráfico transparente
         margin=dict(l=0, r=0, t=50, b=0),  # Margens ajustadas
@@ -325,7 +338,6 @@ if "Palavras mais comuns" in visualizacoes:
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
-
 
 # Frequência de Postagens por Usuário
 if "Frequência por usuário" in visualizacoes:
