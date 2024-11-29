@@ -11,17 +11,6 @@ nltk.download('stopwords')
 # Carregar os dados do CSV
 caminho_arquivo = "publicacoes.csv"
 
-import pandas as pd
-
-# Verifique o tipo de 'data_filtered'
-st.write(f"Tipo de data_filtered: {type(data_filtered)}")
-
-# Verifique as colunas de 'data_filtered'
-if isinstance(data_filtered, pd.DataFrame):
-    st.write(f"Colunas de data_filtered: {data_filtered.columns}")
-else:
-    st.write("data_filtered não é um DataFrame.")
-
 
 # Função para carregar os dados e verificar erros
 def carregar_dados(caminho_arquivo):
@@ -127,13 +116,8 @@ def aplicar_estilo(fig):
     )
     return fig
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
-    if isinstance(data_filtered, pd.DataFrame) and "eh_discurso_odio" in data_filtered.columns:
-        # Contagem de discurso de ódio
-        contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
-        
-        # Exibindo a contagem
-        st.write(contagem_odio)
-        
+contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
+
         # Criando o gráfico de pizza com modificações para um gráfico redondo e fundo preto
         fig1 = px.pie(
             data_filtered,
