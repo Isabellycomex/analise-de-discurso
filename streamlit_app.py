@@ -128,7 +128,8 @@ visualizacoes = st.multiselect(
         "Frequência de Postagens por Usuário",
         "Quantidade de Respostas por Tipo de Discurso",
         "Quantidade de Compartilhamentos por Tipo de Discurso",
-        "Palavras Mais Comuns em Discurso de Ódio"
+        "Palavras Mais Comuns em Discurso de Ódio",
+        "Tipos de Discurso de Ódio"
     ]
 )
 
