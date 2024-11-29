@@ -356,7 +356,7 @@ if "Frequência por usuário" in visualizacoes:
         yaxis=dict(title="Frequência de Postagens", showgrid=True, gridcolor="gray"),
         title=dict(font=dict(size=20)),
     )
-
+    aplicar_estilo(fig_frequencia)
     st.plotly_chart(fig_frequencia)
 
 # Quantidade de Respostas por Tipo de Discurso
@@ -373,7 +373,7 @@ if "Quantidade de Comentários" in visualizacoes:
         title="Quantidade de Respostas por Tipo de Discurso de Ódio",
         labels={"resultado_analise": "Tipo de Discurso de Ódio", "comentarios": "Total de Respostas"}
     )
-
+    aplicar_estilo(fig_respostas_tipo)
     st.plotly_chart(fig_respostas_tipo)
 
 if "Tipos de Discurso de Ódio" in visualizacoes:
