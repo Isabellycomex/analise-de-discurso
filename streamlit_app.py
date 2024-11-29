@@ -114,23 +114,28 @@ def aplicar_estilo(fig):
         margin=dict(t=40, b=40, l=40, r=40)
     )
     return fig
-
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
-if "eh_discurso_odio" in data_filtered.columns:
-    contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
-else:
-    st.error("A coluna 'eh_discurso_odio' não foi encontrada nos dados.")
-
-    # Criando o gráfico de pizza com modificações para um gráfico redondo e fundo preto
-    fig1 = px.pie(
-        data_filtered,
-        names="eh_discurso_odio",
-        title="Discurso de Ódio vs Não é Discurso de Ódio",
-        hole=0,  # Retira o buraco central para um gráfico totalmente redondo
-        color_discrete_sequence=["#ff6666", "#4C99FF"],  # Cores mais sóbrias
-    )
-
-    # Ajustes estéticos
+    if "eh_discurso_odio" in data_filtered.columns:
+        # Contagem de discurso de ódio
+        contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
+        
+        # Exibindo a contagem
+        st.write(contagem_odio)
+        
+        # Criando o gráfico de pizza com modificações para um gráfico redondo e fundo preto
+        fig1 = px.pie(
+            data_filtered,
+            names="eh_discurso_odio",
+            title="Discurso de Ódio vs Não é Discurso de Ódio",
+            hole=0,  # Retira o buraco central para um gráfico totalmente redondo
+            color_discrete_sequence=["#ff6666", "#4C99FF"],  # Cores mais sóbrias
+        )
+        st.plotly_chart(fig1)
+    else:
+        # Caso a coluna 'eh_discurso_odio' não exista
+        st.error("A coluna 'eh_discurso_odio' não foi encontrada nos dados.")
+        
+ # Ajustes estéticos
     fig1.update_traces(
         hoverinfo="label+percent",  # Informação ao passar o mouse
         textinfo="value+percent",  # Exibe valor absoluto e percentagem
