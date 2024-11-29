@@ -268,13 +268,14 @@ if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
         st.write("Não há dados de discurso de ódio para exibir.")
 
 # Palavras Mais Comuns em Discurso de Ódio
-if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
+if "Palavras mais comuns" in visualizacoes:
     # Filtrar os dados para considerar apenas discursos de ódio
     data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
     
     if not data_odio.empty:
         from wordcloud import WordCloud, STOPWORDS
-        
+        import matplotlib.pyplot as plt
+
         stop_words = set(STOPWORDS)
         stop_words.update([
             "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", 
@@ -300,7 +301,7 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
 
         textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
         wordcloud = WordCloud(
-            background_color="black",
+            background_color=None,  # Fundo transparente para a nuvem de palavras
             stopwords=stop_words,
             colormap="coolwarm",
             width=800,
@@ -310,7 +311,13 @@ if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
         fig6, ax = plt.subplots(figsize=(10, 5))
         ax.imshow(wordcloud, interpolation="bilinear")
         ax.axis("off")
-        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, color="white")
+        
+        # Adicionando título mais destacado
+        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=24, fontweight='bold', color="white")
+        
+        # Remover fundo branco
+        fig6.patch.set_facecolor('none')  # Definir o fundo da figura como transparente
+
         st.pyplot(fig6)
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
