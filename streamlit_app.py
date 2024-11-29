@@ -128,7 +128,7 @@ visualizacoes = st.multiselect(
         "Frequência de Postagens por Usuário",
         "Quantidade de Respostas por Tipo de Discurso",
         "Quantidade de Compartilhamentos por Tipo de Discurso",
-        "Palavras Mais Comuns"
+        "Palavras Mais Comuns em Discurso de Ódio"
     ]
 )
 
@@ -152,6 +152,7 @@ if "Gráfico de Pizza - Discurso de Ódio" in visualizacoes:
         hoverinfo="label+percent",  # Informação ao passar o mouse
         textinfo="value+percent",  # Exibe valor absoluto e percentagem
         textfont=dict(size=14, family="Arial, sans-serif"),  # Tamanho da fonte
+        marker=dict(line=dict(color="white", width=2))  # Borda branca para dar um acabamento mais limpo
     )
 
     # Ajustar layout
@@ -213,7 +214,6 @@ if "Discurso de Ódio ao Longo do Tempo" in visualizacoes:
             markers=True
         )
         st.plotly_chart(fig3)
-
 # Verificação de se "Média de Upvotes por Tipo de Discurso de Ódio" está na lista de visualizações
 if "Média de Upvotes por Tipo de Discurso de Ódio" in visualizacoes:
     # Agrupar e calcular a média de upvotes por tipo de discurso
@@ -266,23 +266,38 @@ if "Visualizações por Tipo de Discurso de Ódio" in visualizacoes:
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
 
-import matplotlib.pyplot as plt
-from wordcloud import WordCloud, STOPWORDS
-import streamlit as st
-
-if "Palavras mais comuns" in visualizacoes:
+# Palavras Mais Comuns em Discurso de Ódio
+if "Palavras Mais Comuns em Discurso de Ódio" in visualizacoes:
     # Filtrar os dados para considerar apenas discursos de ódio
     data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
     
     if not data_odio.empty:
+        from wordcloud import WordCloud, STOPWORDS
+        
         stop_words = set(STOPWORDS)
-        stop_words.update([...])  # Lista de stopwords, conforme já foi configurada
+        stop_words.update([
+            "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", 
+            "para", "com", "que", "em", "é", "e", "o", "a", "os", "como", "um", "uma", 
+            "na", "no", "não", "mas", "ela", "eu", "você", "vocês", "nós", "eles", "elas", 
+            "meu", "minha", "meus", "minhas", "teu", "tua", "teus", "tuas", "dele", "dela", 
+            "deles", "delas", "esse", "essa", "esses", "essas", "este", "esta", "estes", 
+            "estas", "aquele", "aquela", "aqueles", "aquelas", "lhe", "lhes", "do", "dos", 
+            "das", "num", "numa", "neste", "nesta", "nisto", "naquele", "naquela", "nisso", 
+            "daquilo", "e", "ou", "onde", "porque", "porquê", "lá", "aqui", "ali", "assim", 
+            "tão", "já", "então", "também", "muito", "pouco", "sempre", "tudo", "nada", 
+            "cada", "todos", "todas", "algum", "alguma", "nenhum", "nenhuma", "outro", 
+            "outra", "outros", "outras", "seu", "sua", "seus", "suas", "me", "te", "nos", 
+            "vos", "depois", "antes", "até", "ainda", "hoje", "ontem", "amanhã", "agora", 
+            "lá", "cá", "sim", "não", "pois", "porém", "como", "sobre", "entre", "contra", 
+            "sem", "baixo", "apenas", "mesmo", "era", "só", "coisa", "ser", "pessoa", "pai", 
+            "cara", "tem", "bem", "foi", "pessoas", "ser", "sou", "ano", "vc", "queria", 
+            "gente", "ao", "disse", "nunca", "sempre", "casa", "tempo", "nem", "mim", "q", 
+            "que", "pq", "mãe", "mulher", "sala", "dia", "estava", "tenho", "vai", "começou", 
+            "fazer", "são", "amigo", "namorada", "anos", "ter", "enquanto", "homem", "aí", 
+            "tinha", "vida", "estou", "grupo", "coisas", "fui"
+        ])
 
-        # Gerar a nuvem de palavras a partir dos textos
         textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
-        st.write(f"Número de postagens para a nuvem de palavras: {len(data_odio)}")
-        st.write("Textos:", textos[:500])  # Exibe um trecho dos textos para verificação
-
         wordcloud = WordCloud(
             background_color="black",
             stopwords=stop_words,
@@ -291,27 +306,13 @@ if "Palavras mais comuns" in visualizacoes:
             height=400
         ).generate(textos)
 
-        # Criando o gráfico com Matplotlib
         fig6, ax = plt.subplots(figsize=(10, 5))
         ax.imshow(wordcloud, interpolation="bilinear")
-        ax.axis("off")  # Remover os eixos
-
-        # Estilo padronizado para o gráfico
-        ax.set_facecolor("black")  # Cor do fundo do gráfico
-        ax.title.set_color("white")  # Cor do título
-        ax.xaxis.label.set_color("white")  # Cor do rótulo do eixo X
-        ax.yaxis.label.set_color("white")  # Cor do rótulo do eixo Y
-        ax.tick_params(axis='x', colors='white')  # Cor dos ticks do eixo X
-        ax.tick_params(axis='y', colors='white')  # Cor dos ticks do eixo Y
-        
-        # Título
-        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, fontweight='bold', color="white", family="Arial, sans-serif")
-        
-        # Exibindo o gráfico com Streamlit
+        ax.axis("off")
+        ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, color="white")
         st.pyplot(fig6)
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
-
 
 # Frequência de Postagens por Usuário
 if "Frequência de Postagens por Usuário" in visualizacoes:
@@ -352,14 +353,15 @@ if "Quantidade de Respostas por Tipo de Discurso" in visualizacoes:
     # Filtrar dados para discursos de ódio
     data_respostas = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
-    respostas_por_tipo = data_respostas.groupby("resultado_analise")["comentarios"].sum().reset_index()
+    respostas_por_tipo = data_respostas.groupby("resultado_analise")["respostas"].sum().reset_index()
 
     fig_respostas_tipo = px.bar(
         respostas_por_tipo,
         x="resultado_analise",
-        y="comentarios",
+        y="respostas",
         title="Quantidade de Respostas por Tipo de Discurso de Ódio",
-        labels={"resultado_analise": "Tipo de Discurso de Ódio", "comentarios": "Total de Respostas"}
+        labels={"resultado_analise": "Tipo de Discurso de Ódio", "respostas": "Total de Respostas"}
     )
 
     st.plotly_chart(fig_respostas_tipo)
+
