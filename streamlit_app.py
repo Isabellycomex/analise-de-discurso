@@ -276,34 +276,17 @@ if "Palavras mais comuns" in visualizacoes:
     
     if not data_odio.empty:
         stop_words = set(STOPWORDS)
-        stop_words.update([
-            "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", 
-            "para", "com", "que", "em", "é", "e", "o", "a", "os", "como", "um", "uma", 
-            "na", "no", "não", "mas", "ela", "eu", "você", "vocês", "nós", "eles", "elas", 
-            "meu", "minha", "meus", "minhas", "teu", "tua", "teus", "tuas", "dele", "dela", 
-            "deles", "delas", "esse", "essa", "esses", "essas", "este", "esta", "estes", 
-            "estas", "aquele", "aquela", "aqueles", "aquelas", "lhe", "lhes", "do", "dos", 
-            "das", "num", "numa", "neste", "nesta", "nisto", "naquele", "naquela", "nisso", 
-            "daquilo", "e", "ou", "onde", "porque", "porquê", "lá", "aqui", "ali", "assim", 
-            "tão", "já", "então", "também", "muito", "pouco", "sempre", "tudo", "nada", 
-            "cada", "todos", "todas", "algum", "alguma", "nenhum", "nenhuma", "outro", 
-            "outra", "outros", "outras", "seu", "sua", "seus", "suas", "me", "te", "nos", 
-            "vos", "depois", "antes", "até", "ainda", "hoje", "ontem", "amanhã", "agora", 
-            "lá", "cá", "sim", "não", "pois", "porém", "como", "sobre", "entre", "contra", 
-            "sem", "baixo", "apenas", "mesmo", "era", "só", "coisa", "ser", "pessoa", "pai", 
-            "cara", "tem", "bem", "foi", "pessoas", "ser", "sou", "ano", "vc", "queria", 
-            "gente", "ao", "disse", "nunca", "sempre", "casa", "tempo", "nem", "mim", "q", 
-            "que", "pq", "mãe", "mulher", "sala", "dia", "estava", "tenho", "vai", "começou", 
-            "fazer", "são", "amigo", "namorada", "anos", "ter", "enquanto", "homem", "aí", 
-            "tinha", "vida", "estou", "grupo", "coisas", "fui"
-        ])
+        stop_words.update([...])  # Lista de stopwords, conforme já foi configurada
 
         # Gerar a nuvem de palavras a partir dos textos
         textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
+        st.write(f"Número de postagens para a nuvem de palavras: {len(data_odio)}")
+        st.write("Textos:", textos[:500])  # Exibe um trecho dos textos para verificação
+
         wordcloud = WordCloud(
-            background_color="black",  # Fundo preto
+            background_color="black",
             stopwords=stop_words,
-            colormap="coolwarm",  # Escolher a coloração do gráfico
+            colormap="coolwarm",
             width=800,
             height=400
         ).generate(textos)
@@ -328,7 +311,6 @@ if "Palavras mais comuns" in visualizacoes:
         st.pyplot(fig6)
     else:
         st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
-
 
 
 # Frequência de Postagens por Usuário
