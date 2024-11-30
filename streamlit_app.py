@@ -179,6 +179,35 @@ if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     fig1 = aplicar_estilo(fig1)
     st.plotly_chart(fig1)
 
+if "Tipos de Discurso de Ódio" in visualizacoes:
+    # Certificando que a coluna 'hora_postagem' está em formato datetime
+    if 'hora_postagem' in data_filtered.columns:
+        data_filtered['hora_postagem'] = pd.to_datetime(data_filtered['hora_postagem'], errors='coerce')
+    else:
+        st.error("A coluna 'hora_postagem' não está presente nos dados.")
+        raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
+    
+    # Contar a quantidade de cada tipo de discurso de ódio
+    discurso_tipo = data_filtered["resultado_analise"].value_counts().reset_index()
+    discurso_tipo.columns = ["Tipo de Discurso", "Quantidade"]
+    
+    # Criando o gráfico de barras para visualizar os tipos de discurso de ódio
+    fig8 = px.bar(
+        discurso_tipo,
+        x="Tipo de Discurso",
+        y="Quantidade",
+        title="Distribuição dos Tipos de Discurso de Ódio",
+        labels={"Tipo de Discurso": "Tipo de Discurso de Ódio", "Quantidade": "Quantidade"},
+        color="Tipo de Discurso",  # Diferencia as barras por tipo de discurso de ódio
+        color_discrete_sequence=px.colors.qualitative.Set1  # Paleta de cores definida
+    )
+    
+    # Aplicando o estilo ao gráfico
+    fig8 = aplicar_estilo(fig8)
+    
+    # Exibindo apenas o gráfico
+    st.plotly_chart(fig8)
+
 if "Emoções" in visualizacoes:
     # Filtrar apenas discursos de ódio
     odio_emocoes = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
