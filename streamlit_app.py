@@ -87,13 +87,13 @@ col3, col4 = st.columns(2)
 with col3:
     filtro_discurso = st.multiselect(
         "Escolha o tipo de discurso que deseja visualizar",
-        options=["Todas"] + list(dados["resultado_analise"].unique()),  # Adiciona a opção 'Todas'
-        default=["Todas"],  # Define o padrão como 'Todas'
+        options=["Todos"] + list(dados["resultado_analise"].unique()),  # Adiciona a opção 'Todas'
+        default=["Todos"],  # Define o padrão como 'Todas'
         key="filtro_discurso"
     )
 
     # Se 'Todas' for selecionado, seleciona todas as opções
-    if "Todas" in filtro_discurso:
+    if "Todos" in filtro_discurso:
         filtro_discurso = list(dados["resultado_analise"].unique())  # Todas as opções
 
 with col4:
