@@ -142,7 +142,6 @@ visualizacoes = st.multiselect(
         "Tipos de Discurso de Ódio",
         "Emoções",
         "Quantidade de Comentários",
-        "Quantidade de Compartilhamentos",
         "Visualizações",
         "Likes (Upvotes)",
         "Frequência por tipo de discurso",
