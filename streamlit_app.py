@@ -314,21 +314,14 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import streamlit as st
 
-# Simulação de dados para o exemplo
-data_filtered = {
-    "resultado_analise": ["discurso de ódio", "não é discurso de ódio", "discurso de ódio"],
-    "texto": ["Este é um exemplo de texto", "Outro exemplo", "Mais um exemplo de discurso"]
-}
-
-# Filtrar os dados com discurso de ódio
-data_odio = [
-    item for item in data_filtered["texto"]
-    if data_filtered["resultado_analise"][data_filtered["texto"].index(item)] != "não é discurso de ódio"
-]
-
-# Definir as stopwords
-stop_words = set(STOPWORDS)
-stop_words.update([
+if "Palavras Mais Comuns" in visualizacoes:
+    # Filtrar os dados para excluir os que não são discurso de ódio
+    data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
+    
+    if not data_odio.empty:
+        # Definir as stopwords
+        stop_words = set(STOPWORDS)
+        stop_words.update([
     "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", 
     "para", "com", "que", "em", "é", "e", "o", "a", "os", "como", "um", "uma", 
     "na", "no", "não", "mas", "ela", "eu", "você", "vocês", "nós", "eles", "elas", 
@@ -351,7 +344,7 @@ stop_words.update([
 ])
 
 # Combinar os textos para gerar a nuvem de palavras
-textos = " ".join(data_odio)
+textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
 
 # Gerar a nuvem de palavras
 if textos.strip():
