@@ -81,7 +81,7 @@ col3, col4 = st.columns(2)
 
 with col3:
     filtro_discurso = st.multiselect(
-        "Escolha uma ou mais opções para tipo de discurso",
+        "Escolha o tipo de discurso que deseja visualizar",
         options=["Todas"] + list(dados["resultado_analise"].unique()),  # Adiciona a opção 'Todas'
         default=list(dados["resultado_analise"].unique()),  # Define o padrão como todas as opções
         key="filtro_discurso"
@@ -93,7 +93,7 @@ with col3:
 
 with col4:
     filtro_emocao = st.multiselect(
-        "Escolha uma ou mais opções para emoção",
+        "Escolha o tipo de emoção que deseja visualizar",
         options=["Todas"] + list(dados["emocao"].unique()),  # Adiciona a opção 'Todas'
         default=list(dados["emocao"].unique()),  # Define o padrão como todas as opções
         key="filtro_emocao"
