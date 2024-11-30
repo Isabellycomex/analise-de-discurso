@@ -76,14 +76,12 @@ with col2:
         key="data_fim"
     )
 
-import streamlit as st
-
 # Filtro por tipo de discurso e emoção
 col3, col4 = st.columns(2)
 
 with col3:
     filtro_discurso = st.multiselect(
-        "Escolha uma ou mais opções",
+        "Escolha uma ou mais opções para tipo de discurso",
         options=["Todas"] + list(dados["resultado_analise"].unique()),  # Adiciona a opção 'Todas'
         default=list(dados["resultado_analise"].unique()),  # Define o padrão como todas as opções
         key="filtro_discurso"
@@ -95,7 +93,7 @@ with col3:
 
 with col4:
     filtro_emocao = st.multiselect(
-        "Escolha uma ou mais opções",
+        "Escolha uma ou mais opções para emoção",
         options=["Todas"] + list(dados["emocao"].unique()),  # Adiciona a opção 'Todas'
         default=list(dados["emocao"].unique()),  # Define o padrão como todas as opções
         key="filtro_emocao"
@@ -105,9 +103,13 @@ with col4:
     if "Todas" in filtro_emocao:
         filtro_emocao = list(dados["emocao"].unique())  # Todas as opções
 
-# Aqui você pode usar as variáveis `filtro_discurso` e `filtro_emocao` para filtrar os dados
+# Filtragem dos dados de forma independente
 
+# Filtra os dados para o tipo de discurso
+dados_filtrados_discurso = dados[dados["resultado_analise"].isin(filtro_discurso)]
 
+# Filtra os dados para a emoção
+dados_filtrados_emocao = dados[dados["emocao"].isin(filtro_emocao)]
 # Filtro por quantidade de publicações
 col5, _ = st.columns(2)
 with col5:
