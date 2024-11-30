@@ -1,10 +1,7 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import plotly.express as px
 import nltk
-from wordcloud import WordCloud, STOPWORDS
-import datetime as dt
+from datetime import datetime
 
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
@@ -40,28 +37,22 @@ st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")  # Garantir conversão segura
 dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")  # Formatar para exibição
 
-# Adicionar coluna de engajamento e de classificação
-dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
-dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
-    lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
-)
-
 # Verificar valores mínimos e máximos para os filtros
 data_min = dados["hora_postagem"].min()
 data_max = dados["hora_postagem"].max()
 
-# Evitar erro se os dados forem vazios ou NaT
 data_inicio_default = data_min.date() if pd.notnull(data_min) else None
 data_fim_default = data_max.date() if pd.notnull(data_max) else None
 
 # Filtros
 st.subheader("Filtros")
+st.warning("Todos os filtros são obrigatórios para visualizar os dados.")
 
 # Filtro por data
 col1, col2 = st.columns(2)
 with col1:
     data_inicio = st.date_input(
-        "Data Inicial",
+        "Data Inicial (Obrigatório)",
         value=data_inicio_default,
         min_value=data_min.date(),
         max_value=data_max.date(),
@@ -69,76 +60,43 @@ with col1:
     )
 with col2:
     data_fim = st.date_input(
-        "Data Final",
+        "Data Final (Obrigatório)",
         value=data_fim_default,
         min_value=data_min.date(),
         max_value=data_max.date(),
         key="data_fim"
     )
 
-# Filtro por tipo de discurso e emoção
-col3, col4 = st.columns(2)
+# Filtro por tipo de discurso
+filtro_discurso = st.multiselect(
+    "Tipo de Discurso (Obrigatório)",
+    options=dados["resultado_analise"].unique(),
+    key="filtro_discurso"
+)
 
-import streamlit as st
+# Filtro por tipo de emoção
+filtro_emocao = st.multiselect(
+    "Tipo de Emoção (Obrigatório)",
+    options=dados["emocao"].unique(),
+    key="filtro_emocao"
+)
 
-# Filtro por tipo de discurso e emoção
-col3, col4 = st.columns(2)
-
-with col3:
-    filtro_discurso = st.multiselect(
-        "Escolha o tipo de discurso que deseja visualizar",
-        options=["Todos"] + list(dados["resultado_analise"].unique()),  # Adiciona a opção 'Todas'
-        default=["Todos"],  # Define o padrão como 'Todas'
-        key="filtro_discurso"
-    )
-
-    # Se 'Todas' for selecionado, seleciona todas as opções
-    if "Todos" in filtro_discurso:
-        filtro_discurso = list(dados["resultado_analise"].unique())  # Todas as opções
-
-with col4:
-    filtro_emocao = st.multiselect(
-        "Escolha o tipo de emoção que deseja visualizar",
-        options=["Todas"] + list(dados["emocao"].unique()),  # Adiciona a opção 'Todas'
-        default=["Todas"],  # Define o padrão como 'Todas'
-        key="filtro_emocao"
-    )
-
-    # Se 'Todas' for selecionado, seleciona todas as opções
-    if "Todas" in filtro_emocao:
-        filtro_emocao = list(dados["emocao"].unique())  # Todas as opções
-
-# Filtragem dos dados de forma independente
-
-# Filtra os dados para o tipo de discurso
-dados_filtrados_discurso = dados[dados["resultado_analise"].isin(filtro_discurso)]
-
-# Filtra os dados para a emoção
-dados_filtrados_emocao = dados[dados["emocao"].isin(filtro_emocao)]
-# Filtra os dados para a emoção
-dados_filtrados_emocao = dados[dados["emocao"].isin(filtro_emocao)]
-# Filtro por quantidade de publicações
-col5, _ = st.columns(2)
-with col5:
-    max_publicacoes = st.slider(
-        "Quantidade de Publicações para Analisar",
-        min_value=1,
-        max_value=min(len(dados), 300),
-        value=300,
-        key="max_publicacoes"
-    )
+# Checar se todos os filtros foram preenchidos
+if not data_inicio or not data_fim or not filtro_discurso or not filtro_emocao:
+    st.error("Por favor, preencha todos os filtros para continuar.")
+    st.stop()
 
 # Aplicação de filtros
-data_filtered = dados[ 
+dados_filtrados = dados[
     (dados["hora_postagem"].dt.date >= data_inicio) &
     (dados["hora_postagem"].dt.date <= data_fim) &
     (dados["resultado_analise"].isin(filtro_discurso)) &
     (dados["emocao"].isin(filtro_emocao))
-].head(max_publicacoes)
+]
 
-# Exibição dos dados filtrados
+# Exibir os dados filtrados
 st.subheader("Publicações Filtradas")
-st.write(data_filtered[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+st.write(dados_filtrados[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
 
 import streamlit as st
 
