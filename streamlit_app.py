@@ -10,7 +10,6 @@ nltk.download('stopwords')
 # Carregar os dados do CSV
 caminho_arquivo = "publicacoes.csv"
 
-# Função para carregar os dados e verificar erros
 def carregar_dados(caminho_arquivo):
     try:
         dados = pd.read_csv(caminho_arquivo)
@@ -68,35 +67,52 @@ with col2:
     )
 
 # Filtro por tipo de discurso
+opcoes_discurso = ["Todos"] + list(dados["resultado_analise"].unique())
 filtro_discurso = st.multiselect(
     "Tipo de Discurso (Obrigatório)",
-    options=dados["resultado_analise"].unique(),
+    options=opcoes_discurso,
+    default="Todos",
     key="filtro_discurso"
 )
 
 # Filtro por tipo de emoção
+opcoes_emocao = ["Todas"] + list(dados["emocao"].unique())
 filtro_emocao = st.multiselect(
     "Tipo de Emoção (Obrigatório)",
-    options=dados["emocao"].unique(),
+    options=opcoes_emocao,
+    default="Todas",
     key="filtro_emocao"
 )
 
-# Checar se todos os filtros foram preenchidos
-if not data_inicio or not data_fim or not filtro_discurso or not filtro_emocao:
-    st.error("Por favor, preencha todos os filtros para continuar.")
-    st.stop()
+# Filtro por quantidade de publicações
+quantidade_publicacoes = st.slider(
+    "Quantidade de Publicações (1 a 300)",
+    min_value=1,
+    max_value=300,
+    value=300,
+    step=1,
+    key="quantidade_publicacoes"
+)
 
 # Aplicação de filtros
 dados_filtrados = dados[
     (dados["hora_postagem"].dt.date >= data_inicio) &
-    (dados["hora_postagem"].dt.date <= data_fim) &
-    (dados["resultado_analise"].isin(filtro_discurso)) &
-    (dados["emocao"].isin(filtro_emocao))
+    (dados["hora_postagem"].dt.date <= data_fim)
 ]
+
+if "Todos" not in filtro_discurso:
+    dados_filtrados = dados_filtrados[dados_filtrados["resultado_analise"].isin(filtro_discurso)]
+
+if "Todas" not in filtro_emocao:
+    dados_filtrados = dados_filtrados[dados_filtrados["emocao"].isin(filtro_emocao)]
+
+# Limitar ao número máximo de publicações selecionado
+dados_filtrados = dados_filtrados.head(quantidade_publicacoes)
 
 # Exibir os dados filtrados
 st.subheader("Publicações Filtradas")
 st.write(dados_filtrados[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+
 
 import streamlit as st
 
