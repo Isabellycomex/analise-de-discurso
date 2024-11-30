@@ -310,60 +310,37 @@ if "Visualizações" in visualizacoes:
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
 
-# Supondo que você já tenha um dataframe 'data_filtered'
-# Filtrar os dados para considerar apenas discursos de ódio
-if "Palavras Mais Comuns" in visualizacoes:
-    data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
-    
-    if not data_odio.empty:
-        # Definir as stopwords
-        stop_words = set(STOPWORDS)
-        stop_words.update([
-            "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", 
-            "para", "com", "que", "em", "é", "e", "o", "a", "os", "como", "um", "uma", 
-            "na", "no", "não", "mas", "ela", "eu", "você", "vocês", "nós", "eles", "elas", 
-            "meu", "minha", "meus", "minhas", "teu", "tua", "teus", "tuas", "dele", "dela", 
-            "deles", "delas", "esse", "essa", "esses", "essas", "este", "esta", "estes", 
-            "estas", "aquele", "aquela", "aqueles", "aquelas", "lhe", "lhes", "do", "dos", 
-            "das", "num", "numa", "neste", "nesta", "nisto", "naquele", "naquela", "nisso", 
-            "daquilo", "e", "ou", "onde", "porque", "porquê", "lá", "aqui", "ali", "assim", 
-            "tão", "já", "então", "também", "muito", "pouco", "sempre", "tudo", "nada", 
-            "cada", "todos", "todas", "algum", "alguma", "nenhum", "nenhuma", "outro", 
-            "outra", "outros", "outras", "seu", "sua", "seus", "suas", "me", "te", "nos", 
-            "vos", "depois", "antes", "até", "ainda", "hoje", "ontem", "amanhã", "agora", 
-            "lá", "cá", "sim", "não", "pois", "porém", "como", "sobre", "entre", "contra", 
-            "sem", "baixo", "apenas", "mesmo", "era", "só", "coisa", "ser", "pessoa", "pai", 
-            "cara", "tem", "bem", "foi", "pessoas", "ser", "sou", "ano", "vc", "queria", 
-            "gente", "ao", "disse", "nunca", "sempre", "casa", "tempo", "nem", "mim", "q", 
-            "que", "pq", "mãe", "mulher", "sala", "dia", "estava", "tenho", "vai", "começou", 
-            "fazer", "são", "amigo", "namorada", "anos", "ter", "enquanto", "homem", "aí", 
-            "tinha", "vida", "estou", "grupo", "coisas", "fui"
-        ])
+# Gerar a nuvem de palavras
+wordcloud = WordCloud(
+    background_color="black",  # Fundo preto para a nuvem
+    stopwords=stop_words,
+    colormap="coolwarm",
+    width=800,
+    height=400
+).generate(textos)
 
-        # Combinar todos os textos para gerar a nuvem de palavras
-        textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
+# Configurar o gráfico no matplotlib
+fig6, ax = plt.subplots(figsize=(10, 5))
 
-        # Verificar se há texto para gerar a nuvem de palavras
-        if textos.strip():
-            # Gerar a nuvem de palavras
-            wordcloud = WordCloud(
-                background_color="black",
-                stopwords=stop_words,
-                colormap="coolwarm",
-                width=800,
-                height=400
-            ).generate(textos)
+# Configurar fundo e nuvem de palavras
+fig6.patch.set_facecolor("black")  # Fundo da figura (área ao redor do gráfico)
+ax.imshow(wordcloud, interpolation="bilinear")
+ax.axis("off")
 
-            # Exibir a nuvem de palavras com Streamlit
-            fig6, ax = plt.subplots(figsize=(10, 5))
-            ax.imshow(wordcloud, interpolation="bilinear")
-            ax.axis("off")
-            ax.set_title("Palavras Mais Comuns em Discurso de Ódio", fontsize=18, color="white")
-            st.pyplot(fig6, use_container_width=True)
-        else:
-            st.write("Nenhum texto disponível para gerar a nuvem de palavras.")
-    else:
-        st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
+# Configurar título
+ax.set_title(
+    "Palavras Mais Comuns em Discurso de Ódio", 
+    fontsize=18, 
+    color="white", 
+    fontfamily="Arial", 
+    loc="left"  # Alinhado à esquerda
+)
+
+# Ajustar os espaços ao redor para alinhamento consistente
+fig6.subplots_adjust(top=0.85)  # Ajusta a margem superior para o título
+
+# Exibir o gráfico no Streamlit
+st.pyplot(fig6, use_container_width=True)
 
 
 # Frequência de Postagens por Usuário
