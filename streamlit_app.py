@@ -116,16 +116,8 @@ data_filtered = dados[
 st.subheader("Publicações Filtradas")
 st.write(data_filtered[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
 
-import streamlit as st
-
-# Definir o idioma da interface como português
-st.set_option('deprecation.showfileUploaderEncoding', False)  # Desabilitar a exibição do aviso
-st.set_option('locale', 'pt')  # Define o idioma da interface para português
-
-# Seleção de gráficos
-st.subheader("Visualizações")
-visualizacoes = st.multiselect(
-    "Escolha uma ou mais opções",  # Texto de escolha em português
+visualizacoes = st.selectbox(
+    "Escolha uma opção",  # O texto é alterado diretamente
     [
         "Discurso (Ódio/Não Ódio)",
         "Tipos de Discurso de Ódio",
@@ -139,10 +131,7 @@ visualizacoes = st.multiselect(
         "Palavras Mais Comuns"
     ]
 )
-
-# Gráficos selecionados
 st.subheader("Visualizações")
-
 
 
 def aplicar_estilo(fig):
