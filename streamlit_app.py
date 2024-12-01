@@ -499,7 +499,7 @@ if "Quantidade de Comentários" in visualizacoes:
         x="resultado_analise",
         y="comentarios",
         title="Quantidade de Comentários por Tipo de Discurso de Ódio",
-        labels={"resultado_analise": "Tipo de Discurso de Ódio", "comentarios": "Total de Respostas"}
+        labels={"resultado_analise": "Tipo de Discurso de Ódio", "comentarios": "Total de Comentários"}
     )
     aplicar_estilo(fig_respostas_tipo)
     st.plotly_chart(fig_respostas_tipo)
