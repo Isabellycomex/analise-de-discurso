@@ -387,11 +387,14 @@ stop_words.update([
 # Verifique se as colunas existem nos dados filtrados
 if "resultado_analise" in data_filtered.columns and "texto" in data_filtered.columns:
     # Aplica os filtros (igual ao exemplo de "Frequência por usuário")
-    if "Palavras mais comuns" in visualizacoes:  # Exemplo de filtro de visualização
+    if "Discursos de Ódio" in visualizacoes:  # Exemplo de filtro de visualização
         # Filtra os dados para incluir apenas discursos de ódio
         data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
+        # Verifica se há dados após o filtro
         if not data_odio.empty:
+            st.write(f"Total de discursos de ódio após filtro: {data_odio.shape[0]}")  # Para depuração
+
             # Combinar os textos para gerar a nuvem de palavras
             textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
 
@@ -422,9 +425,6 @@ if "resultado_analise" in data_filtered.columns and "texto" in data_filtered.col
                     loc="left"
                 )
 
-                # Ajustar margens para alinhamento
-                fig6.subplots_adjust(top=0.85)
-
                 # Exibir no Streamlit
                 st.pyplot(fig6, use_container_width=True)
             else:
@@ -435,6 +435,7 @@ if "resultado_analise" in data_filtered.columns and "texto" in data_filtered.col
         st.write("Nenhum filtro selecionado para exibir a nuvem de palavras.")
 else:
     st.write("A coluna 'resultado_analise' ou 'texto' não existe no DataFrame.")
+
 
 
 # Frequência de Postagens por Usuário
