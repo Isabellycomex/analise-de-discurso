@@ -107,13 +107,12 @@ import streamlit as st
 # Configurar os títulos das colunas para a tabela
 colunas_legiveis = {
     "hora_postagem": "Data e Hora em que a Publicação foi feita",
+    "usuario": "Usuário",
     "resultado_analise": "Resultado da Análise do Discurso",
     "emocao": "Emoção Predominante",
     "upvotes": "Likes",
     "comentarios": "Comentários",
-    "texto": "Publicação",
-    "id": "ID",
-    "usuario": "Usuário",
+    "texto": "Publicação"
 }
 
 # Verificar se todas as colunas do dicionário estão presentes no DataFrame
