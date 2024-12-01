@@ -200,10 +200,6 @@ else:
     # Caso o DataFrame esteja vazio
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
 
-# Visualizações
-# Visualizações
-st.subheader("Visualizações")
-
 # Opções disponíveis
 opcoes = [
     "Discurso (Ódio/Não Ódio)",
