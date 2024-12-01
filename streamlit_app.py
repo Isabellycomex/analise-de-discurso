@@ -385,14 +385,10 @@ stop_words.update([
     "tinha", "vida", "estou", "grupo", "coisas", "fui"
 ])
 
-# Filtrar os dados conforme a seleção do filtro
+# Verifique se as colunas existem nos dados filtrados
 if "resultado_analise" in data_filtered.columns and "texto" in data_filtered.columns:
-    if filtro_discurso != "Todos":
-        # Filtra os dados conforme o tipo de discurso selecionado
-        data_odio = data_filtered[data_filtered["resultado_analise"] == filtro_discurso]
-    else:
-        # Se for "Todos", usa os dados de discurso de ódio
-        data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
+    # Filtra os dados que não são "não é discurso de ódio"
+    data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
     if not data_odio.empty:
         # Combinar os textos para gerar a nuvem de palavras
@@ -418,7 +414,7 @@ if "resultado_analise" in data_filtered.columns and "texto" in data_filtered.col
 
             # Configurar o título
             ax.set_title(
-                f"Palavras Mais Comuns em {filtro_discurso.capitalize()}", 
+                "Palavras Mais Comuns em Discurso de Ódio", 
                 fontsize=18, 
                 color="white", 
                 fontfamily="Arial", 
@@ -433,7 +429,7 @@ if "resultado_analise" in data_filtered.columns and "texto" in data_filtered.col
         else:
             st.write("Nenhum texto disponível para gerar a nuvem de palavras.")
     else:
-        st.write(f"Não há dados de discurso de ódio para o filtro '{filtro_discurso}'.")
+        st.write("Não há dados de discurso de ódio para exibir.")
 else:
     st.write("A coluna 'resultado_analise' ou 'texto' não existe no DataFrame.")
 
