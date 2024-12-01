@@ -435,6 +435,9 @@ if "Palavras Mais Comuns" in visualizacoes:
 import plotly.express as px
 import pandas as pd
 
+import pandas as pd
+import plotly.express as px
+
 if "Frequência por usuário" in visualizacoes:
     # Filtrar dados para incluir apenas discursos de ódio
     data_usuarios = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
@@ -446,8 +449,8 @@ if "Frequência por usuário" in visualizacoes:
         .reset_index(name="quantidade_postagens")
     )
 
-    # Agrupar os usuários em faixas de 10 em 10 postagens
-    frequencia_postagens['faixa_postagens'] = pd.cut(
+    # Agrupar os usuários em faixas de 10 em 10
+    frequencia_postagens['faixa_usuarios'] = pd.cut(
         frequencia_postagens['quantidade_postagens'],
         bins=range(0, frequencia_postagens['quantidade_postagens'].max() + 10, 10),
         labels=[f"{i}-{i+9}" for i in range(0, frequencia_postagens['quantidade_postagens'].max(), 10)],
@@ -455,17 +458,17 @@ if "Frequência por usuário" in visualizacoes:
     )
 
     # Contar o número de usuários em cada faixa
-    faixa_counts = frequencia_postagens['faixa_postagens'].value_counts().reset_index()
-    faixa_counts.columns = ['faixa_postagens', 'quantidade_usuarios']
-    faixa_counts = faixa_counts.sort_values(by="faixa_postagens")
+    faixa_counts = frequencia_postagens['faixa_usuarios'].value_counts().reset_index()
+    faixa_counts.columns = ['faixa_usuarios', 'quantidade_usuarios']
+    faixa_counts = faixa_counts.sort_values(by="faixa_usuarios")
 
     # Criar o gráfico de barras
     fig_frequencia = px.bar(
         faixa_counts,
-        x="faixa_postagens",
+        x="faixa_usuarios",
         y="quantidade_usuarios",
         title="Frequência de Postagens por Faixa de Usuários (Discursos de Ódio)",
-        labels={"faixa_postagens": "Faixa de Postagens", "quantidade_usuarios": "Quantidade de Usuários"},
+        labels={"faixa_usuarios": "Faixa de Postagens", "quantidade_usuarios": "Quantidade de Usuários"},
         text_auto=True,
     )
 
@@ -480,7 +483,6 @@ if "Frequência por usuário" in visualizacoes:
     )
     aplicar_estilo(fig_frequencia)
     st.plotly_chart(fig_frequencia)
-
 
 if "Likes (Upvotes)" in visualizacoes:  # Verificando "Likes" ao invés de "Upvotes"
     # Agrupar e calcular a média de likes por tipo de discurso
