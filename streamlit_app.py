@@ -130,8 +130,10 @@ total_paginas = (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA
 st.markdown(
     """
     ### Publicações Filtradas
-    **Dica**: Role para baixo ou para os lados para ver mais informações sobre as publicações.
-    Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
+    #### Dicas de Uso:
+    - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
+    - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
+    - Cada página exibe até **10 publicações**.
     """
 )
 
@@ -140,12 +142,12 @@ inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
 fim = inicio + ITENS_POR_PAGINA
 tabela_pagina = data_filtered.iloc[inicio:fim].rename(columns=colunas_legiveis)
 
-# Exibir a tabela formatada
+# Exibir a tabela formatada com altura fixa apropriada para 10 linhas
 if not tabela_pagina.empty:
     st.dataframe(
         tabela_pagina[list(colunas_legiveis.values())],
-        use_container_width=True,  # Tabela ocupa toda a largura
-        height=600,  # Altura maior para melhor visualização
+        use_container_width=True,
+        height=350,  # Altura adequada para 10 linhas
     )
 else:
     st.error("Nenhuma publicação encontrada com os filtros selecionados.")
