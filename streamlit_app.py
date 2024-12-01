@@ -149,7 +149,7 @@ if not data_filtered.empty:
         - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
         - Cada página exibe até **10 publicações**.
         - Navegação limitada às páginas **1 a 31**.
-        - Clique na **publicação** que deseja visualizar para observar o texto completo da postagem.
+        - Clique no **campo** que deseja visualizar para verificar todos os dados do mesmo.
         """
     )
 
