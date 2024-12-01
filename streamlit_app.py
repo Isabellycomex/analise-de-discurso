@@ -148,10 +148,9 @@ if not data_filtered.empty:
         #### Dicas de Uso:
         - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
         - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
-        - Clique em qualquer **campo** da tabela para visualizar mais detalhes sobre ele, como o texto completo da publicação.
         - Cada página exibe até **10 publicações**.
         - Navegação limitada às páginas **1 a 31**.
-        - Clique na **publicação** para visualizar o texto completo da postagem.
+        - Clique na **publicação** que deseja visualizar para disponibilizar o texto completo da postagem.
         """
     )
 
