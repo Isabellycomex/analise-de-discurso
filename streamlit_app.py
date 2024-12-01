@@ -446,7 +446,7 @@ if "Frequência por usuário" in visualizacoes:
         .reset_index(name="quantidade_postagens")
     )
 
-    # Criar a coluna de faixas de postagens (de 10 em 10)
+    # Agrupar os usuários em faixas de 10 em 10 postagens
     frequencia_postagens['faixa_postagens'] = pd.cut(
         frequencia_postagens['quantidade_postagens'],
         bins=range(0, frequencia_postagens['quantidade_postagens'].max() + 10, 10),
@@ -454,8 +454,10 @@ if "Frequência por usuário" in visualizacoes:
         right=False
     )
 
-    # Contar quantos usuários existem em cada faixa
-    faixa_counts = frequencia_postagens.groupby('faixa_postagens').size().reset_index(name="quantidade_usuarios")
+    # Contar o número de usuários em cada faixa
+    faixa_counts = frequencia_postagens['faixa_postagens'].value_counts().reset_index()
+    faixa_counts.columns = ['faixa_postagens', 'quantidade_usuarios']
+    faixa_counts = faixa_counts.sort_values(by="faixa_postagens")
 
     # Criar o gráfico de barras
     fig_frequencia = px.bar(
@@ -478,6 +480,7 @@ if "Frequência por usuário" in visualizacoes:
     )
     aplicar_estilo(fig_frequencia)
     st.plotly_chart(fig_frequencia)
+
 
 if "Likes (Upvotes)" in visualizacoes:  # Verificando "Likes" ao invés de "Upvotes"
     # Agrupar e calcular a média de likes por tipo de discurso
