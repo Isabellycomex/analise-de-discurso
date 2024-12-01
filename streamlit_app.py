@@ -479,6 +479,8 @@ if "Palavras Mais Comuns" in visualizacoes:
         st.write("A coluna 'resultado_analise' ou 'texto' não existe no DataFrame.")
 
 # Frequência de Postagens por Usuário
+import plotly.graph_objects as go  # Adicionar esta importação no início do seu script
+
 if "Frequência por usuário" in visualizacoes:
     # Filtrar dados para incluir apenas discursos de ódio
     data_usuarios = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
