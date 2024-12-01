@@ -49,6 +49,15 @@ data_fim_default = data_max.date() if pd.notnull(data_max) else None
 
 # Filtros
 st.subheader("Filtros")
+import streamlit as st
+from datetime import datetime
+
+# Supondo valores padrão para as datas
+data_inicio_default = datetime(2024, 12, 1).date()
+data_fim_default = datetime(2024, 12, 31).date()
+data_min = datetime(2024, 1, 1)
+data_max = datetime(2024, 12, 31)
+
 col1, col2 = st.columns(2)
 with col1:
     data_inicio = st.date_input(
@@ -66,6 +75,11 @@ with col2:
         max_value=data_max.date(),
         key="data_fim"
     )
+
+# Exibindo as datas no formato dd/mm/aaaa
+st.write(f"Data Inicial Selecionada: {data_inicio.strftime('%d/%m/%Y')}")
+st.write(f"Data Final Selecionada: {data_fim.strftime('%d/%m/%Y')}")
+
 
 col3, col4 = st.columns(2)
 
