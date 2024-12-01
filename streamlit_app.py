@@ -367,6 +367,9 @@ if "Visualizações" in visualizacoes:
             # Concatenar o DataFrame original com o novo DataFrame
             visualizacoes_por_tipo = pd.concat([visualizacoes_por_tipo, temp_df], ignore_index=True)
 
+    # Ordenar as barras em ordem decrescente de visualizações
+    visualizacoes_por_tipo = visualizacoes_por_tipo.sort_values("visualizacoes", ascending=False)
+
     # Criar gráfico de barras para visualizações por tipo de discurso
     fig_visualizacoes_tipo = px.bar(
         visualizacoes_por_tipo,
@@ -374,8 +377,8 @@ if "Visualizações" in visualizacoes:
         y="visualizacoes",
         title="Visualizações por Tipo de Discurso",
         labels={"resultado_analise": "Resultado da Análise", "visualizacoes": "Total de Visualizações"},
-        color="resultado_analise",
-        color_discrete_sequence=px.colors.qualitative.Bold
+        color=None,  # Remover a diferenciação por cor
+        color_discrete_sequence=["#1f77b4"]  # Aplicar uma cor única
     )
 
     # Ajustes de estilo e layout
@@ -386,7 +389,7 @@ if "Visualizações" in visualizacoes:
         xaxis=dict(title="Tipos de Discurso", showgrid=False),
         yaxis=dict(title="Visualizações", showgrid=True, gridcolor="gray"),
         title=dict(font=dict(size=20)),
-        legend=dict(title="Tipos", font=dict(color="white"))
+        showlegend=False  # Remover a legenda
     )
 
     # Aplicar estilo customizado
