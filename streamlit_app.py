@@ -106,12 +106,12 @@ import streamlit as st
 
 # Configurar os títulos das colunas para a tabela
 colunas_legiveis = {
-    "hora_postagem": "Data e Hora em que a Publicação foi feita",
-    "resultado_analise": "Resultado da Análise do discurso",
+    "hora_postagem_formatada": "Data e Hora",
+    "resultado_analise": "Resultado da Análise",
     "emocao": "Emoção",
-    "upvotes": "Likes",
+    "upvotes": "Upvotes",
     "comentarios": "Comentários",
-    "texto": "Publicação",
+    "texto": "Texto da Publicação",
     "id": "ID",
     "usuario": "Usuário",
 }
@@ -130,11 +130,16 @@ ITENS_POR_PAGINA = 10
 PAGINA_MINIMA = 1
 PAGINA_MAXIMA = 30
 
-# Verificar se o dataframe filtrado não está vazio
+# Verificar se o DataFrame filtrado não está vazio
 if not data_filtered.empty:
     # Número total de páginas dentro do limite
     total_itens = len(data_filtered)
     total_paginas = min(PAGINA_MAXIMA, (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA)
+
+    # Ajustar a página atual para estar no intervalo permitido
+    st.session_state.pagina_atual = max(
+        PAGINA_MINIMA, min(st.session_state.pagina_atual, total_paginas)
+    )
 
     # Instruções para o usuário
     st.markdown(
@@ -148,7 +153,7 @@ if not data_filtered.empty:
         """
     )
 
-    # Limitar os índices com segurança
+    # Cálculo de índices de acordo com a página atual
     inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
     fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
     tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes].rename(columns=colunas_legiveis)
@@ -175,9 +180,8 @@ if not data_filtered.empty:
     st.text(f"Página {st.session_state.pagina_atual} de {total_paginas}")
 
 else:
-    # Caso o dataframe esteja vazio
+    # Caso o DataFrame esteja vazio
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
-
 
 # Visualizações
 st.subheader("Visualizações")
