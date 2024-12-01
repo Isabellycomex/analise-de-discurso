@@ -344,28 +344,30 @@ if "Frequência por tipo de discurso" in visualizacoes:
     
     # Exibir o gráfico
     st.plotly_chart(fig3)
-# Verificar se "Likes (Upvotes)" está na lista de visualizações
 if "Likes (Upvotes)" in visualizacoes:
-    # Agrupar e calcular a média de likes por tipo de discurso
-    media_likes = data_filtered.groupby("resultado_analise")["likes"].mean().reset_index()
-    media_likes.columns = ["Tipo de Discurso", "Média de Likes"]
-    
-    # Verificar se há dados
-    if not media_likes.empty:
-        # Criar o gráfico de barras
-        fig5 = px.bar(
-            media_likes,
-            x="Tipo de Discurso",
-            y="Média de Likes",
-            title="Média de Likes por Tipo de Discurso de Ódio",
-            color="Tipo de Discurso",
-            text_auto=True
-        )
-        fig5 = aplicar_estilo(fig5)  # Aplicar estilo, se necessário
-        st.plotly_chart(fig5)  # Exibir o gráfico no Streamlit
-    else:
-        st.write("Não há dados de likes para os tipos de discurso de ódio.")
-
+    # Agrupar e calcular a média de upvotes
+    try:
+        media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
+        media_upvotes.columns = ["Tipo de Discurso", "Média de Upvotes"]  # Manter como "Upvotes"
+        
+        # Verificar se há dados
+        if not media_upvotes.empty:
+            # Criar o gráfico de barras
+            fig5 = px.bar(
+                media_upvotes,
+                x="Tipo de Discurso",
+                y="Média de Upvotes",  # Usar "Média de Upvotes" na exibição
+                title="Média de Upvotes por Tipo de Discurso de Ódio",
+                color="Tipo de Discurso",
+                text_auto=True
+            )
+            fig5 = aplicar_estilo(fig5)  # Aplicar estilo, se necessário
+            st.plotly_chart(fig5)  # Exibir o gráfico no Streamlit
+        else:
+            st.write("Não há dados de upvotes para os tipos de discurso de ódio.")
+    except KeyError as e:
+        st.error(f"Ocorreu um erro com a coluna de dados: {e}")
+        
 if "Visualizações" in visualizacoes:
     # Agrupar os dados por tipo de análise, incluindo "não é discurso de ódio"
     visualizacoes_por_tipo = data_filtered.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
