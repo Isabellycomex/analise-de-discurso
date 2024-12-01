@@ -357,7 +357,7 @@ if "Visualizações" in visualizacoes:
     visualizacoes_por_tipo = data_filtered.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
 
     # Certificar-se de que todas as categorias (incluindo 'não é discurso de ódio') estão presentes
-    tipos_discurso = ["discurso de ódio", "não é discurso de ódio", "outros tipos..."]  # Adicione os tipos desejados aqui
+    tipos_discurso = ["não é discurso de ódio", "racismo", "homofobia", "machismo", "sexismo"]  # Adicione os tipos desejados aqui
 
     # Garantir que todos os tipos de discurso apareçam, mesmo os sem dados
     for tipo in tipos_discurso:
@@ -372,7 +372,7 @@ if "Visualizações" in visualizacoes:
         visualizacoes_por_tipo,
         x="resultado_analise",
         y="visualizacoes",
-        title="Visualizações por Tipo de Discurso (Incluindo Não Ódio)",
+        title="Visualizações por Tipo de Discurso",
         labels={"resultado_analise": "Resultado da Análise", "visualizacoes": "Total de Visualizações"},
         color="resultado_analise",
         color_discrete_sequence=px.colors.qualitative.Bold
