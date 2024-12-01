@@ -106,12 +106,12 @@ import streamlit as st
 
 # Configurar os títulos das colunas para a tabela
 colunas_legiveis = {
-    "hora_postagem_formatada": "Data e Hora",
-    "resultado_analise": "Resultado da Análise",
-    "emocao": "Emoção",
-    "upvotes": "Upvotes",
+    "hora_postagem": "Data e Hora em que a Publicação foi feita",
+    "resultado_analise": "Resultado da Análise do Discurso",
+    "emocao": "Emoção Predominante",
+    "upvotes": "Likes",
     "comentarios": "Comentários",
-    "texto": "Texto da Publicação",
+    "texto": "Publicação",
     "id": "ID",
     "usuario": "Usuário",
 }
@@ -128,7 +128,7 @@ ITENS_POR_PAGINA = 10
 
 # Configuração para limitar a navegação
 PAGINA_MINIMA = 1
-PAGINA_MAXIMA = 30
+PAGINA_MAXIMA = 31
 
 # Verificar se o DataFrame filtrado não está vazio
 if not data_filtered.empty:
@@ -148,8 +148,9 @@ if not data_filtered.empty:
         #### Dicas de Uso:
         - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
         - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
+        - Clique em qualquer **campo** da tabela para visualizar mais detalhes sobre ele.
         - Cada página exibe até **10 publicações**.
-        - Navegação limitada às páginas **1 a 30**.
+        - Navegação limitada às páginas **1 a 31**.
         """
     )
 
