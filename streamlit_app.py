@@ -290,9 +290,6 @@ if "Emoções" in visualizacoes:
     )
     fig2 = aplicar_estilo(fig2)
     st.plotly_chart(fig2)
-import plotly.express as px
-import pandas as pd
-import streamlit as st
 
 # Verificando se 'hora_postagem' é datetime
 if 'hora_postagem' in data_filtered.columns:
@@ -482,7 +479,7 @@ if "Quantidade de Comentários" in visualizacoes:
         respostas_por_tipo,
         x="resultado_analise",
         y="comentarios",
-        title="Quantidade de Respostas por Tipo de Discurso de Ódio",
+        title="Quantidade de Comentários por Tipo de Discurso de Ódio",
         labels={"resultado_analise": "Tipo de Discurso de Ódio", "comentarios": "Total de Respostas"}
     )
     aplicar_estilo(fig_respostas_tipo)
