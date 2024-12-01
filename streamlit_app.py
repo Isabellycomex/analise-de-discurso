@@ -201,7 +201,6 @@ else:
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
 
 # Visualizações
-st.subheader("Visualizações")
 # Visualizações
 st.subheader("Visualizações")
 
