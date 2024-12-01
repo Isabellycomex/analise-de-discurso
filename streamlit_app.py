@@ -102,34 +102,70 @@ data_filtered = dados[
     (dados["emocao"].isin(filtro_emocao))
 ]
 
-# Exibição dos dados filtrados
+import streamlit as st
+
 # Configurar os títulos das colunas para a tabela
 colunas_legiveis = {
-    "hora_postagem": "Data e Hora",
+    "id": "ID da Publicação",
+    "hora_postagem_formatada": "Data e Hora",
     "resultado_analise": "Resultado da Análise",
     "emocao": "Emoção",
-    "upvotes": "Likes",
+    "upvotes": "Upvotes",
     "comentarios": "Comentários",
-    "texto": "Publicação",
+    "texto": "Texto da Publicação",
 }
 
-# Tabela formatada com títulos legíveis
-st.subheader("Publicações Filtradas")
-if not data_filtered.empty:
-    tabela_formatada = data_filtered.rename(columns=colunas_legiveis)
+# Configuração inicial de paginação
+if "pagina_atual" not in st.session_state:
+    st.session_state.pagina_atual = 1
+
+# Quantidade de itens por página
+ITENS_POR_PAGINA = 10
+
+# Número total de páginas
+total_itens = len(data_filtered)
+total_paginas = (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA
+
+# Instruções para o usuário
+st.markdown(
+    """
+    ### Publicações Filtradas
+    **Dica**: Role para baixo ou para os lados para ver mais informações sobre as publicações.
+    Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
+    """
+)
+
+# Mostrar dados da página atual
+inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
+fim = inicio + ITENS_POR_PAGINA
+tabela_pagina = data_filtered.iloc[inicio:fim].rename(columns=colunas_legiveis)
+
+# Exibir a tabela formatada
+if not tabela_pagina.empty:
     st.dataframe(
-        tabela_formatada[list(colunas_legiveis.values())],
-        use_container_width=True,  # Deixa a tabela ocupar toda a largura
-        height=500  # Aumenta a altura da tabela
+        tabela_pagina[list(colunas_legiveis.values())],
+        use_container_width=True,  # Tabela ocupa toda a largura
+        height=600,  # Altura maior para melhor visualização
     )
 else:
     st.error("Nenhuma publicação encontrada com os filtros selecionados.")
 
+# Botões de navegação
+col1, col2, col3 = st.columns([1, 2, 1])
+
+with col1:
+    if st.button("Anterior", disabled=(st.session_state.pagina_atual <= 1)):
+        st.session_state.pagina_atual -= 1
+
+with col3:
+    if st.button("Próximo", disabled=(st.session_state.pagina_atual >= total_paginas)):
+        st.session_state.pagina_atual += 1
+
+# Exibir página atual
+st.text(f"Página {st.session_state.pagina_atual} de {total_paginas}")
 
 # Visualizações
 st.subheader("Visualizações")
-# Adicionar aqui o código de geração de gráficos
-
 visualizacoes = st.multiselect(
     "Escolha uma ou mais opções",  # Texto de escolha em português
     [
