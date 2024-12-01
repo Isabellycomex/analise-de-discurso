@@ -159,15 +159,17 @@ if not data_filtered.empty:
     fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
     tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes].rename(columns=colunas_legiveis)
 
-   # Exibindo a tabela com largura maior
-    st.dataframe(df.style.set_table_styles(
+  # Estilizando a tabela
+    styled_df = df.style.set_table_styles(
     [{'selector': 'thead th', 'props': [('font-size', '16px')]},  # Aumenta o tamanho da fonte do título
      {'selector': 'tbody td', 'props': [('font-size', '14px')]},   # Aumenta o tamanho da fonte do conteúdo
      {'selector': 'table', 'props': [('width', '100%')]},           # Aumenta a largura da tabela
     ],
     axis=0  # Aplica os estilos nas linhas
-    ), use_container_width=True)  # Use o tamanho total da tela para a tabela
+)
 
+# Convertendo para HTML e exibindo com markdown
+st.markdown(styled_df.render(), unsafe_allow_html=True)
     # Botões de navegação
     col1, col2, col3 = st.columns([1, 2, 1])
 
