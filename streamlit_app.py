@@ -103,8 +103,28 @@ data_filtered = dados[
 ]
 
 # Exibição dos dados filtrados
+# Configurar os títulos das colunas para a tabela
+colunas_legiveis = {
+    "hora_postagem": "Data e Hora",
+    "resultado_analise": "Resultado da Análise",
+    "emocao": "Emoção",
+    "upvotes": "Likes",
+    "comentarios": "Comentários",
+    "texto": "Publicação",
+}
+
+# Tabela formatada com títulos legíveis
 st.subheader("Publicações Filtradas")
-st.write(data_filtered[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+if not data_filtered.empty:
+    tabela_formatada = data_filtered.rename(columns=colunas_legiveis)
+    st.dataframe(
+        tabela_formatada[list(colunas_legiveis.values())],
+        use_container_width=True,  # Deixa a tabela ocupar toda a largura
+        height=500  # Aumenta a altura da tabela
+    )
+else:
+    st.error("Nenhuma publicação encontrada com os filtros selecionados.")
+
 
 # Visualizações
 st.subheader("Visualizações")
