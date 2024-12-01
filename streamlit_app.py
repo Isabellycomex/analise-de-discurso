@@ -302,7 +302,6 @@ else:
     st.error("A coluna 'hora_postagem' não está presente nos dados.")
     raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
 
-# Filtrar os dados para discurso de ódio
 if "Frequência por tipo de discurso" in visualizacoes:
     # Filtrar os dados com base no tipo de discurso
     odio_tempo = data_filtered[data_filtered["resultado_analise"].isin(["racismo", "homofobia", "sexismo", "xenofobia", "transfobia", "não é discurso de ódio"])]
@@ -311,15 +310,15 @@ if "Frequência por tipo de discurso" in visualizacoes:
     odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M").astype(str)  # Converter para string
     odio_por_tipo_tempo = odio_tempo.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
 
-    # Criar o gráfico de barras agrupadas com Plotly Express
-    fig3 = px.bar(
+    # Criar o gráfico de linhas com Plotly Express
+    fig3 = px.line(
         odio_por_tipo_tempo,
         x="mes_postagem",
         y="count",
         color="resultado_analise",
-        barmode="group",
         title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
         labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
+        markers=True  # Marca os pontos de cada linha
     )
     
     # Aplicar o estilo ao gráfico (caso haja uma função 'aplicar_estilo')
@@ -327,9 +326,7 @@ if "Frequência por tipo de discurso" in visualizacoes:
     
     # Exibir o gráfico
     st.plotly_chart(fig3)
-
-
-# Verificação de se "Média de Upvotes por Tipo de Discurso de Ódio" está na lista de visualizações
+    
 if "Likes (Upvotes)" in visualizacoes:
     # Agrupar e calcular a média de upvotes por tipo de discurso
     media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
