@@ -354,36 +354,46 @@ if "Frequência por tipo de discurso" in visualizacoes:
 
 # Visualizações por Tipo de Discurso de Ódio
 if "Visualizações" in visualizacoes:
-    # Filtrar os dados para excluir "não é discurso de ódio"
-    data_odio = data_filtered[data_filtered['resultado_analise'] != 'não é discurso de ódio']
-    
-    # Verificar se há dados após o filtro
-    if not data_odio.empty:
-        visualizacoes_por_tipo = data_odio.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
-        fig_visualizacoes_tipo = px.line(
-            visualizacoes_por_tipo,
-            x="resultado_analise",
-            y="visualizacoes",
-            title="Visualizações por Tipo de Discurso de Ódio",
-            labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacoes": "Total de Visualizações"},
-            color_discrete_sequence=px.colors.qualitative.Bold
-        )
+    # Agrupar os dados por tipo de análise, incluindo "não é discurso de ódio"
+    visualizacoes_por_tipo = data_filtered.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
 
-        # Estilo e layout com fundo preto
-        fig_visualizacoes_tipo.update_traces(mode="lines+markers", line=dict(width=3))
-        fig_visualizacoes_tipo.update_layout(
-            plot_bgcolor="black",
-            paper_bgcolor="black",
-            font=dict(color="white"),
-            xaxis=dict(title="Tipos de Discurso de Ódio", showgrid=False),
-            yaxis=dict(title="Visualizações", showgrid=True, gridcolor="gray"),
-            title=dict(font=dict(size=20)),
-            legend=dict(title="Tipos", font=dict(color="white"))
-        )
-        aplicar_estilo(fig_visualizacoes_tipo)
-        st.plotly_chart(fig_visualizacoes_tipo)
-    else:
-        st.write("Não há dados de discurso de ódio para exibir.")
+    # Certificar-se de que todas as categorias (incluindo 'não é discurso de ódio') estão presentes
+    tipos_discurso = ["discurso de ódio", "não é discurso de ódio", "outros tipos..."]  # Adicione os tipos desejados aqui
+
+    # Garantir que todos os tipos de discurso apareçam, mesmo os sem dados
+    for tipo in tipos_discurso:
+        if tipo not in visualizacoes_por_tipo["resultado_analise"].values:
+            visualizacoes_por_tipo = visualizacoes_por_tipo.append(
+                {"resultado_analise": tipo, "visualizacoes": 0},
+                ignore_index=True
+            )
+
+    # Criar gráfico de barras para visualizações por tipo de discurso
+    fig_visualizacoes_tipo = px.bar(
+        visualizacoes_por_tipo,
+        x="resultado_analise",
+        y="visualizacoes",
+        title="Visualizações por Tipo de Discurso (Incluindo Não Ódio)",
+        labels={"resultado_analise": "Resultado da Análise", "visualizacoes": "Total de Visualizações"},
+        color="resultado_analise",
+        color_discrete_sequence=px.colors.qualitative.Bold
+    )
+
+    # Ajustes de estilo e layout
+    fig_visualizacoes_tipo.update_layout(
+        plot_bgcolor="black",
+        paper_bgcolor="black",
+        font=dict(color="white"),
+        xaxis=dict(title="Tipos de Discurso", showgrid=False),
+        yaxis=dict(title="Visualizações", showgrid=True, gridcolor="gray"),
+        title=dict(font=dict(size=20)),
+        legend=dict(title="Tipos", font=dict(color="white"))
+    )
+
+    # Aplicar estilo customizado
+    aplicar_estilo(fig_visualizacoes_tipo)
+    st.plotly_chart(fig_visualizacoes_tipo)
+
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import streamlit as st
