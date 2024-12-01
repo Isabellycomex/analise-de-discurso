@@ -394,12 +394,12 @@ if "Palavras Mais Comuns" in visualizacoes:
             # Adicionar um seletor para escolher o tipo de discurso de ódio
             tipo_discurso = st.selectbox(
                 "Selecione o tipo de discurso de ódio",
-                options=["Todos", "Racismo", "Homofobia", "Sexismo" ,"Não é discurso de ódio"],
+                options=["todos", "racismo", "homofobia", "sexismo" ,"não é discurso de ódio"],
                 index=0  # "todos" por padrão
             )
 
             # Filtrar os dados conforme o tipo de discurso selecionado
-            if tipo_discurso != "Todos":
+            if tipo_discurso != "todos":
                 data_odio = data_odio[data_odio["resultado_analise"] == tipo_discurso]
 
             if not data_odio.empty:
