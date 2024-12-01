@@ -84,12 +84,6 @@ with col2:
         st.error("Por favor, insira uma data válida no formato dd/mm/aaaa")
         data_fim = None
 
-if data_inicio and data_fim:
-    st.write(f"Data Inicial Selecionada: {data_inicio.strftime('%d/%m/%Y')}")
-    st.write(f"Data Final Selecionada: {data_fim.strftime('%d/%m/%Y')}")
-
-
-
 col3, col4 = st.columns(2)
 
 with col3:
