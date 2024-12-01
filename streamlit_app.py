@@ -303,42 +303,23 @@ if "Frequência por tipo de discurso" in visualizacoes:
         st.error("A coluna 'hora_postagem' não está presente nos dados.")
         raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
     
-    # Aplicando os filtros de tipo de discurso (Discurso de Ódio e Não Discurso de Ódio) e emoção
-    tipo_discurso_filtro = st.selectbox("Escolha o tipo de discurso", ["Todos", "Discurso de Ódio", "Não Discurso de Ódio"])
-    emocao_filtro = st.selectbox("Escolha o tipo de emoção", ["Todas", "Raiva", "Tristeza", "Felicidade", "Medo"])
-    
-    if tipo_discurso_filtro != "Todos":
-        data_filtered = data_filtered[data_filtered["eh_discurso_odio"] == tipo_discurso_filtro]
-
-    if emocao_filtro != "Todas":
-        data_filtered = data_filtered[data_filtered["emocao"] == emocao_filtro]
-
-    # Filtrar discursos de ódio
+    # Filtrar apenas discurso de ódio
     odio_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
-    nao_odio_tempo = data_filtered[data_filtered["eh_discurso_odio"] != "Discurso de Ódio"]  # Publicações não discurso de ódio
 
     # Agrupar por mês e tipo de discurso
     if not odio_tempo.empty:  # Verificar se há dados de discurso de ódio
         odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M").astype(str)  # Converter para string
-    if not nao_odio_tempo.empty:  # Verificar se há dados de não discurso de ódio
-        nao_odio_tempo["mes_postagem"] = nao_odio_tempo["hora_postagem"].dt.to_period("M").astype(str)
 
     # Contagem de discursos de ódio por mês
     odio_por_mes = odio_tempo.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
-    # Contagem de não discursos de ódio por mês
-    nao_odio_por_mes = nao_odio_tempo.groupby("mes_postagem").size().reset_index(name="count")
-    nao_odio_por_mes["resultado_analise"] = "Não Discurso de Ódio"  # Adicionar uma categoria para o não discurso de ódio
-
-    # Juntar as duas tabelas de contagem
-    dados_completos = pd.concat([odio_por_mes, nao_odio_por_mes])
 
     # Verificar se a tabela está vazia
-    if dados_completos.empty:
+    if odio_por_mes.empty:
         st.error("Não há dados suficientes para gerar o gráfico de Discurso de Ódio ao Longo do Tempo.")
     else:
-        # Criar o gráfico de histograma empilhado
+        # Criar o histograma
         fig3 = px.histogram(
-            dados_completos,
+            odio_por_mes,
             x="mes_postagem",
             y="count",
             color="resultado_analise",
@@ -347,6 +328,16 @@ if "Frequência por tipo de discurso" in visualizacoes:
             histfunc="sum",
             barmode="stack",  # Empilhamento das barras
         )
+        
+        # Adicionar linha traçando os topos das barras
+        fig3.add_trace(go.Scatter(
+            x=odio_por_mes["mes_postagem"],
+            y=odio_por_mes.groupby("mes_postagem")["count"].max(),
+            mode="lines+markers",
+            name="Topo das Barras",
+            line=dict(color="black", width=2),
+            marker=dict(size=8)
+        ))
 
         fig3.update_traces(marker=dict(line=dict(width=1, color='black')))  # Adicionar contorno às barras
         fig3.update_layout(
