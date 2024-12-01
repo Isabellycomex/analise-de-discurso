@@ -387,7 +387,7 @@ stop_words.update([
 # Verifique se as colunas existem nos dados filtrados
 if "resultado_analise" in data_filtered.columns and "texto" in data_filtered.columns:
     # Aplica os filtros (igual ao exemplo de "Frequência por usuário")
-    if "Discursos de Ódio" in visualizacoes:  # Exemplo de filtro de visualização
+    if "Palavras mais comuns" in visualizacoes:  # Exemplo de filtro de visualização
         # Filtra os dados para incluir apenas discursos de ódio
         data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
