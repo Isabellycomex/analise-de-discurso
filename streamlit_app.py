@@ -471,7 +471,7 @@ if "Frequência por usuário" in visualizacoes:
 if "Likes (Upvotes)" in visualizacoes:
     # Agrupar e calcular a média de upvotes por tipo de discurso
     media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
-    media_upvotes.columns = ["Tipo de Discurso", "Média de Upvotes"]
+    media_upvotes.columns = ["Tipo de Discurso", "Média de Likes"]
     
     # Verificar se há dados
     if not media_upvotes.empty:
