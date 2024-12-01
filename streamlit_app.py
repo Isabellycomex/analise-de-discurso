@@ -53,33 +53,41 @@ import streamlit as st
 from datetime import datetime
 
 # Valores padrão para as datas
-data_inicio_default = datetime(2024, 12, 1).date()  # 01/12/2024
-data_fim_default = datetime(2024, 12, 31).date()  # 31/12/2024
-data_min = datetime(2024, 1, 1).date()
-data_max = datetime(2024, 12, 31).date()
+data_inicio_default = datetime(2024, 12, 1).strftime('%d/%m/%Y')  # 01/12/2024
+data_fim_default = datetime(2024, 12, 31).strftime('%d/%m/%Y')  # 31/12/2024
+data_min = datetime(2024, 1, 1)
+data_max = datetime(2024, 12, 31)
 
 col1, col2 = st.columns(2)
 
 with col1:
-    data_inicio = st.date_input(
-        "Data Inicial",
+    data_inicio_str = st.text_input(
+        "Data Inicial (dd/mm/aaaa)",
         value=data_inicio_default,
-        min_value=data_min,
-        max_value=data_max,
         key="data_inicio"
     )
+    try:
+        data_inicio = datetime.strptime(data_inicio_str, '%d/%m/%Y').date()
+    except ValueError:
+        st.error("Por favor, insira uma data válida no formato dd/mm/aaaa")
+        data_inicio = None
+
 with col2:
-    data_fim = st.date_input(
-        "Data Final",
+    data_fim_str = st.text_input(
+        "Data Final (dd/mm/aaaa)",
         value=data_fim_default,
-        min_value=data_min,
-        max_value=data_max,
         key="data_fim"
     )
+    try:
+        data_fim = datetime.strptime(data_fim_str, '%d/%m/%Y').date()
+    except ValueError:
+        st.error("Por favor, insira uma data válida no formato dd/mm/aaaa")
+        data_fim = None
 
-# Ajustando apenas a exibição das datas
-st.write(f"**Data Inicial Selecionada:** {data_inicio.strftime('%d/%m/%Y')}")
-st.write(f"**Data Final Selecionada:** {data_fim.strftime('%d/%m/%Y')}")
+if data_inicio and data_fim:
+    st.write(f"Data Inicial Selecionada: {data_inicio.strftime('%d/%m/%Y')}")
+    st.write(f"Data Final Selecionada: {data_fim.strftime('%d/%m/%Y')}")
+
 
 
 col3, col4 = st.columns(2)
