@@ -228,10 +228,6 @@ visualizacoes = st.multiselect(
 if "Todos" in visualizacoes:
     visualizacoes = opcoes  # Seleciona todas as opções
 
-# Exibir as opções selecionadas (opcional)
-st.write("Você selecionou:", visualizacoes)
-
-
 # Gráficos selecionados
 st.subheader("Visualizações")
 
