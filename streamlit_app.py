@@ -432,28 +432,30 @@ if "Palavras Mais Comuns" in visualizacoes:
     else:
         st.write("A coluna 'resultado_analise' ou 'texto' não existe no DataFrame.")
 
-# Frequência de Postagens por Usuário
 if "Frequência por usuário" in visualizacoes:
     # Filtrar dados para incluir apenas discursos de ódio
     data_usuarios = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
+    # Calcular a frequência de postagens por usuário e pegar os 5 mais ativos
     frequencia_postagens = (
         data_usuarios.groupby("usuario")
         .size()
         .reset_index(name="quantidade_postagens")
         .sort_values(by="quantidade_postagens", ascending=False)
-        .head(10)  # Exibir os 10 usuários mais ativos
+        .head(5)  # Exibir os 5 usuários mais ativos
     )
 
+    # Criar o gráfico de barras
     fig_frequencia = px.bar(
         frequencia_postagens,
         x="usuario",
         y="quantidade_postagens",
-        title="Frequência de Postagens por Usuário (Discursos de Ódio)",
+        title="Top 5 Usuários que Mais Publicaram Discursos de Ódio",
         labels={"usuario": "Usuário", "quantidade_postagens": "Quantidade de Postagens"},
         text_auto=True,
     )
 
+    # Estilo do gráfico
     fig_frequencia.update_traces(marker_color="pink")
     fig_frequencia.update_layout(
         plot_bgcolor="black",
@@ -463,7 +465,11 @@ if "Frequência por usuário" in visualizacoes:
         yaxis=dict(title="Frequência de Postagens", showgrid=True, gridcolor="gray"),
         title=dict(font=dict(size=20)),
     )
+    
+    # Aplicar estilo adicional, se necessário
     aplicar_estilo(fig_frequencia)
+    
+    # Exibir o gráfico
     st.plotly_chart(fig_frequencia)
 
 # Quantidade de Respostas por Tipo de Discurso
