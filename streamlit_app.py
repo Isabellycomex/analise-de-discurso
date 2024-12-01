@@ -358,7 +358,6 @@ if "Visualizações" in visualizacoes:
         st.write("Não há dados de discurso de ódio para exibir.")
 
 import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import streamlit as st
 
@@ -392,47 +391,59 @@ if "Palavras Mais Comuns" in visualizacoes:
                 "tinha", "vida", "estou", "grupo", "coisas", "fui"
             ])
 
-            # Combinar os textos para gerar a nuvem de palavras
-            textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
+            # Adicionar um seletor para escolher o tipo de discurso de ódio
+            tipo_discurso = st.selectbox(
+                "Selecione o tipo de discurso de ódio",
+                options=["todos", "racismo", "homofobia", "misoginia", "transfobia", "discurso de ódio em geral"],
+                index=0  # "todos" por padrão
+            )
 
-            # Gerar a nuvem de palavras
-            if textos.strip():
-                wordcloud = WordCloud(
-                    background_color="black", 
-                    stopwords=stop_words,
-                    colormap="coolwarm",
-                    width=800,
-                    height=400
-                ).generate(textos)
+            # Filtrar os dados conforme o tipo de discurso selecionado
+            if tipo_discurso != "todos":
+                data_odio = data_odio[data_odio["resultado_analise"] == tipo_discurso]
 
-                # Criar o gráfico
-                fig6, ax = plt.subplots(figsize=(10, 5))
+            if not data_odio.empty:
+                # Combinar os textos para gerar a nuvem de palavras
+                textos = " ".join(data_odio["texto"])
 
-                # Configurar fundo e nuvem de palavras
-                fig6.patch.set_facecolor("black")
-                ax.imshow(wordcloud, interpolation="bilinear")
-                ax.axis("off")
+                # Gerar a nuvem de palavras
+                if textos.strip():
+                    wordcloud = WordCloud(
+                        background_color="black", 
+                        stopwords=stop_words,
+                        colormap="coolwarm",
+                        width=800,
+                        height=400
+                    ).generate(textos)
 
-                # Configurar o título
-                ax.set_title(
-                    "Palavras Mais Comuns em Discurso de Ódio", 
-                    fontsize=18, 
-                    color="white", 
-                    fontfamily="Arial", 
-                    loc="left"
-                )
+                    # Criar o gráfico
+                    fig6, ax = plt.subplots(figsize=(10, 5))
 
-                # Ajustar margens para alinhamento
-                fig6.subplots_adjust(top=0.85)
+                    # Configurar fundo e nuvem de palavras
+                    fig6.patch.set_facecolor("black")
+                    ax.imshow(wordcloud, interpolation="bilinear")
+                    ax.axis("off")
 
-                # Exibir no Streamlit
-                st.pyplot(fig6, use_container_width=True)
+                    # Configurar o título
+                    ax.set_title(
+                        f"Palavras Mais Comuns em Discurso de Ódio - {tipo_discurso.title()}",  # Título dinâmico
+                        fontsize=18, 
+                        color="white", 
+                        fontfamily="Arial", 
+                        loc="left"
+                    )
+
+                    # Ajustar margens para alinhamento
+                    fig6.subplots_adjust(top=0.85)
+
+                    # Exibir no Streamlit
+                    st.pyplot(fig6, use_container_width=True)
+                else:
+                    st.write("Nenhum texto disponível para gerar a nuvem de palavras.")
             else:
-                st.write("Nenhum texto disponível para gerar a nuvem de palavras.")
+                st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
         else:
-            st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
-    else:
-        st.write("A coluna 'resultado_analise' ou 'texto' não existe no DataFrame.")
+            st.write("A coluna 'resultado_analise' ou 'texto' não existe no DataFrame.")
 
 # Frequência de Postagens por Usuário
 if "Frequência por usuário" in visualizacoes:
