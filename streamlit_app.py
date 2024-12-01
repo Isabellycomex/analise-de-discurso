@@ -467,7 +467,27 @@ if "Frequência por usuário" in visualizacoes:
     )
     aplicar_estilo(fig_frequencia)
     st.plotly_chart(fig_frequencia)
-
+# Verificação de se "Média de Upvotes por Tipo de Discurso de Ódio" está na lista de visualizações
+if "Likes (Upvotes)" in visualizacoes:
+    # Agrupar e calcular a média de upvotes por tipo de discurso
+    media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
+    media_upvotes.columns = ["Tipo de Discurso", "Média de Upvotes"]
+    
+    # Verificar se há dados
+    if not media_upvotes.empty:
+        fig5 = px.bar(
+            media_upvotes,
+            x="Tipo de Discurso",
+            y="Média de Upvotes",
+            title="Média de Likes por Tipo de Discurso de Ódio",
+            color="Tipo de Discurso",
+            text_auto=True
+        )
+        fig5 = aplicar_estilo(fig5)
+        st.plotly_chart(fig5)
+    else:
+        st.write("Não há dados de likes para os tipos de discurso de ódio.")
+        
 # Quantidade de Respostas por Tipo de Discurso
 if "Quantidade de Comentários" in visualizacoes:
     # Filtrar dados para discursos de ódio
