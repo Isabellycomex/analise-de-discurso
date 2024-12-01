@@ -53,7 +53,7 @@ import streamlit as st
 from datetime import datetime
 
 # Valores padrão para as datas
-data_inicio_default = datetime(2017, 09, 01).strftime('%d/%m/%Y')  # 01/12/2024
+data_inicio_default = datetime(2017, 9, 1).strftime('%d/%m/%Y')  # 01/12/2024
 data_fim_default = datetime(2024, 12, 31).strftime('%d/%m/%Y')  # 31/12/2024
 data_min = datetime(2024, 1, 1)
 data_max = datetime(2024, 12, 31)
