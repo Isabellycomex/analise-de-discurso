@@ -106,13 +106,15 @@ import streamlit as st
 
 # Configurar os títulos das colunas para a tabela
 colunas_legiveis = {
-    "id": "ID da Publicação",
+    "id": "ID",
+    "usuario": "Usuário",
+    "texto": "Texto da Publicação",
+    "upvotes": "Upvotes",
+    "comentarios": "Comentários",
+    "subreddit": "Subreddit",
     "hora_postagem_formatada": "Data e Hora",
     "resultado_analise": "Resultado da Análise",
     "emocao": "Emoção",
-    "upvotes": "Upvotes",
-    "comentarios": "Comentários",
-    "texto": "Texto da Publicação",
 }
 
 # Configuração inicial de paginação
@@ -122,11 +124,15 @@ if "pagina_atual" not in st.session_state:
 # Quantidade de itens por página
 ITENS_POR_PAGINA = 10
 
+# Configuração para limitar a navegação
+PAGINA_MINIMA = 1
+PAGINA_MAXIMA = 30
+
 # Verificar se o dataframe filtrado não está vazio
 if not data_filtered.empty:
-    # Número total de páginas
+    # Número total de páginas dentro do limite
     total_itens = len(data_filtered)
-    total_paginas = (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA
+    total_paginas = min(PAGINA_MAXIMA, (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA)
 
     # Instruções para o usuário
     st.markdown(
@@ -136,6 +142,7 @@ if not data_filtered.empty:
         - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
         - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
         - Cada página exibe até **10 publicações**.
+        - Navegação limitada às páginas **1 a 30**.
         """
     )
 
@@ -155,7 +162,7 @@ if not data_filtered.empty:
     col1, col2, col3 = st.columns([1, 2, 1])
 
     with col1:
-        if st.button("Anterior", disabled=(st.session_state.pagina_atual <= 1)):
+        if st.button("Anterior", disabled=(st.session_state.pagina_atual <= PAGINA_MINIMA)):
             st.session_state.pagina_atual -= 1
 
     with col3:
@@ -168,6 +175,7 @@ if not data_filtered.empty:
 else:
     # Caso o dataframe esteja vazio
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
+
 
 # Visualizações
 st.subheader("Visualizações")
