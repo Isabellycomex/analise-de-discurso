@@ -290,7 +290,6 @@ if "Emoções" in visualizacoes:
     )
     fig2 = aplicar_estilo(fig2)
     st.plotly_chart(fig2)
-
 import plotly.express as px
 import pandas as pd
 import streamlit as st
@@ -302,15 +301,10 @@ else:
     st.error("A coluna 'hora_postagem' não está presente nos dados.")
     raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
 
-# Filtro para seleção dos tipos de discurso
-discurso_opcoes = ["racismo", "homofobia", "sexismo", "xenofobia", "transfobia", "não é discurso de ódio"]
-tipos_selecionados = st.sidebar.multiselect(
-    "Selecione os Tipos de Discurso de Ódio", discurso_opcoes, default=discurso_opcoes)
-
-# Verificar se "Frequência por tipo de discurso" está em 'visualizacoes'
+# Filtrar os dados para discurso de ódio
 if "Frequência por tipo de discurso" in visualizacoes:
-    # Filtrar os dados para discurso de ódio com os tipos selecionados
-    odio_tempo = data_filtered[data_filtered["resultado_analise"].isin(tipos_selecionados)]
+    # Filtrar os dados com base no tipo de discurso
+    odio_tempo = data_filtered[data_filtered["resultado_analise"].isin(["racismo", "homofobia", "sexismo", "xenofobia", "transfobia", "não é discurso de ódio"])]
     
     # Agrupar por mês e tipo de discurso
     odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M").astype(str)  # Converter para string
@@ -326,21 +320,12 @@ if "Frequência por tipo de discurso" in visualizacoes:
         labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
         markers=True  # Marca os pontos de cada linha
     )
-
-    # Ajustar o layout para melhorar a separação entre as linhas
-    fig3.update_layout(
-        xaxis=dict(tickangle=45, tickmode='array', tickvals=odio_por_tipo_tempo["mes_postagem"].unique()),  # Ajusta a rotação dos meses
-        yaxis=dict(title="Quantidade", gridcolor="lightgray"),
-        title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
-        legend_title="Tipo de Discurso de Ódio",
-    )
     
     # Aplicar o estilo ao gráfico (caso haja uma função 'aplicar_estilo')
     fig3 = aplicar_estilo(fig3)
     
     # Exibir o gráfico
     st.plotly_chart(fig3)
-
 
 # Visualizações por Tipo de Discurso de Ódio
 if "Visualizações" in visualizacoes:
