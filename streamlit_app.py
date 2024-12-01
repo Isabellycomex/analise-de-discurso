@@ -62,7 +62,7 @@ col1, col2 = st.columns(2)
 
 with col1:
     data_inicio_str = st.text_input(
-        "Data Inicial (dd/mm/aaaa)",
+        "Data Inicial",
         value=data_inicio_default,
         key="data_inicio"
     )
@@ -74,7 +74,7 @@ with col1:
 
 with col2:
     data_fim_str = st.text_input(
-        "Data Final (dd/mm/aaaa)",
+        "Data Final",
         value=data_fim_default,
         key="data_fim"
     )
