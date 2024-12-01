@@ -13,7 +13,7 @@ caminho_arquivo = "publicacoes.csv"
 def carregar_dados(caminho_arquivo):
     try:
         dados = pd.read_csv(caminho_arquivo)
-        colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto"]
+        colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto", "eh_discurso_odio"]
         colunas_faltando = [col for col in colunas_necessarias if col not in dados.columns]
         if colunas_faltando:
             st.error(f"As colunas ausentes são: {colunas_faltando}. Verifique o arquivo CSV.")
@@ -33,8 +33,8 @@ if dados is None:
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
 # Tratamento de dados
-dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")  # Garantir conversão segura
-dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")  # Formatar para exibição
+dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")
+dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")
 
 # Verificar valores mínimos e máximos para os filtros
 data_min = dados["hora_postagem"].min()
@@ -45,7 +45,7 @@ data_fim_default = data_max.date() if pd.notnull(data_max) else None
 
 # Filtros
 st.subheader("Filtros")
-st.warning("Todos os filtros devem ser preenchidos para visualização dos gráficos.")
+st.warning("Todos os filtros são obrigatórios para visualizar os dados.")
 
 # Filtro por data
 col1, col2 = st.columns(2)
@@ -67,7 +67,7 @@ with col2:
     )
 
 # Filtro por tipo de discurso
-opcoes_discurso = ["Todos"] + list(dados["resultado_analise"].unique())
+opcoes_discurso = ["Todos"] + dados["resultado_analise"].unique().tolist()
 filtro_discurso = st.multiselect(
     "Tipo de Discurso (Obrigatório)",
     options=opcoes_discurso,
@@ -76,7 +76,7 @@ filtro_discurso = st.multiselect(
 )
 
 # Filtro por tipo de emoção
-opcoes_emocao = ["Todas"] + list(dados["emocao"].unique())
+opcoes_emocao = ["Todas"] + dados["emocao"].unique().tolist()
 filtro_emocao = st.multiselect(
     "Tipo de Emoção (Obrigatório)",
     options=opcoes_emocao,
@@ -106,12 +106,20 @@ if "Todos" not in filtro_discurso:
 if "Todas" not in filtro_emocao:
     dados_filtrados = dados_filtrados[dados_filtrados["emocao"].isin(filtro_emocao)]
 
-# Limitar ao número máximo de publicações selecionado
+# Limitar pela quantidade de publicações
 dados_filtrados = dados_filtrados.head(quantidade_publicacoes)
 
 # Exibir os dados filtrados
 st.subheader("Publicações Filtradas")
 st.write(dados_filtrados[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+
+# Exibir contagem de discursos de ódio
+if "eh_discurso_odio" in dados_filtrados.columns:
+    contagem_odio = dados_filtrados["eh_discurso_odio"].value_counts()
+    st.write("Contagem de Discurso de Ódio:")
+    st.write(contagem_odio)
+else:
+    st.warning("A coluna 'eh_discurso_odio' não está disponível nos dados.")
 
 
 import streamlit as st
