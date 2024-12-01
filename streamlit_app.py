@@ -316,7 +316,7 @@ if "Frequência por tipo de discurso" in visualizacoes:
         x="mes_postagem",
         y="count",
         color="resultado_analise",
-        title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
+        title="Tipos de Discurso de Ódio ao Longo do Tempo",
         labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
         markers=True  # Marca os pontos de cada linha
     )
