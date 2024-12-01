@@ -33,7 +33,7 @@ if dados is None:
     st.stop()
 
 # Configuração do layout e título
-st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
+st.title("Análise de Discurso de Ódio no Reddit através do ChatGPT")
 
 dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")
 dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")
