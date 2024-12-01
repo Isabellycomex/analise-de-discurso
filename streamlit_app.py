@@ -45,7 +45,7 @@ data_fim_default = data_max.date() if pd.notnull(data_max) else None
 
 # Filtros
 st.subheader("Filtros")
-st.warning("Todos os filtros são obrigatórios para visualizar os dados.")
+st.warning("Todos os filtros devem ser preenchidos para visualização dos gráficos.")
 
 # Filtro por data
 col1, col2 = st.columns(2)
