@@ -432,25 +432,38 @@ if "Palavras Mais Comuns" in visualizacoes:
     else:
         st.write("A coluna 'resultado_analise' ou 'texto' não existe no DataFrame.")
 
-# Frequência de Postagens por Usuário
+import plotly.express as px
+import pandas as pd
+
 if "Frequência por usuário" in visualizacoes:
     # Filtrar dados para incluir apenas discursos de ódio
     data_usuarios = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
+    # Calcular a quantidade de postagens por usuário
     frequencia_postagens = (
         data_usuarios.groupby("usuario")
         .size()
         .reset_index(name="quantidade_postagens")
-        .sort_values(by="quantidade_postagens", ascending=False)
-        .head(10)  # Exibir os 10 usuários mais ativos
     )
 
+    # Criar a coluna de faixas de postagens (de 10 em 10)
+    frequencia_postagens['faixa_postagens'] = pd.cut(
+        frequencia_postagens['quantidade_postagens'],
+        bins=range(0, frequencia_postagens['quantidade_postagens'].max() + 10, 10),
+        labels=[f"{i}-{i+9}" for i in range(0, frequencia_postagens['quantidade_postagens'].max(), 10)],
+        right=False
+    )
+
+    # Contar quantos usuários existem em cada faixa
+    faixa_counts = frequencia_postagens.groupby('faixa_postagens').size().reset_index(name="quantidade_usuarios")
+
+    # Criar o gráfico de barras
     fig_frequencia = px.bar(
-        frequencia_postagens,
-        x="usuario",
-        y="quantidade_postagens",
-        title="Frequência de Postagens por Usuário (Discursos de Ódio)",
-        labels={"usuario": "Usuário", "quantidade_postagens": "Quantidade de Postagens"},
+        faixa_counts,
+        x="faixa_postagens",
+        y="quantidade_usuarios",
+        title="Frequência de Postagens por Faixa de Usuários (Discursos de Ódio)",
+        labels={"faixa_postagens": "Faixa de Postagens", "quantidade_usuarios": "Quantidade de Usuários"},
         text_auto=True,
     )
 
@@ -459,12 +472,13 @@ if "Frequência por usuário" in visualizacoes:
         plot_bgcolor="black",
         paper_bgcolor="black",
         font=dict(color="white"),
-        xaxis=dict(title="Usuários", showgrid=False),
-        yaxis=dict(title="Frequência de Postagens", showgrid=True, gridcolor="gray"),
+        xaxis=dict(title="Faixa de Postagens", showgrid=False),
+        yaxis=dict(title="Quantidade de Usuários", showgrid=True, gridcolor="gray"),
         title=dict(font=dict(size=20)),
     )
     aplicar_estilo(fig_frequencia)
     st.plotly_chart(fig_frequencia)
+
 if "Likes (Upvotes)" in visualizacoes:  # Verificando "Likes" ao invés de "Upvotes"
     # Agrupar e calcular a média de likes por tipo de discurso
     media_likes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
