@@ -356,7 +356,6 @@ if "Visualizações" in visualizacoes:
         st.plotly_chart(fig_visualizacoes_tipo)
     else:
         st.write("Não há dados de discurso de ódio para exibir.")
-
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import streamlit as st
@@ -387,51 +386,56 @@ stop_words.update([
 
 # Verifique se as colunas existem nos dados filtrados
 if "resultado_analise" in data_filtered.columns and "texto" in data_filtered.columns:
-    # Filtra os dados que não são "não é discurso de ódio"
-    data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
+    # Aplica os filtros (igual ao exemplo de "Frequência por usuário")
+    if "Discursos de Ódio" in visualizacoes:  # Exemplo de filtro de visualização
+        # Filtra os dados para incluir apenas discursos de ódio
+        data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
-    if not data_odio.empty:
-        # Combinar os textos para gerar a nuvem de palavras
-        textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
+        if not data_odio.empty:
+            # Combinar os textos para gerar a nuvem de palavras
+            textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
 
-        # Gerar a nuvem de palavras
-        if textos.strip():
-            wordcloud = WordCloud(
-                background_color="black", 
-                stopwords=stop_words,
-                colormap="coolwarm",
-                width=800,
-                height=400
-            ).generate(textos)
+            # Gerar a nuvem de palavras
+            if textos.strip():
+                wordcloud = WordCloud(
+                    background_color="black", 
+                    stopwords=stop_words,
+                    colormap="coolwarm",
+                    width=800,
+                    height=400
+                ).generate(textos)
 
-            # Criar o gráfico
-            fig6, ax = plt.subplots(figsize=(10, 5))
+                # Criar o gráfico
+                fig6, ax = plt.subplots(figsize=(10, 5))
 
-            # Configurar fundo e nuvem de palavras
-            fig6.patch.set_facecolor("black")
-            ax.imshow(wordcloud, interpolation="bilinear")
-            ax.axis("off")
+                # Configurar fundo e nuvem de palavras
+                fig6.patch.set_facecolor("black")
+                ax.imshow(wordcloud, interpolation="bilinear")
+                ax.axis("off")
 
-            # Configurar o título
-            ax.set_title(
-                "Palavras Mais Comuns em Discurso de Ódio", 
-                fontsize=18, 
-                color="white", 
-                fontfamily="Arial", 
-                loc="left"
-            )
+                # Configurar o título
+                ax.set_title(
+                    "Palavras Mais Comuns em Discurso de Ódio", 
+                    fontsize=18, 
+                    color="white", 
+                    fontfamily="Arial", 
+                    loc="left"
+                )
 
-            # Ajustar margens para alinhamento
-            fig6.subplots_adjust(top=0.85)
+                # Ajustar margens para alinhamento
+                fig6.subplots_adjust(top=0.85)
 
-            # Exibir no Streamlit
-            st.pyplot(fig6, use_container_width=True)
+                # Exibir no Streamlit
+                st.pyplot(fig6, use_container_width=True)
+            else:
+                st.write("Nenhum texto disponível para gerar a nuvem de palavras.")
         else:
-            st.write("Nenhum texto disponível para gerar a nuvem de palavras.")
+            st.write("Não há dados de discurso de ódio para exibir.")
     else:
-        st.write("Não há dados de discurso de ódio para exibir.")
+        st.write("Nenhum filtro selecionado para exibir a nuvem de palavras.")
 else:
     st.write("A coluna 'resultado_analise' ou 'texto' não existe no DataFrame.")
+
 
 # Frequência de Postagens por Usuário
 if "Frequência por usuário" in visualizacoes:
