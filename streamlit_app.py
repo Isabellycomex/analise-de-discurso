@@ -361,89 +361,81 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import streamlit as st
 
-if "Palavras Mais Comuns" in visualizacoes:
-    # Filtrar os dados para excluir os que não são discurso de ódio
-    if "resultado_analise" in data_filtered.columns and "texto" in data_filtered.columns:
+# Definindo as stopwords
+stop_words = set(STOPWORDS)
+stop_words.update([
+    "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", 
+    "para", "com", "que", "em", "é", "e", "o", "a", "os", "como", "um", "uma", 
+    "na", "no", "não", "mas", "ela", "eu", "você", "vocês", "nós", "eles", "elas", 
+    "meu", "minha", "meus", "minhas", "teu", "tua", "teus", "tuas", "dele", "dela", 
+    "deles", "delas", "esse", "essa", "esses", "essas", "este", "esta", "estes", 
+    "estas", "aquele", "aquela", "aqueles", "aquelas", "lhe", "lhes", "do", "dos", 
+    "das", "num", "numa", "neste", "nesta", "nisto", "naquele", "naquela", "nisso", 
+    "daquilo", "e", "ou", "onde", "porque", "porquê", "lá", "aqui", "ali", "assim", 
+    "tão", "já", "então", "também", "muito", "pouco", "sempre", "tudo", "nada", 
+    "cada", "todos", "todas", "algum", "alguma", "nenhum", "nenhuma", "outro", 
+    "outra", "outros", "outras", "seu", "sua", "seus", "suas", "me", "te", "nos", 
+    "vos", "depois", "antes", "até", "ainda", "hoje", "ontem", "amanhã", "agora", 
+    "lá", "cá", "sim", "não", "pois", "porém", "como", "sobre", "entre", "contra", 
+    "sem", "baixo", "apenas", "mesmo", "era", "só", "coisa", "ser", "pessoa", "pai", 
+    "cara", "tem", "bem", "foi", "pessoas", "ser", "sou", "ano", "vc", "queria", 
+    "gente", "ao", "disse", "nunca", "sempre", "casa", "tempo", "nem", "mim", "q", 
+    "que", "pq", "mãe", "mulher", "sala", "dia", "estava", "tenho", "vai", "começou", 
+    "fazer", "são", "amigo", "namorada", "anos", "ter", "enquanto", "homem", "aí", 
+    "tinha", "vida", "estou", "grupo", "coisas", "fui"
+])
+
+# Filtrar os dados conforme a seleção do filtro
+if "resultado_analise" in data_filtered.columns and "texto" in data_filtered.columns:
+    if filtro_discurso != "Todos":
+        # Filtra os dados conforme o tipo de discurso selecionado
+        data_odio = data_filtered[data_filtered["resultado_analise"] == filtro_discurso]
+    else:
+        # Se for "Todos", usa os dados de discurso de ódio
         data_odio = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
-        if not data_odio.empty:
-            # Definir as stopwords
-            stop_words = set(STOPWORDS)
-            stop_words.update([
-                "de", "como", "por", "mais", "quando", "se", "ele", "pra", "isso", "da", 
-                "para", "com", "que", "em", "é", "e", "o", "a", "os", "como", "um", "uma", 
-                "na", "no", "não", "mas", "ela", "eu", "você", "vocês", "nós", "eles", "elas", 
-                "meu", "minha", "meus", "minhas", "teu", "tua", "teus", "tuas", "dele", "dela", 
-                "deles", "delas", "esse", "essa", "esses", "essas", "este", "esta", "estes", 
-                "estas", "aquele", "aquela", "aqueles", "aquelas", "lhe", "lhes", "do", "dos", 
-                "das", "num", "numa", "neste", "nesta", "nisto", "naquele", "naquela", "nisso", 
-                "daquilo", "e", "ou", "onde", "porque", "porquê", "lá", "aqui", "ali", "assim", 
-                "tão", "já", "então", "também", "muito", "pouco", "sempre", "tudo", "nada", 
-                "cada", "todos", "todas", "algum", "alguma", "nenhum", "nenhuma", "outro", 
-                "outra", "outros", "outras", "seu", "sua", "seus", "suas", "me", "te", "nos", 
-                "vos", "depois", "antes", "até", "ainda", "hoje", "ontem", "amanhã", "agora", 
-                "lá", "cá", "sim", "não", "pois", "porém", "como", "sobre", "entre", "contra", 
-                "sem", "baixo", "apenas", "mesmo", "era", "só", "coisa", "ser", "pessoa", "pai", 
-                "cara", "tem", "bem", "foi", "pessoas", "ser", "sou", "ano", "vc", "queria", 
-                "gente", "ao", "disse", "nunca", "sempre", "casa", "tempo", "nem", "mim", "q", 
-                "que", "pq", "mãe", "mulher", "sala", "dia", "estava", "tenho", "vai", "começou", 
-                "fazer", "são", "amigo", "namorada", "anos", "ter", "enquanto", "homem", "aí", 
-                "tinha", "vida", "estou", "grupo", "coisas", "fui"
-            ])
+    if not data_odio.empty:
+        # Combinar os textos para gerar a nuvem de palavras
+        textos = " ".join(data_odio["texto"])  # Supondo que 'texto' seja a coluna com as postagens
 
-            # Adicionar um seletor para escolher o tipo de discurso de ódio
-            tipo_discurso = st.selectbox(
-                "Selecione o tipo de discurso de ódio",
-                options=["todos", "racismo", "homofobia", "sexismo" ,"não é discurso de ódio"],
-                index=0  # "todos" por padrão
+        # Gerar a nuvem de palavras
+        if textos.strip():
+            wordcloud = WordCloud(
+                background_color="black", 
+                stopwords=stop_words,
+                colormap="coolwarm",
+                width=800,
+                height=400
+            ).generate(textos)
+
+            # Criar o gráfico
+            fig6, ax = plt.subplots(figsize=(10, 5))
+
+            # Configurar fundo e nuvem de palavras
+            fig6.patch.set_facecolor("black")
+            ax.imshow(wordcloud, interpolation="bilinear")
+            ax.axis("off")
+
+            # Configurar o título
+            ax.set_title(
+                f"Palavras Mais Comuns em {filtro_discurso.capitalize()}", 
+                fontsize=18, 
+                color="white", 
+                fontfamily="Arial", 
+                loc="left"
             )
 
-            # Filtrar os dados conforme o tipo de discurso selecionado
-            if tipo_discurso != "todos":
-                data_odio = data_odio[data_odio["resultado_analise"] == tipo_discurso]
+            # Ajustar margens para alinhamento
+            fig6.subplots_adjust(top=0.85)
 
-            if not data_odio.empty:
-                # Combinar os textos para gerar a nuvem de palavras
-                textos = " ".join(data_odio["texto"])
-
-                # Gerar a nuvem de palavras
-                if textos.strip():
-                    wordcloud = WordCloud(
-                        background_color="black", 
-                        stopwords=stop_words,
-                        colormap="coolwarm",
-                        width=800,
-                        height=400
-                    ).generate(textos)
-
-                    # Criar o gráfico
-                    fig6, ax = plt.subplots(figsize=(10, 5))
-
-                    # Configurar fundo e nuvem de palavras
-                    fig6.patch.set_facecolor("black")
-                    ax.imshow(wordcloud, interpolation="bilinear")
-                    ax.axis("off")
-
-                    # Configurar o título
-                    ax.set_title(
-                        f"Palavras Mais Comuns em Discurso de Ódio - {tipo_discurso.title()}",  # Título dinâmico
-                        fontsize=18, 
-                        color="white", 
-                        fontfamily="Arial", 
-                        loc="left"
-                    )
-
-                    # Ajustar margens para alinhamento
-                    fig6.subplots_adjust(top=0.85)
-
-                    # Exibir no Streamlit
-                    st.pyplot(fig6, use_container_width=True)
-                else:
-                    st.write("Nenhum texto disponível para gerar a nuvem de palavras.")
-            else:
-                st.write("Não há dados de discurso de ódio para gerar a nuvem de palavras.")
+            # Exibir no Streamlit
+            st.pyplot(fig6, use_container_width=True)
         else:
-            st.write("A coluna 'resultado_analise' ou 'texto' não existe no DataFrame.")
+            st.write("Nenhum texto disponível para gerar a nuvem de palavras.")
+    else:
+        st.write(f"Não há dados de discurso de ódio para o filtro '{filtro_discurso}'.")
+else:
+    st.write("A coluna 'resultado_analise' ou 'texto' não existe no DataFrame.")
 
 # Frequência de Postagens por Usuário
 if "Frequência por usuário" in visualizacoes:
