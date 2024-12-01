@@ -352,7 +352,6 @@ if "Frequência por tipo de discurso" in visualizacoes:
     # Exibir o gráfico
     st.plotly_chart(fig3)
 
-# Visualizações por Tipo de Discurso de Ódio
 if "Visualizações" in visualizacoes:
     # Agrupar os dados por tipo de análise, incluindo "não é discurso de ódio"
     visualizacoes_por_tipo = data_filtered.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
@@ -363,10 +362,10 @@ if "Visualizações" in visualizacoes:
     # Garantir que todos os tipos de discurso apareçam, mesmo os sem dados
     for tipo in tipos_discurso:
         if tipo not in visualizacoes_por_tipo["resultado_analise"].values:
-            visualizacoes_por_tipo = visualizacoes_por_tipo.append(
-                {"resultado_analise": tipo, "visualizacoes": 0},
-                ignore_index=True
-            )
+            # Criar um DataFrame temporário para o tipo ausente
+            temp_df = pd.DataFrame({"resultado_analise": [tipo], "visualizacoes": [0]})
+            # Concatenar o DataFrame original com o novo DataFrame
+            visualizacoes_por_tipo = pd.concat([visualizacoes_por_tipo, temp_df], ignore_index=True)
 
     # Criar gráfico de barras para visualizações por tipo de discurso
     fig_visualizacoes_tipo = px.bar(
