@@ -1,7 +1,10 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+import plotly.express as px
 import nltk
-from datetime import datetime
+from wordcloud import WordCloud, STOPWORDS
+import datetime as dt
 
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
@@ -10,10 +13,11 @@ nltk.download('stopwords')
 # Carregar os dados do CSV
 caminho_arquivo = "publicacoes.csv"
 
+# Função para carregar os dados e verificar erros
 def carregar_dados(caminho_arquivo):
     try:
         dados = pd.read_csv(caminho_arquivo)
-        colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto", "eh_discurso_odio"]
+        colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto"]
         colunas_faltando = [col for col in colunas_necessarias if col not in dados.columns]
         if colunas_faltando:
             st.error(f"As colunas ausentes são: {colunas_faltando}. Verifique o arquivo CSV.")
@@ -33,94 +37,71 @@ if dados is None:
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
 # Tratamento de dados
-dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")  # Garantir conversão segura
-dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")  # Formatar para exibição
+dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")
+dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")
 
-# Adicionar coluna de engajamento e de classificação
 dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
 dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
-# Verificar valores mínimos e máximos para os filtros
 data_min = dados["hora_postagem"].min()
 data_max = dados["hora_postagem"].max()
 
-# Evitar erro se os dados forem vazios ou NaT
-data_inicio_default = data_min.date() if pd.notnull(data_min) else None
-data_fim_default = data_max.date() if pd.notnull(data_max) else None
-
-# Filtros
-
 # Filtros
 st.subheader("Filtros")
-st.warning("Todos os filtros são obrigatórios para visualizar os dados.")
 
 # Filtro por data
 col1, col2 = st.columns(2)
 with col1:
     data_inicio = st.date_input(
-        "Data Inicial (Obrigatório)",
-        value=data_inicio_default,
+        "Data Inicial",
         min_value=data_min.date(),
-        max_value=data_max.date(),
-        key="data_inicio"
+        max_value=data_max.date()
     )
 with col2:
     data_fim = st.date_input(
-        "Data Final (Obrigatório)",
-        value=data_fim_default,
+        "Data Final",
         min_value=data_min.date(),
-        max_value=data_max.date(),
-        key="data_fim"
+        max_value=data_max.date()
     )
 
-# Filtro por tipo de discurso
-opcoes_discurso = ["Todos"] + dados["resultado_analise"].unique().tolist()
-filtro_discurso = st.multiselect(
-    "Tipo de Discurso (Obrigatório)",
-    options=opcoes_discurso,
-    default="Todos",
-    key="filtro_discurso"
-)
+# Filtro por tipo de discurso e emoção
+col3, col4 = st.columns(2)
 
-# Filtro por tipo de emoção
-opcoes_emocao = ["Todas"] + dados["emocao"].unique().tolist()
-filtro_emocao = st.multiselect(
-    "Tipo de Emoção (Obrigatório)",
-    options=opcoes_emocao,
-    default="Todas",
-    key="filtro_emocao"
-)
+with col3:
+    filtro_discurso = st.multiselect(
+        "Escolha o tipo de discurso que deseja visualizar",
+        options=["todos"] + list(dados["resultado_analise"].unique())  # Adicionando "todos"
+    )
+with col4:
+    filtro_emocao = st.multiselect(
+        "Escolha o tipo de emoção que deseja visualizar",
+        options=["todas"] + list(dados["emocao"].unique())  # Adicionando "todas"
+    )
 
-# Filtro por quantidade de publicações
-quantidade_publicacoes = st.slider(
-    "Quantidade de Publicações (1 a 300)",
-    min_value=1,
-    max_value=300,
-    value=300,
-    step=1,
-    key="quantidade_publicacoes"
-)
+# Validação dos filtros
+if not data_inicio or not data_fim:
+    st.error("Por favor, selecione as datas inicial e final.")
+    st.stop()
+
+# Se não for selecionado nenhum filtro de discurso ou emoção, considerar todos
+if "todos" in filtro_discurso:
+    filtro_discurso = dados["resultado_analise"].unique().tolist()  # Seleciona todos os tipos de discurso
+if "todas" in filtro_emocao:
+    filtro_emocao = dados["emocao"].unique().tolist()  # Seleciona todas as emoções
 
 # Aplicação de filtros
-dados_filtrados = dados[
-    (dados["hora_postagem"].dt.date >= data_inicio) &
-    (dados["hora_postagem"].dt.date <= data_fim)
+data_filtered = dados[
+    (dados["hora_postagem"].dt.date >= data_inicio) & 
+    (dados["hora_postagem"].dt.date <= data_fim) & 
+    (dados["resultado_analise"].isin(filtro_discurso)) & 
+    (dados["emocao"].isin(filtro_emocao))
 ]
 
-if "Todos" not in filtro_discurso:
-    dados_filtrados = dados_filtrados[dados_filtrados["resultado_analise"].isin(filtro_discurso)]
-
-if "Todas" not in filtro_emocao:
-    dados_filtrados = dados_filtrados[dados_filtrados["emocao"].isin(filtro_emocao)]
-
-# Limitar pela quantidade de publicações
-dados_filtrados = dados_filtrados.head(quantidade_publicacoes)
-
-# Exibir os dados filtrados
+# Exibição dos dados filtrados
 st.subheader("Publicações Filtradas")
-st.write(dados_filtrados[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
+st.write(data_filtered[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
 
 # Exibir contagem de discursos de ódio
 if "eh_discurso_odio" in dados_filtrados.columns:
