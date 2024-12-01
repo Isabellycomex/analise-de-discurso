@@ -200,6 +200,7 @@ else:
     # Caso o DataFrame esteja vazio
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
 
+st.subheader("Visualizações")
 # Opções disponíveis
 opcoes = [
     "Discurso (Ódio/Não Ódio)",
@@ -222,9 +223,6 @@ visualizacoes = st.multiselect(
 # Lógica para tratar a seleção de "Todos"
 if "Todos" in visualizacoes:
     visualizacoes = opcoes  # Seleciona todas as opções
-
-# Gráficos selecionados
-st.subheader("Visualizações")
 
 def aplicar_estilo(fig):
     fig.update_layout(
