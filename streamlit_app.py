@@ -303,13 +303,13 @@ else:
     raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
 
 # Filtro para seleção dos tipos de discurso
-discurso_opcoes = ["racismo", "homofobia", "sexismo", "xenofobia", "não é discurso de ódio"]
+discurso_opcoes = ["racismo", "homofobia", "sexismo", "xenofobia", "transfobia", "não é discurso de ódio"]
 tipos_selecionados = st.sidebar.multiselect(
-    "Selecione os Tipos de Discurso que deseja visualizar", discurso_opcoes, default=discurso_opcoes)
+    "Selecione os Tipos de Discurso de Ódio", discurso_opcoes, default=discurso_opcoes)
 
-# Filtrar os dados para discurso de ódio com os tipos selecionados
-    if "Frequência por tipo de discurso" in visualizacoes:
-    # Filtrar os dados com base no tipo de discurso
+# Verificar se "Frequência por tipo de discurso" está em 'visualizacoes'
+if "Frequência por tipo de discurso" in visualizacoes:
+    # Filtrar os dados para discurso de ódio com os tipos selecionados
     odio_tempo = data_filtered[data_filtered["resultado_analise"].isin(tipos_selecionados)]
     
     # Agrupar por mês e tipo de discurso
