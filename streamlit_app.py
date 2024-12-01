@@ -202,20 +202,35 @@ else:
 
 # Visualizações
 st.subheader("Visualizações")
+# Visualizações
+st.subheader("Visualizações")
+
+# Opções disponíveis
+opcoes = [
+    "Discurso (Ódio/Não Ódio)",
+    "Tipos de Discurso de Ódio",
+    "Emoções",
+    "Quantidade de Comentários",
+    "Visualizações",
+    "Likes (Upvotes)",
+    "Frequência por tipo de discurso",
+    "Frequência por usuário",
+    "Palavras Mais Comuns"
+]
+
+# Multiselect com a opção "Todos" adicionada
 visualizacoes = st.multiselect(
-    "Escolha uma ou mais opções",  # Texto de escolha em português
-    [
-        "Discurso (Ódio/Não Ódio)",
-        "Tipos de Discurso de Ódio",
-        "Emoções",
-        "Quantidade de Comentários",
-        "Visualizações",
-        "Likes (Upvotes)",
-        "Frequência por tipo de discurso",
-        "Frequência por usuário",
-        "Palavras Mais Comuns"
-    ]
+    "Escolha uma ou mais opções",
+    ["Todos"] + opcoes  # "Todos" adicionado
 )
+
+# Lógica para tratar a seleção de "Todos"
+if "Todos" in visualizacoes:
+    visualizacoes = opcoes  # Seleciona todas as opções
+
+# Exibir as opções selecionadas (opcional)
+st.write("Você selecionou:", visualizacoes)
+
 
 # Gráficos selecionados
 st.subheader("Visualizações")
