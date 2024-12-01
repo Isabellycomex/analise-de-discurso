@@ -432,76 +432,39 @@ if "Palavras Mais Comuns" in visualizacoes:
     else:
         st.write("A coluna 'resultado_analise' ou 'texto' não existe no DataFrame.")
 
-import plotly.express as px
-import pandas as pd
-import streamlit as st
+# Frequência de Postagens por Usuário
+if "Frequência por usuário" in visualizacoes:
+    # Filtrar dados para incluir apenas discursos de ódio
+    data_usuarios = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
-# Filtrar dados para incluir apenas discursos de ódio
-data_usuarios = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
+    frequencia_postagens = (
+        data_usuarios.groupby("usuario")
+        .size()
+        .reset_index(name="quantidade_postagens")
+        .sort_values(by="quantidade_postagens", ascending=False)
+        .head(10)  # Exibir os 10 usuários mais ativos
+    )
 
-# Calcular a quantidade de postagens por usuário
-frequencia_postagens = (
-    data_usuarios.groupby("usuario")
-    .size()
-    .reset_index(name="quantidade_postagens")
-)
-
-# Ordenar os usuários pela quantidade de postagens
-frequencia_postagens = frequencia_postagens.sort_values(by="quantidade_postagens", ascending=False)
-
-# Função para exibir os dados em blocos de 10 usuários
-def mostrar_usuarios_paginados(frequencia_postagens, pagina_atual=0, por_pagina=10):
-    inicio = pagina_atual * por_pagina
-    fim = inicio + por_pagina
-    dados_paginados = frequencia_postagens.iloc[inicio:fim]
-    
-    # Criar o gráfico de barras
     fig_frequencia = px.bar(
-        dados_paginados,
+        frequencia_postagens,
         x="usuario",
         y="quantidade_postagens",
-        title="Frequência de Postagens por Usuários (Discursos de Ódio)",
+        title="Frequência de Postagens por Usuário (Discursos de Ódio)",
         labels={"usuario": "Usuário", "quantidade_postagens": "Quantidade de Postagens"},
         text_auto=True,
     )
-    
+
     fig_frequencia.update_traces(marker_color="pink")
     fig_frequencia.update_layout(
         plot_bgcolor="black",
         paper_bgcolor="black",
         font=dict(color="white"),
-        xaxis=dict(title="Usuário", showgrid=False),
-        yaxis=dict(title="Quantidade de Postagens", showgrid=True, gridcolor="gray"),
+        xaxis=dict(title="Usuários", showgrid=False),
+        yaxis=dict(title="Frequência de Postagens", showgrid=True, gridcolor="gray"),
         title=dict(font=dict(size=20)),
     )
-    
+    aplicar_estilo(fig_frequencia)
     st.plotly_chart(fig_frequencia)
-
-    return len(frequencia_postagens) // por_pagina
-
-# Verifique e defina a página inicial, se necessário
-if "pagina_atual" not in st.session_state:
-    st.session_state["pagina_atual"] = 0
-
-# Total de páginas
-pagina_atual = st.session_state["pagina_atual"]
-total_paginas = mostrar_usuarios_paginados(frequencia_postagens, pagina_atual)
-
-colunas = st.columns(2)
-
-with colunas[0]:
-    # Botão "Anterior"
-    if pagina_atual > 0:
-        if st.button("Anterior", key="anterior"):
-            st.session_state["pagina_atual"] = pagina_atual - 1
-            st.experimental_rerun()
-
-with colunas[1]:
-    # Botão "Próximo"
-    if pagina_atual < total_paginas - 1:
-        if st.button("Próximo", key="proximo"):
-            st.session_state["pagina_atual"] = pagina_atual + 1
-            st.experimental_rerun()
 
 # Quantidade de Respostas por Tipo de Discurso
 if "Quantidade de Comentários" in visualizacoes:
