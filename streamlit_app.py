@@ -148,9 +148,10 @@ if not data_filtered.empty:
         #### Dicas de Uso:
         - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
         - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
+        - Clique em qualquer **campo** da tabela para visualizar mais detalhes sobre ele, como o texto completo da publicação.
         - Cada página exibe até **10 publicações**.
         - Navegação limitada às páginas **1 a 31**.
-        - Clique na **publicação** que deseja visualizar para disponibilizar o texto completo da postagem.
+        - Clique na **publicação** para visualizar o texto completo da postagem.
         """
     )
 
@@ -174,11 +175,11 @@ if not data_filtered.empty:
             st.session_state.pagina_atual -= 1
 
     with col3:
-        if st.button("Próximo", disabled=(st.session_state.pagina_atual >= total_paginas)):
+        if st.button("Próximo", disabled=(st.session_state.pagina_atual >= PAGINA_MAXIMA)):
             st.session_state.pagina_atual += 1
 
     # Exibir página atual
-    st.text(f"Página {st.session_state.pagina_atual} de {total_paginas}")
+    st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
 
 else:
     # Caso o DataFrame esteja vazio
