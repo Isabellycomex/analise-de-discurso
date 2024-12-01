@@ -291,37 +291,59 @@ if "Emoções" in visualizacoes:
     fig2 = aplicar_estilo(fig2)
     st.plotly_chart(fig2)
 
-if "Frequência por tipo de discurso" in visualizacoes:
-    # Certificar-se de que a coluna 'hora_postagem' é datetime
-    if 'hora_postagem' in data_filtered.columns:
-        data_filtered['hora_postagem'] = pd.to_datetime(data_filtered['hora_postagem'], errors='coerce')
-    else:
-        st.error("A coluna 'hora_postagem' não está presente nos dados.")
-        raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
+import pandas as pd
+import plotly.express as px
+import streamlit as st
 
-    # Filtrar discursos de ódio
-    odio_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
+# Verifique se a coluna 'hora_postagem' é datetime
+if 'hora_postagem' in data_filtered.columns:
+    data_filtered['hora_postagem'] = pd.to_datetime(data_filtered['hora_postagem'], errors='coerce')
+else:
+    st.error("A coluna 'hora_postagem' não está presente nos dados.")
+    raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
 
-    # Agrupar por mês e tipo de discurso
-    odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M").astype(str)  # Converter para string
-    odio_por_tipo_tempo = odio_tempo.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
+# Filtrar discursos de ódio
+odio_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
+nao_odio_tempo = data_filtered[data_filtered["eh_discurso_odio"] != "Discurso de Ódio"]  # Publicações não discurso de ódio
 
-    # Verificar se a tabela está vazia
-    if odio_por_tipo_tempo.empty:
-        st.error("Não há dados suficientes para gerar o gráfico de Discurso de Ódio ao Longo do Tempo.")
-    else:
-        # Criar o gráfico de linha
-        fig3 = px.line(
-            odio_por_tipo_tempo,
-            x="mes_postagem",
-            y="count",
-            color="resultado_analise",
-            title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
-            labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
-            markers=True
-        )
-        fig3 = aplicar_estilo(fig3)
-        st.plotly_chart(fig3)
+# Agrupar por mês e tipo de discurso
+odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M").astype(str)  # Converter para string
+nao_odio_tempo["mes_postagem"] = nao_odio_tempo["hora_postagem"].dt.to_period("M").astype(str)
+
+# Contagem de discursos de ódio por mês
+odio_por_mes = odio_tempo.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
+# Contagem de não discursos de ódio por mês
+nao_odio_por_mes = nao_odio_tempo.groupby("mes_postagem").size().reset_index(name="count")
+nao_odio_por_mes["resultado_analise"] = "Não Discurso de Ódio"  # Adicionar uma categoria para o não discurso de ódio
+
+# Juntar as duas tabelas de contagem
+dados_completos = pd.concat([odio_por_mes, nao_odio_por_mes])
+
+# Verificar se a tabela está vazia
+if dados_completos.empty:
+    st.error("Não há dados suficientes para gerar o gráfico de Discurso de Ódio ao Longo do Tempo.")
+else:
+    # Criar o gráfico de histograma com linha
+    fig3 = px.histogram(
+        dados_completos,
+        x="mes_postagem",
+        y="count",
+        color="resultado_analise",
+        title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
+        labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
+        histfunc="sum",
+        barmode="group",  # Para mostrar barras agrupadas
+        marginal="rug",  # Adiciona uma linha conectando as barras
+    )
+
+    fig3.update_traces(marker=dict(line=dict(width=1, color='black')))  # Adicionar contorno às barras
+    fig3.update_layout(
+        xaxis_title="Mês",
+        yaxis_title="Quantidade",
+        showlegend=True
+    )
+    st.plotly_chart(fig3)
+
 # Verificação de se "Média de Upvotes por Tipo de Discurso de Ódio" está na lista de visualizações
 if "Likes (Upvotes)" in visualizacoes:
     # Agrupar e calcular a média de upvotes por tipo de discurso
