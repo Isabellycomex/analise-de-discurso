@@ -303,7 +303,7 @@ else:
     raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
 
 # Filtrar os dados para discurso de ódio
-if "Frequência por Tipo de Discurso" in visualizacoes:
+if "Frequência por tipo de discurso" in visualizacoes:
     # Filtrar os dados com base no tipo de discurso
     odio_tempo = data_filtered[data_filtered["resultado_analise"].isin(["racismo", "homofobia", "sexismo", "xenofobia", "transfobia", "não é discurso de ódio"])]
     
