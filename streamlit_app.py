@@ -399,7 +399,7 @@ if "Palavras Mais Comuns" in visualizacoes:
             )
 
             # Filtrar os dados conforme o tipo de discurso selecionado
-            if tipo_discurso != "todos":
+            if tipo_discurso != "Todos":
                 data_odio = data_odio[data_odio["resultado_analise"] == tipo_discurso]
 
             if not data_odio.empty:
