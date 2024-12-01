@@ -291,60 +291,41 @@ if "Emoções" in visualizacoes:
     fig2 = aplicar_estilo(fig2)
     st.plotly_chart(fig2)
 
-import plotly.graph_objects as go
+import plotly.express as px
 import pandas as pd
 import streamlit as st
 
-# Supondo que 'data_filtered' seja o seu DataFrame de dados filtrados
-# Verificar se a coluna 'hora_postagem' é datetime
+# Verificando se 'hora_postagem' é datetime
 if 'hora_postagem' in data_filtered.columns:
     data_filtered['hora_postagem'] = pd.to_datetime(data_filtered['hora_postagem'], errors='coerce')
 else:
     st.error("A coluna 'hora_postagem' não está presente nos dados.")
     raise ValueError("A coluna 'hora_postagem' não foi encontrada.")
 
-# Filtrar discursos de ódio
-odio_tempo = data_filtered[data_filtered["eh_discurso_odio"] == "Discurso de Ódio"]
+# Filtrar os dados para discurso de ódio
+if "Visualizações" in visualizacoes:
+    # Filtrar os dados com base no tipo de discurso
+    odio_tempo = data_filtered[data_filtered["resultado_analise"].isin(["racismo", "homofobia", "sexismo", "xenofobia", "transfobia", "não é discurso de ódio"])]
+    
+    # Agrupar por mês e tipo de discurso
+    odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M").astype(str)  # Converter para string
+    odio_por_tipo_tempo = odio_tempo.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
 
-# Agrupar por mês e tipo de discurso
-odio_tempo["mes_postagem"] = odio_tempo["hora_postagem"].dt.to_period("M").astype(str)  # Converter para string
-odio_por_tipo_tempo = odio_tempo.groupby(["mes_postagem", "resultado_analise"]).size().reset_index(name="count")
-
-# Verificar se a tabela está vazia
-if odio_por_tipo_tempo.empty:
-    st.error("Não há dados suficientes para gerar o gráfico de Discurso de Ódio ao Longo do Tempo.")
-else:
-    # Criar o gráfico vazio
-    fig3 = go.Figure()
-
-    # Adicionar histograma
-    fig3.add_trace(go.Histogram(
-        x=odio_por_tipo_tempo['mes_postagem'],
-        y=odio_por_tipo_tempo['count'],
-        name='Discurso de Ódio',
-        histfunc='sum',
-        opacity=0.75,
-        marker=dict(color='blue')
-    ))
-
-    # Adicionar a linha (traçando os topos das barras)
-    fig3.add_trace(go.Scatter(
-        x=odio_por_tipo_tempo['mes_postagem'],
-        y=odio_por_tipo_tempo['count'],
-        mode='lines+markers',
-        name='Topo das Barras',
-        line=dict(color='red', width=2)
-    ))
-
-    # Atualizar layout
-    fig3.update_layout(
+    # Criar o gráfico de barras agrupadas com Plotly Express
+    fig3 = px.bar(
+        odio_por_tipo_tempo,
+        x="mes_postagem",
+        y="count",
+        color="resultado_analise",
+        barmode="group",
         title="Discurso de Ódio ao Longo do Tempo por Tipo de Discurso",
-        xaxis_title="Mês",
-        yaxis_title="Quantidade",
-        barmode='overlay'
+        labels={"mes_postagem": "Mês", "count": "Quantidade", "resultado_analise": "Tipo de Discurso de Ódio"},
     )
-
-    # Exibir gráfico no Streamlit
+    
+    # Aplicar o estilo ao gráfico (caso haja uma função 'aplicar_estilo')
+    fig3 = aplicar_estilo(fig3)
+    
+    # Exibir o gráfico
     st.plotly_chart(fig3)
 
 
