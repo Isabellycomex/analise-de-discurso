@@ -150,7 +150,7 @@ if not data_filtered.empty:
         - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
         - Cada página exibe até **10 publicações**.
         - Navegação limitada às páginas **1 a 31**.
-        - Clique na **publicação** que deseja visualizar para disponibilizar o texto completo da postagem.
+        - Clique na **publicação** que deseja visualizar para observar o texto completo da postagem.
         """
     )
 
@@ -159,21 +159,23 @@ if not data_filtered.empty:
     fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
     tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes].rename(columns=colunas_legiveis)
 
+    # Exibir a tabela formatada com largura maior
+    st.dataframe(
+        tabela_pagina,
+        use_container_width=True,  # Largura total da tela
+        height=350,  # Altura adequada para 10 linhas
+    )
 
-# Estilizando a tabela
-styled_df = df.style.set_table_styles(
-    [{'selector': 'thead th', 'props': [('font-size', '16px')]},  # Aumenta o tamanho da fonte do título
-     {'selector': 'tbody td', 'props': [('font-size', '14px')]},   # Aumenta o tamanho da fonte do conteúdo
-     {'selector': 'table', 'props': [('width', '100%')]},           # Aumenta a largura da tabela
-    ],
-    axis=0  # Aplica os estilos nas linhas
-)
+    # Botões de navegação
+    col1, col2, col3 = st.columns([1, 2, 1])
 
-# Convertendo para HTML e exibindo com markdown
-st.markdown(styled_df.render(), unsafe_allow_html=True)
+    with col1:
+        if st.button("Anterior", disabled=(st.session_state.pagina_atual <= PAGINA_MINIMA)):
+            st.session_state.pagina_atual -= 1
 
-# Se você deseja implementar a navegação e filtros, adicione o código de navegação aqui
-
+    with col3:
+        if st.button("Próximo", disabled=(st.session_state.pagina_atual >= PAGINA_MAXIMA)):
+            st.session_state.pagina_atual += 1
 
     # Exibir página atual
     st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
@@ -181,7 +183,6 @@ st.markdown(styled_df.render(), unsafe_allow_html=True)
 else:
     # Caso o DataFrame esteja vazio
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
-
 
 # Visualizações
 st.subheader("Visualizações")
