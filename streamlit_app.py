@@ -108,7 +108,7 @@ with col4:
 
 # Verificação se os filtros foram preenchidos
 if not data_inicio or not data_fim or not filtro_discurso or not filtro_emocao:
-    st.warning("Preencha todos os filtros para continuar.")
+    st.warning("Preencha todos os filtros para prosseguir.")
     st.stop()
 
 # Aplicação de filtros
