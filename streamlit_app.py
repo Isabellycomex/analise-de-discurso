@@ -37,16 +37,22 @@ if dados is None:
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
 # Tratamento de dados
-dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")
-dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")
+dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")  # Garantir conversão segura
+dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")  # Formatar para exibição
 
+# Adicionar coluna de engajamento e de classificação
 dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
 dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
+# Verificar valores mínimos e máximos para os filtros
 data_min = dados["hora_postagem"].min()
 data_max = dados["hora_postagem"].max()
+
+# Evitar erro se os dados forem vazios ou NaT
+data_inicio_default = data_min.date() if pd.notnull(data_min) else None
+data_fim_default = data_max.date() if pd.notnull(data_max) else None
 
 # Filtros
 st.subheader("Filtros")
@@ -56,15 +62,24 @@ col1, col2 = st.columns(2)
 with col1:
     data_inicio = st.date_input(
         "Data Inicial",
+        value=data_inicio_default,
         min_value=data_min.date(),
-        max_value=data_max.date()
+        max_value=data_max.date(),
+        key="data_inicio"
     )
 with col2:
     data_fim = st.date_input(
         "Data Final",
+        value=data_fim_default,
         min_value=data_min.date(),
-        max_value=data_max.date()
+        max_value=data_max.date(),
+        key="data_fim"
     )
+
+# Filtro por tipo de discurso e emoção
+col3, col4 = st.columns(2)
+
+import streamlit as st
 
 # Filtro por tipo de discurso e emoção
 col3, col4 = st.columns(2)
@@ -72,50 +87,58 @@ col3, col4 = st.columns(2)
 with col3:
     filtro_discurso = st.multiselect(
         "Escolha o tipo de discurso que deseja visualizar",
-        options=["todos"] + list(dados["resultado_analise"].unique())  # Adicionando "todos"
+        options=["Todos"] + list(dados["resultado_analise"].unique()),  # Adiciona a opção 'Todas'
+        default=["Todos"],  # Define o padrão como 'Todas'
+        key="filtro_discurso"
     )
+
+    # Se 'Todas' for selecionado, seleciona todas as opções
+    if "Todos" in filtro_discurso:
+        filtro_discurso = list(dados["resultado_analise"].unique())  # Todas as opções
+
 with col4:
     filtro_emocao = st.multiselect(
         "Escolha o tipo de emoção que deseja visualizar",
-        options=["todas"] + list(dados["emocao"].unique())  # Adicionando "todas"
+        options=["Todas"] + list(dados["emocao"].unique()),  # Adiciona a opção 'Todas'
+        default=["Todas"],  # Define o padrão como 'Todas'
+        key="filtro_emocao"
     )
 
-# Validação dos filtros
-if not data_inicio or not data_fim:
-    st.error("Por favor, selecione as datas inicial e final.")
-    st.stop()
+    # Se 'Todas' for selecionado, seleciona todas as opções
+    if "Todas" in filtro_emocao:
+        filtro_emocao = list(dados["emocao"].unique())  # Todas as opções
 
-# Se não for selecionado nenhum filtro de discurso ou emoção, considerar todos
-if "todos" in filtro_discurso:
-    filtro_discurso = dados["resultado_analise"].unique().tolist()  # Seleciona todos os tipos de discurso
-if "todas" in filtro_emocao:
-    filtro_emocao = dados["emocao"].unique().tolist()  # Seleciona todas as emoções
+# Filtragem dos dados de forma independente
+
+# Filtra os dados para o tipo de discurso
+dados_filtrados_discurso = dados[dados["resultado_analise"].isin(filtro_discurso)]
+
+# Filtra os dados para a emoção
+dados_filtrados_emocao = dados[dados["emocao"].isin(filtro_emocao)]
+# Filtra os dados para a emoção
+dados_filtrados_emocao = dados[dados["emocao"].isin(filtro_emocao)]
+# Filtro por quantidade de publicações
+col5, _ = st.columns(2)
+with col5:
+    max_publicacoes = st.slider(
+        "Quantidade de Publicações para Analisar",
+        min_value=1,
+        max_value=min(len(dados), 300),
+        value=300,
+        key="max_publicacoes"
+    )
 
 # Aplicação de filtros
-# Certifique-se de que a variável dados_filtrados está sendo definida corretamente
-data_filtered = dados[
-    (dados["hora_postagem"].dt.date >= data_inicio) & 
-    (dados["hora_postagem"].dt.date <= data_fim) & 
-    (dados["resultado_analise"].isin(filtro_discurso)) & 
+data_filtered = dados[ 
+    (dados["hora_postagem"].dt.date >= data_inicio) &
+    (dados["hora_postagem"].dt.date <= data_fim) &
+    (dados["resultado_analise"].isin(filtro_discurso)) &
     (dados["emocao"].isin(filtro_emocao))
-]
-
-# Verifique as colunas de dados_filtrados
-st.write(data_filtered.columns)
-
+].head(max_publicacoes)
 
 # Exibição dos dados filtrados
 st.subheader("Publicações Filtradas")
 st.write(data_filtered[["hora_postagem_formatada", "resultado_analise", "emocao", "upvotes", "comentarios", "texto"]])
-
-# Exibir contagem de discursos de ódio
-if "eh_discurso_odio" in dados_filtrados.columns:
-    contagem_odio = dados_filtrados["eh_discurso_odio"].value_counts()
-    st.write("Contagem de Discurso de Ódio:")
-    st.write(contagem_odio)
-else:
-    st.warning("A coluna 'eh_discurso_odio' não está disponível nos dados.")
-
 
 import streamlit as st
 
