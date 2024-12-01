@@ -92,12 +92,17 @@ if "todas" in filtro_emocao:
     filtro_emocao = dados["emocao"].unique().tolist()  # Seleciona todas as emoções
 
 # Aplicação de filtros
+# Certifique-se de que a variável dados_filtrados está sendo definida corretamente
 data_filtered = dados[
     (dados["hora_postagem"].dt.date >= data_inicio) & 
     (dados["hora_postagem"].dt.date <= data_fim) & 
     (dados["resultado_analise"].isin(filtro_discurso)) & 
     (dados["emocao"].isin(filtro_emocao))
 ]
+
+# Verifique as colunas de dados_filtrados
+st.write(data_filtered.columns)
+
 
 # Exibição dos dados filtrados
 st.subheader("Publicações Filtradas")
