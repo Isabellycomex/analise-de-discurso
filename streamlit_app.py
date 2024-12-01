@@ -434,55 +434,68 @@ if "Palavras Mais Comuns" in visualizacoes:
 
 import plotly.express as px
 import pandas as pd
+import streamlit as st
 
-import pandas as pd
-import plotly.express as px
+# Filtrar dados para incluir apenas discursos de ódio
+data_usuarios = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
 
-if "Frequência por usuário" in visualizacoes:
-    # Filtrar dados para incluir apenas discursos de ódio
-    data_usuarios = data_filtered[data_filtered["resultado_analise"] != "não é discurso de ódio"]
+# Calcular a quantidade de postagens por usuário
+frequencia_postagens = (
+    data_usuarios.groupby("usuario")
+    .size()
+    .reset_index(name="quantidade_postagens")
+)
 
-    # Calcular a quantidade de postagens por usuário
-    frequencia_postagens = (
-        data_usuarios.groupby("usuario")
-        .size()
-        .reset_index(name="quantidade_postagens")
-    )
+# Ordenar os usuários pela quantidade de postagens
+frequencia_postagens = frequencia_postagens.sort_values(by="quantidade_postagens", ascending=False)
 
-    # Agrupar os usuários em faixas de 10 em 10
-    frequencia_postagens['faixa_usuarios'] = pd.cut(
-        frequencia_postagens['quantidade_postagens'],
-        bins=range(0, frequencia_postagens['quantidade_postagens'].max() + 10, 10),
-        labels=[f"{i}-{i+9}" for i in range(0, frequencia_postagens['quantidade_postagens'].max(), 10)],
-        right=False
-    )
-
-    # Contar o número de usuários em cada faixa
-    faixa_counts = frequencia_postagens['faixa_usuarios'].value_counts().reset_index()
-    faixa_counts.columns = ['faixa_usuarios', 'quantidade_usuarios']
-    faixa_counts = faixa_counts.sort_values(by="faixa_usuarios")
-
+# Função para exibir os dados em blocos de 10 usuários
+def mostrar_usuarios_paginados(frequencia_postagens, pagina_atual=0, por_pagina=10):
+    inicio = pagina_atual * por_pagina
+    fim = inicio + por_pagina
+    dados_paginados = frequencia_postagens.iloc[inicio:fim]
+    
     # Criar o gráfico de barras
     fig_frequencia = px.bar(
-        faixa_counts,
-        x="faixa_usuarios",
-        y="quantidade_usuarios",
-        title="Frequência de Postagens por Faixa de Usuários (Discursos de Ódio)",
-        labels={"faixa_usuarios": "Faixa de Postagens", "quantidade_usuarios": "Quantidade de Usuários"},
+        dados_paginados,
+        x="usuario",
+        y="quantidade_postagens",
+        title="Frequência de Postagens por Usuários (Discursos de Ódio)",
+        labels={"usuario": "Usuário", "quantidade_postagens": "Quantidade de Postagens"},
         text_auto=True,
     )
-
+    
     fig_frequencia.update_traces(marker_color="pink")
     fig_frequencia.update_layout(
         plot_bgcolor="black",
         paper_bgcolor="black",
         font=dict(color="white"),
-        xaxis=dict(title="Faixa de Postagens", showgrid=False),
-        yaxis=dict(title="Quantidade de Usuários", showgrid=True, gridcolor="gray"),
+        xaxis=dict(title="Usuário", showgrid=False),
+        yaxis=dict(title="Quantidade de Postagens", showgrid=True, gridcolor="gray"),
         title=dict(font=dict(size=20)),
     )
-    aplicar_estilo(fig_frequencia)
+    
     st.plotly_chart(fig_frequencia)
+
+    return len(frequencia_postagens) // por_pagina
+
+# Controlar a navegação com botões
+pagina_atual = st.session_state.get("pagina_atual", 0)
+total_paginas = mostrar_usuarios_paginados(frequencia_postagens, pagina_atual)
+
+colunas = st.columns(2)
+with colunas[0]:
+    if pagina_atual > 0:
+        if st.button("Anterior"):
+            st.session_state["pagina_atual"] = pagina_atual - 1
+            st.experimental_rerun()
+
+with colunas[1]:
+    if pagina_atual < total_paginas - 1:
+        if st.button("Próximo"):
+            st.session_state["pagina_atual"] = pagina_atual + 1
+            st.experimental_rerun()
+
 
 if "Likes (Upvotes)" in visualizacoes:  # Verificando "Likes" ao invés de "Upvotes"
     # Agrupar e calcular a média de likes por tipo de discurso
