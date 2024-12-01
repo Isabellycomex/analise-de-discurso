@@ -33,15 +33,24 @@ if dados is None:
 st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
 
 # Tratamento de dados
-dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")
-dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")
+dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")  # Garantir conversão segura
+dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")  # Formatar para exibição
+
+# Adicionar coluna de engajamento e de classificação
+dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
+dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
+    lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
+)
 
 # Verificar valores mínimos e máximos para os filtros
 data_min = dados["hora_postagem"].min()
 data_max = dados["hora_postagem"].max()
 
+# Evitar erro se os dados forem vazios ou NaT
 data_inicio_default = data_min.date() if pd.notnull(data_min) else None
 data_fim_default = data_max.date() if pd.notnull(data_max) else None
+
+# Filtros
 
 # Filtros
 st.subheader("Filtros")
