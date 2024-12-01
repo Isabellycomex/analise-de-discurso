@@ -68,18 +68,26 @@ with col2:
     )
 
 col3, col4 = st.columns(2)
+
 with col3:
     filtro_discurso = st.multiselect(
         "Escolha o tipo de discurso que deseja visualizar",
-        options=list(dados["resultado_analise"].unique()),
+        options=["Todos"] + list(dados["resultado_analise"].unique()),
+        default=[],
         key="filtro_discurso"
     )
+    if "Todos" in filtro_discurso:
+        filtro_discurso = list(dados["resultado_analise"].unique())
+
 with col4:
     filtro_emocao = st.multiselect(
         "Escolha o tipo de emoção que deseja visualizar",
-        options=list(dados["emocao"].unique()),
+        options=["Todas"] + list(dados["emocao"].unique()),
+        default=[],
         key="filtro_emocao"
     )
+    if "Todas" in filtro_emocao:
+        filtro_emocao = list(dados["emocao"].unique())
 
 # Verificação se os filtros foram preenchidos
 if not data_inicio or not data_fim or not filtro_discurso or not filtro_emocao:
