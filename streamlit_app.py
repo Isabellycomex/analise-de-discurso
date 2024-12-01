@@ -148,9 +148,9 @@ if not data_filtered.empty:
         #### Dicas de Uso:
         - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
         - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
-        - Clique em qualquer **campo** da tabela para visualizar mais detalhes sobre ele.
         - Cada página exibe até **10 publicações**.
         - Navegação limitada às páginas **1 a 31**.
+        - Clique na **publicação** que deseja visualizar para disponibilizar o texto completo da postagem.
         """
     )
 
@@ -159,10 +159,10 @@ if not data_filtered.empty:
     fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
     tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes].rename(columns=colunas_legiveis)
 
-    # Exibir a tabela formatada com altura fixa apropriada para 10 linhas
+    # Exibir a tabela formatada com largura maior
     st.dataframe(
         tabela_pagina,
-        use_container_width=True,
+        use_container_width=True,  # Largura total da tela
         height=350,  # Altura adequada para 10 linhas
     )
 
@@ -183,6 +183,7 @@ if not data_filtered.empty:
 else:
     # Caso o DataFrame esteja vazio
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
+
 
 # Visualizações
 st.subheader("Visualizações")
