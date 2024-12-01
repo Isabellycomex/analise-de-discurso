@@ -106,16 +106,18 @@ import streamlit as st
 
 # Configurar os títulos das colunas para a tabela
 colunas_legiveis = {
+    "hora_postagem": "Data e Hora em que a Publicação foi feita",
+    "resultado_analise": "Resultado da Análise do discurso",
+    "emocao": "Emoção",
+    "upvotes": "Likes",
+    "comentarios": "Comentários",
+    "texto": "Publicação",
     "id": "ID",
     "usuario": "Usuário",
-    "texto": "Texto da Publicação",
-    "upvotes": "Upvotes",
-    "comentarios": "Comentários",
-    "subreddit": "Subreddit",
-    "hora_postagem_formatada": "Data e Hora",
-    "resultado_analise": "Resultado da Análise",
-    "emocao": "Emoção",
 }
+
+# Verificar se todas as colunas do dicionário estão presentes no DataFrame
+colunas_existentes = [coluna for coluna in colunas_legiveis if coluna in data_filtered.columns]
 
 # Configuração inicial de paginação
 if "pagina_atual" not in st.session_state:
@@ -149,11 +151,11 @@ if not data_filtered.empty:
     # Limitar os índices com segurança
     inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
     fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
-    tabela_pagina = data_filtered.iloc[inicio:fim].rename(columns=colunas_legiveis)
+    tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes].rename(columns=colunas_legiveis)
 
     # Exibir a tabela formatada com altura fixa apropriada para 10 linhas
     st.dataframe(
-        tabela_pagina[list(colunas_legiveis.values())],
+        tabela_pagina,
         use_container_width=True,
         height=350,  # Altura adequada para 10 linhas
     )
