@@ -97,44 +97,87 @@ def main():
             (dados["emocao"].isin(filtro_emocao))
         ]
         
-        # Paginação
-        ITENS_POR_PAGINA = 10
-        total_itens = len(data_filtered)
-        total_paginas = (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA
+       # Verificar se todas as colunas do dicionário estão presentes no DataFrame
+colunas_existentes = [coluna for coluna in colunas_legiveis if coluna in data_filtered.columns]
 
-        if total_itens > 0:
-            if "pagina_atual" not in st.session_state:
-                st.session_state.pagina_atual = 1
-            
-            # Definindo a página atual
-            pagina_atual = st.session_state.pagina_atual
+# Configuração inicial de paginação
+if "pagina_atual" not in st.session_state:
+    st.session_state.pagina_atual = 1
 
-            # Tabelas com paginação
-            inicio = (pagina_atual - 1) * ITENS_POR_PAGINA
-            fim = min(inicio + ITENS_POR_PAGINA, total_itens)
-            tabela_pagina = data_filtered.iloc[inicio:fim]
-            
-            # Exibir a tabela
-            st.dataframe(tabela_pagina)
-            
-            # Navegação por páginas
-            col1, col2, col3 = st.columns([1, 2, 1])
-            with col1:
-                if st.button("Anterior", disabled=(pagina_atual <= 1)):
-                    st.session_state.pagina_atual -= 1
-            with col3:
-                if st.button("Próximo", disabled=(pagina_atual >= total_paginas)):
-                    st.session_state.pagina_atual += 1
-            
-            # Exibindo página atual
-            st.text(f"Página {pagina_atual} de {total_paginas}")
-        else:
-            st.error("Nenhuma publicação encontrada com os filtros selecionados.")
-        
-        # Exibir gráficos
-        st.subheader("Gráficos")
-        # Continue o código para a geração dos gráficos
-        # (O código para gerar os gráficos a partir de 'dados' já foi fornecido)
+# Quantidade de itens por página
+ITENS_POR_PAGINA = 10
+
+# Configuração para limitar a navegação
+PAGINA_MINIMA = 1
+PAGINA_MAXIMA = 31
+
+# Verificar se o DataFrame filtrado não está vazio
+if not data_filtered.empty:
+    # Número total de páginas dentro do limite
+    total_itens = len(data_filtered)
+    total_paginas = min(PAGINA_MAXIMA, (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA)
+
+    # Ajustar a página atual para estar no intervalo permitido
+    st.session_state.pagina_atual = max(
+        PAGINA_MINIMA, min(st.session_state.pagina_atual, total_paginas)
+    )
+
+    # Instruções para o usuário
+    st.markdown(
+        """
+        ### Publicações Filtradas
+        #### Dicas de Uso:
+        - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
+        - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
+        - Cada página exibe até **10 publicações**.
+        - Navegação limitada às páginas **1 a 31**.
+        - Clique no **campo** que deseja visualizar para verificar todos os dados do mesmo.
+        """
+    )
+
+    # Cálculo de índices de acordo com a página atual
+    inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
+    fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
+    tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes].rename(columns=colunas_legiveis)
+
+    # Exibir a tabela formatada com largura maior
+    st.dataframe(
+        tabela_pagina,
+        use_container_width=True,  # Largura total da tela
+        height=350,  # Altura adequada para 10 linhas
+    )
+
+    # Botões de navegação
+    col1, col2, col3 = st.columns([1, 2, 1])
+
+    with col1:
+        if st.button("Anterior", disabled=(st.session_state.pagina_atual <= PAGINA_MINIMA)):
+            st.session_state.pagina_atual -= 1
+
+    with col3:
+        if st.button("Próximo", disabled=(st.session_state.pagina_atual >= PAGINA_MAXIMA)):
+            st.session_state.pagina_atual += 1
+
+    # Exibir página atual
+    st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
+
+else:
+    # Caso o DataFrame esteja vazio
+    st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
+
+st.subheader("Gráficos")
+# Opções disponíveis
+opcoes = [
+    "Discurso (Ódio/Não Ódio)",
+    "Tipos de Discurso de Ódio",
+    "Emoções",
+    "Quantidade de Comentários",
+    "Visualizações",
+    "Likes (Upvotes)",
+    "Frequência por tipo de discurso",
+    "Frequência por usuário",
+    "Palavras Mais Comuns"
+]
 
     else:
         st.warning("Por favor, envie um arquivo CSV para análise.")
