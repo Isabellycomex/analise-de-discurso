@@ -182,7 +182,7 @@ if not data_filtered.empty:
     for i, row in tabela_pagina.iterrows():
         texto_publicacao = row["texto"]
         # Aqui substituímos 'url' por um identificador único ou o índice
-        link = f"[Clique para ver a publicação {i}]({# URL da publicação aqui ou alguma outra coluna identificadora})"
+        link = f"[Clique para ver a publicação {i}]({row['link']})"
         st.markdown(link)
 
 # Opções disponíveis
