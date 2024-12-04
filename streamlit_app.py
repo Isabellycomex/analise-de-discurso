@@ -178,6 +178,12 @@ if not data_filtered.empty:
     # Exibir página atual
     st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
 
+    # Links na coluna de texto para redirecionar ao conteúdo
+    for i, row in tabela_pagina.iterrows():
+        texto_publicacao = row["texto"]
+        link = f"[Clique para ver a publicação {i}]({row['url']})"  # Supondo que você tenha uma coluna 'url' com o link direto
+        st.markdown(link)
+
 else:
     # Caso o DataFrame esteja vazio
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
@@ -195,7 +201,6 @@ opcoes = [
     "Frequência por usuário",
     "Palavras Mais Comuns"
 ]
-
 
 # Multiselect com a opção "Todos" adicionada
 visualizacoes = st.multiselect(
