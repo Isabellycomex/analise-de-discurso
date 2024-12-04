@@ -157,6 +157,7 @@ with col3:
 # Exibir página atual
 st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
 
+
 else:
     # Caso o DataFrame esteja vazio
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
