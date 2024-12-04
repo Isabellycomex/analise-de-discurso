@@ -5,6 +5,7 @@ import plotly.express as px
 import nltk
 from wordcloud import WordCloud, STOPWORDS
 import datetime as dt
+from datetime import datetime
 
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
@@ -97,114 +98,107 @@ def main():
             (dados["emocao"].isin(filtro_emocao))
         ]
         
-       # Verificar se todas as colunas do dicionário estão presentes no DataFrame
-colunas_existentes = [coluna for coluna in colunas_legiveis if coluna in data_filtered.columns]
+        # Verificar se todas as colunas do dicionário estão presentes no DataFrame
+        colunas_legiveis = ["resultado_analise", "emocao", "hora_postagem_formatada", "engajamento", "texto"]
+        colunas_existentes = [coluna for coluna in colunas_legiveis if coluna in data_filtered.columns]
 
-# Configuração inicial de paginação
-if "pagina_atual" not in st.session_state:
-    st.session_state.pagina_atual = 1
+        # Configuração inicial de paginação
+        if "pagina_atual" not in st.session_state:
+            st.session_state.pagina_atual = 1
 
-# Quantidade de itens por página
-ITENS_POR_PAGINA = 10
+        # Quantidade de itens por página
+        ITENS_POR_PAGINA = 10
 
-# Configuração para limitar a navegação
-PAGINA_MINIMA = 1
-PAGINA_MAXIMA = 31
+        # Configuração para limitar a navegação
+        PAGINA_MINIMA = 1
+        PAGINA_MAXIMA = 31
 
-# Verificar se o DataFrame filtrado não está vazio
-if not data_filtered.empty:
-    # Número total de páginas dentro do limite
-    total_itens = len(data_filtered)
-    total_paginas = min(PAGINA_MAXIMA, (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA)
+        # Verificar se o DataFrame filtrado não está vazio
+        if not data_filtered.empty:
+            # Número total de páginas dentro do limite
+            total_itens = len(data_filtered)
+            total_paginas = min(PAGINA_MAXIMA, (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA)
 
-    # Ajustar a página atual para estar no intervalo permitido
-    st.session_state.pagina_atual = max(
-        PAGINA_MINIMA, min(st.session_state.pagina_atual, total_paginas)
-    )
+            # Ajustar a página atual para estar no intervalo permitido
+            st.session_state.pagina_atual = max(
+                PAGINA_MINIMA, min(st.session_state.pagina_atual, total_paginas)
+            )
 
-    # Instruções para o usuário
-    st.markdown(
-        """
-        ### Publicações Filtradas
-        #### Dicas de Uso:
-        - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
-        - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
-        - Cada página exibe até **10 publicações**.
-        - Navegação limitada às páginas **1 a 31**.
-        - Clique no **campo** que deseja visualizar para verificar todos os dados do mesmo.
-        """
-    )
+            # Instruções para o usuário
+            st.markdown(
+                """
+                ### Publicações Filtradas
+                #### Dicas de Uso:
+                - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
+                - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
+                - Cada página exibe até **10 publicações**.
+                - Navegação limitada às páginas **1 a 31**.
+                - Clique no **campo** que deseja visualizar para verificar todos os dados do mesmo.
+                """
+            )
 
-    # Cálculo de índices de acordo com a página atual
-    inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
-    fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
-    tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes].rename(columns=colunas_legiveis)
+            # Cálculo de índices de acordo com a página atual
+            inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
+            fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
+            tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes]
 
-    # Exibir a tabela formatada com largura maior
-    st.dataframe(
-        tabela_pagina,
-        use_container_width=True,  # Largura total da tela
-        height=350,  # Altura adequada para 10 linhas
-    )
+            # Exibir a tabela formatada com largura maior
+            st.dataframe(
+                tabela_pagina,
+                use_container_width=True,  # Largura total da tela
+                height=350,  # Altura adequada para 10 linhas
+            )
 
-    # Botões de navegação
-    col1, col2, col3 = st.columns([1, 2, 1])
+            # Botões de navegação
+            col1, col2, col3 = st.columns([1, 2, 1])
 
-    with col1:
-        if st.button("Anterior", disabled=(st.session_state.pagina_atual <= PAGINA_MINIMA)):
-            st.session_state.pagina_atual -= 1
+            with col1:
+                if st.button("Anterior", disabled=(st.session_state.pagina_atual <= PAGINA_MINIMA)):
+                    st.session_state.pagina_atual -= 1
 
-    with col3:
-        if st.button("Próximo", disabled=(st.session_state.pagina_atual >= PAGINA_MAXIMA)):
-            st.session_state.pagina_atual += 1
+            with col3:
+                if st.button("Próximo", disabled=(st.session_state.pagina_atual >= PAGINA_MAXIMA)):
+                    st.session_state.pagina_atual += 1
 
-    # Exibir página atual
-    st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
+            # Exibir página atual
+            st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
 
+        st.subheader("Gráficos")
+        # Opções disponíveis
+        opcoes = [
+            "Discurso (Ódio/Não Ódio)",
+            "Tipos de Discurso de Ódio",
+            "Emoções",
+            "Quantidade de Comentários",
+            "Visualizações",
+            "Likes (Upvotes)",
+            "Frequência por tipo de discurso",
+            "Frequência por usuário",
+            "Palavras Mais Comuns"
+        ]
 
+        # Mensagem inicial até que o arquivo seja enviado
+        st.write("Por favor, envie um arquivo CSV para começar a análise.")
 
-st.subheader("Gráficos")
-# Opções disponíveis
-opcoes = [
-    "Discurso (Ódio/Não Ódio)",
-    "Tipos de Discurso de Ódio",
-    "Emoções",
-    "Quantidade de Comentários",
-    "Visualizações",
-    "Likes (Upvotes)",
-    "Frequência por tipo de discurso",
-    "Frequência por usuário",
-    "Palavras Mais Comuns"
-]
+        # Multiselect com a opção "Todos" adicionada
+        visualizacoes = st.multiselect(
+            "Escolha uma ou mais opções",
+            ["Todos"] + opcoes  # "Todos" adicionado
+        )
 
-    else:
-        st.warning("Por favor, envie um arquivo CSV para análise.")
+        # Lógica para tratar a seleção de "Todos"
+        if "Todos" in visualizacoes:
+            visualizacoes = opcoes  # Seleciona todas as opções
 
-# Executar a função principal
-main()
-
-    # Mensagem inicial até que o arquivo seja enviado
-    st.write("Por favor, envie um arquivo CSV para começar a análise.")
-
-# Multiselect com a opção "Todos" adicionada
-visualizacoes = st.multiselect(
-    "Escolha uma ou mais opções",
-    ["Todos"] + opcoes  # "Todos" adicionado
-)
-
-# Lógica para tratar a seleção de "Todos"
-if "Todos" in visualizacoes:
-    visualizacoes = opcoes  # Seleciona todas as opções
-
-def aplicar_estilo(fig):
-    fig.update_layout(
-        plot_bgcolor="black",
-        paper_bgcolor="black",
-        font=dict(color="white"),
-        title_font=dict(size=18, family="Arial, sans-serif", color="white"),
-        margin=dict(t=40, b=40, l=40, r=40)
-    )
-    return fig
+        def aplicar_estilo(fig):
+            fig.update_layout(
+                plot_bgcolor="black",
+                paper_bgcolor="black",
+                font=dict(color="white"),
+                title_font=dict(size=18, family="Arial, sans-serif", color="white"),
+                margin=dict(t=40, b=40, l=40, r=40)
+            )
+            return fig
 
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
