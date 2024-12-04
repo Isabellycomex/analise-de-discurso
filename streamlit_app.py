@@ -10,152 +10,138 @@ import datetime as dt
 nltk.download('punkt')
 nltk.download('stopwords')
 
-# Função para carregar os dados a partir de um arquivo CSV
-def carregar_dados(arquivo_csv):
+# Função para carregar os dados do CSV
+def carregar_dados(caminho_arquivo):
     try:
-        dados = pd.read_csv(arquivo_csv)
+        dados = pd.read_csv(caminho_arquivo)
         colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto"]
         colunas_faltando = [col for col in colunas_necessarias if col not in dados.columns]
         if colunas_faltando:
             st.error(f"As colunas ausentes são: {colunas_faltando}. Verifique o arquivo CSV.")
             return None
         return dados
+    except FileNotFoundError:
+        st.error("O arquivo não foi encontrado. Verifique o caminho.")
     except Exception as e:
         st.error(f"Ocorreu um erro ao carregar o arquivo: {e}")
     return None
 
-# Ocultar toda a aplicação até que o arquivo CSV seja enviado
-st.title("Análise de Discurso de Ódio no Reddit através do ChatGPT")
+# Função principal de processamento
+def main():
+    # Título
+    st.title("Análise de Discurso de Ódio no Reddit")
 
-# Subir o arquivo CSV
-arquivo_csv = st.file_uploader("Envie o arquivo CSV", type=["csv"])
+    # Instrução para o upload do arquivo
+    st.subheader("Submeta aqui o seu arquivo CSV para análise do discurso")
+    uploaded_file = st.file_uploader("Escolha o arquivo CSV", type=["csv"])
 
-# Verificar se o arquivo foi carregado
-if arquivo_csv is not None:
-    # Exibir a aplicação após o envio do arquivo
-    st.session_state.show_app = True
+    # Esconde a aplicação até que o CSV seja enviado
+    if uploaded_file is not None:
+        # Carregar o CSV enviado pelo usuário
+        dados = pd.read_csv(uploaded_file)
+        
+        # Verifica se as colunas necessárias estão presentes
+        colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto"]
+        colunas_faltando = [col for col in colunas_necessarias if col not in dados.columns]
+        
+        if colunas_faltando:
+            st.error(f"As colunas ausentes são: {colunas_faltando}. Verifique o arquivo CSV.")
+            return
 
-    dados = carregar_dados(arquivo_csv)
-    if dados is None:
-        st.stop()
-
-    # Processamento de dados
-    dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")
-    dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")
-    dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
-    dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
-        lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
-    )
-
-    data_min = dados["hora_postagem"].min()
-    data_max = dados["hora_postagem"].max()
-    data_inicio_default = data_min.date() if pd.notnull(data_min) else None
-    data_fim_default = data_max.date() if pd.notnull(data_max) else None
-
-    # Filtros
-    st.subheader("Filtros")
-    from datetime import datetime
-
-    # Valores padrão para as datas
-    data_inicio_default = datetime(2017, 9, 1).strftime('%d/%m/%Y')  # 01/12/2024
-    data_fim_default = datetime(2024, 12, 31).strftime('%d/%m/%Y')  # 31/12/2024
-    data_min = datetime(2024, 1, 1)
-    data_max = datetime(2024, 12, 31)
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        data_inicio_str = st.text_input(
-            "Data Inicial",
-            value=data_inicio_default,
-            key="data_inicio"
+        # Processamento dos dados
+        dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")
+        dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")
+        dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
+        dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
+            lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
         )
+
+        # Filtros
+        st.subheader("Filtros")
+
+        data_min = dados["hora_postagem"].min()
+        data_max = dados["hora_postagem"].max()
+        data_inicio_default = data_min.date() if pd.notnull(data_min) else None
+        data_fim_default = data_max.date() if pd.notnull(data_max) else None
+
+        # Filtros de data
+        data_inicio_str = st.text_input("Data Inicial", value=data_inicio_default)
+        data_fim_str = st.text_input("Data Final", value=data_fim_default)
+
         try:
             data_inicio = datetime.strptime(data_inicio_str, '%d/%m/%Y').date()
-        except ValueError:
-            st.error("Por favor, insira uma data válida no formato dd/mm/aaaa")
-            data_inicio = None
-
-    with col2:
-        data_fim_str = st.text_input(
-            "Data Final",
-            value=data_fim_default,
-            key="data_fim"
-        )
-        try:
             data_fim = datetime.strptime(data_fim_str, '%d/%m/%Y').date()
         except ValueError:
             st.error("Por favor, insira uma data válida no formato dd/mm/aaaa")
-            data_fim = None
+            return
 
-    col3, col4 = st.columns(2)
-
-    with col3:
+        # Filtros de análise de discurso
         filtro_discurso = st.multiselect(
             "Escolha o tipo de discurso que deseja visualizar",
             options=["Todos"] + list(dados["resultado_analise"].unique()),
-            default=[],
-            key="filtro_discurso"
+            default=["Todos"]
         )
-        if "Todos" in filtro_discurso:
-            filtro_discurso = list(dados["resultado_analise"].unique())
 
-    with col4:
+        # Filtros de emoção
         filtro_emocao = st.multiselect(
             "Escolha o tipo de emoção que deseja visualizar",
             options=["Todas"] + list(dados["emocao"].unique()),
-            default=[],
-            key="filtro_emocao"
+            default=["Todas"]
         )
-        if "Todas" in filtro_emocao:
-            filtro_emocao = list(dados["emocao"].unique())
 
-    # Verificação se os filtros foram preenchidos
-    if not data_inicio or not data_fim or not filtro_discurso or not filtro_emocao:
-        st.warning("Preencha todos os filtros para prosseguir.")
-        st.stop()
+        # Aplicando filtros
+        data_filtered = dados[
+            (dados["hora_postagem"].dt.date >= data_inicio) &
+            (dados["hora_postagem"].dt.date <= data_fim) &
+            (dados["resultado_analise"].isin(filtro_discurso)) &
+            (dados["emocao"].isin(filtro_emocao))
+        ]
+        
+        # Paginação
+        ITENS_POR_PAGINA = 10
+        total_itens = len(data_filtered)
+        total_paginas = (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA
 
-    # Aplicação de filtros
-    data_filtered = dados[
-        (dados["hora_postagem"].dt.date >= data_inicio) &
-        (dados["hora_postagem"].dt.date <= data_fim) &
-        (dados["resultado_analise"].isin(filtro_discurso)) &
-        (dados["emocao"].isin(filtro_emocao))
-    ]
+        if total_itens > 0:
+            if "pagina_atual" not in st.session_state:
+                st.session_state.pagina_atual = 1
+            
+            # Definindo a página atual
+            pagina_atual = st.session_state.pagina_atual
 
-    # Configuração dos títulos das colunas para a tabela
-    colunas_legiveis = {
-        "hora_postagem": "Data e Hora em que a Publicação foi feita",
-        "usuario": "Usuário",
-        "resultado_analise": "Resultado da Análise do Discurso",
-        "emocao": "Emoção Predominante",
-        "upvotes": "Likes",
-        "comentarios": "Comentários",
-        "texto": "Publicação"
-    }
+            # Tabelas com paginação
+            inicio = (pagina_atual - 1) * ITENS_POR_PAGINA
+            fim = min(inicio + ITENS_POR_PAGINA, total_itens)
+            tabela_pagina = data_filtered.iloc[inicio:fim]
+            
+            # Exibir a tabela
+            st.dataframe(tabela_pagina)
+            
+            # Navegação por páginas
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col1:
+                if st.button("Anterior", disabled=(pagina_atual <= 1)):
+                    st.session_state.pagina_atual -= 1
+            with col3:
+                if st.button("Próximo", disabled=(pagina_atual >= total_paginas)):
+                    st.session_state.pagina_atual += 1
+            
+            # Exibindo página atual
+            st.text(f"Página {pagina_atual} de {total_paginas}")
+        else:
+            st.error("Nenhuma publicação encontrada com os filtros selecionados.")
+        
+        # Exibir gráficos
+        st.subheader("Gráficos")
+        # Continue o código para a geração dos gráficos
+        # (O código para gerar os gráficos a partir de 'dados' já foi fornecido)
 
-    # Verificar se todas as colunas do dicionário estão presentes no DataFrame
-    colunas_existentes = [coluna for coluna in colunas_legiveis if coluna in data_filtered.columns]
+    else:
+        st.warning("Por favor, envie um arquivo CSV para análise.")
 
-    # Exibir a tabela de dados filtrados
-    st.dataframe(data_filtered[colunas_existentes].rename(columns=colunas_legiveis), use_container_width=True)
+# Executar a função principal
+main()
 
-    st.subheader("Gráficos")
-    # Opções de gráficos
-    opcoes = [
-        "Discurso (Ódio/Não Ódio)",
-        "Tipos de Discurso de Ódio",
-        "Emoções",
-        "Quantidade de Comentários",
-        "Visualizações",
-        "Likes (Upvotes)",
-        "Frequência por tipo de discurso",
-        "Frequência por usuário",
-        "Palavras Mais Comuns"
-    ]
-    
-    # Aqui você pode adicionar a lógica para gerar os gráficos com base nas opções selecionadas pelo usuário
-else:
     # Mensagem inicial até que o arquivo seja enviado
     st.write("Por favor, envie um arquivo CSV para começar a análise.")
 
