@@ -1,14 +1,22 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+import matplotlib.pyplot as plt
+import plotly.express as px
+import nltk
+from wordcloud import WordCloud, STOPWORDS
+import datetime as dt
+
+# Baixar os recursos necessários para o NLTK
+nltk.download('punkt')
+nltk.download('stopwords')
 
 # Carregar os dados do CSV
-caminho_arquivo = "publicacoes_analizadas.csv"
+caminho_arquivo = "publicacoes.csv"
 
 def carregar_dados(caminho_arquivo):
     try:
         dados = pd.read_csv(caminho_arquivo)
-        colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto", "link"]
+        colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto"]
         colunas_faltando = [col for col in colunas_necessarias if col not in dados.columns]
         if colunas_faltando:
             st.error(f"As colunas ausentes são: {colunas_faltando}. Verifique o arquivo CSV.")
@@ -27,7 +35,6 @@ if dados is None:
 # Configuração do layout e título
 st.title("Análise de Discurso de Ódio no Reddit através do ChatGPT")
 
-# Formatação dos dados
 dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")
 dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")
 dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
@@ -35,12 +42,19 @@ dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
     lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
 )
 
-# Definição de filtros
-st.subheader("Filtros")
+data_min = dados["hora_postagem"].min()
+data_max = dados["hora_postagem"].max()
+data_inicio_default = data_min.date() if pd.notnull(data_min) else None
+data_fim_default = data_max.date() if pd.notnull(data_max) else None
 
-# Filtros de data
-data_inicio_default = datetime(2024, 1, 1).strftime('%d/%m/%Y')
-data_fim_default = datetime(2024, 12, 31).strftime('%d/%m/%Y')
+# Filtros
+st.subheader("Filtros")
+import streamlit as st
+from datetime import datetime
+
+# Valores padrão para as datas
+data_inicio_default = datetime(2017, 9, 1).strftime('%d/%m/%Y')  # 01/12/2024
+data_fim_default = datetime(2024, 12, 31).strftime('%d/%m/%Y')  # 31/12/2024
 data_min = datetime(2024, 1, 1)
 data_max = datetime(2024, 12, 31)
 
@@ -70,7 +84,6 @@ with col2:
         st.error("Por favor, insira uma data válida no formato dd/mm/aaaa")
         data_fim = None
 
-# Filtro de discurso e emoção
 col3, col4 = st.columns(2)
 
 with col3:
@@ -106,62 +119,88 @@ data_filtered = dados[
     (dados["emocao"].isin(filtro_emocao))
 ]
 
-# Paginação (exibir 10 publicações por página)
+import streamlit as st
+
+# Configurar os títulos das colunas para a tabela
+colunas_legiveis = {
+    "hora_postagem": "Data e Hora em que a Publicação foi feita",
+    "usuario": "Usuário",
+    "resultado_analise": "Resultado da Análise do Discurso",
+    "emocao": "Emoção Predominante",
+    "upvotes": "Likes",
+    "comentarios": "Comentários",
+    "texto": "Publicação"
+}
+
+# Verificar se todas as colunas do dicionário estão presentes no DataFrame
+colunas_existentes = [coluna for coluna in colunas_legiveis if coluna in data_filtered.columns]
+
+# Configuração inicial de paginação
 if "pagina_atual" not in st.session_state:
     st.session_state.pagina_atual = 1
 
-# Número de itens por página
+# Quantidade de itens por página
 ITENS_POR_PAGINA = 10
 
-# Cálculo de número total de páginas
-total_itens = len(data_filtered)
-PAGINA_MAXIMA = (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA  # Total de páginas
+# Configuração para limitar a navegação
+PAGINA_MINIMA = 1
+PAGINA_MAXIMA = 31
 
-# Cálculo do intervalo de exibição das publicações para a página atual
-inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
-fim = min(inicio + ITENS_POR_PAGINA, total_itens)
-tabela_pagina = data_filtered.iloc[inicio:fim]
+# Verificar se o DataFrame filtrado não está vazio
+if not data_filtered.empty:
+    # Número total de páginas dentro do limite
+    total_itens = len(data_filtered)
+    total_paginas = min(PAGINA_MAXIMA, (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA)
 
-# Adicionar o link clicável à coluna 'link'
-tabela_pagina['link_clicavel'] = tabela_pagina['link'].apply(lambda x: f'<a href="{x}" target="_blank">Clique para ver a publicação</a>')
+    # Ajustar a página atual para estar no intervalo permitido
+    st.session_state.pagina_atual = max(
+        PAGINA_MINIMA, min(st.session_state.pagina_atual, total_paginas)
+    )
 
-# Exibir a tabela
-st.markdown(
-    """
-    ### Publicações Filtradas
-    #### Dicas de Uso:
-    - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
-    - Cada página exibe até **10 publicações**.
-    """
-)
+    # Instruções para o usuário
+    st.markdown(
+        """
+        ### Publicações Filtradas
+        #### Dicas de Uso:
+        - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
+        - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
+        - Cada página exibe até **10 publicações**.
+        - Navegação limitada às páginas **1 a 31**.
+        - Clique no **campo** que deseja visualizar para verificar todos os dados do mesmo.
+        """
+    )
 
-# Exibindo a tabela com links clicáveis
-st.dataframe(
-    tabela_pagina[['hora_postagem_formatada', 'texto', 'link_clicavel', 'resultado_analise', 'emocao', 'upvotes', 'comentarios']],
-    use_container_width=True,
-    height=350,
-    unsafe_allow_html=True  # Permite HTML para tornar os links clicáveis
-)
+    # Cálculo de índices de acordo com a página atual
+    inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
+    fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
+    tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes].rename(columns=colunas_legiveis)
 
-# Navegação entre as páginas
-col1, col2, col3 = st.columns([1, 2, 1])
+    # Exibir a tabela formatada com largura maior
+    st.dataframe(
+        tabela_pagina,
+        use_container_width=True,  # Largura total da tela
+        height=350,  # Altura adequada para 10 linhas
+    )
 
-with col1:
-    if st.button("Anterior", disabled=(st.session_state.pagina_atual <= 1)):
-        st.session_state.pagina_atual -= 1
+    # Botões de navegação
+    col1, col2, col3 = st.columns([1, 2, 1])
 
-with col3:
-    if st.button("Próximo", disabled=(st.session_state.pagina_atual >= PAGINA_MAXIMA)):
-        st.session_state.pagina_atual += 1
+    with col1:
+        if st.button("Anterior", disabled=(st.session_state.pagina_atual <= PAGINA_MINIMA)):
+            st.session_state.pagina_atual -= 1
 
-# Exibir página atual
-st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
+    with col3:
+        if st.button("Próximo", disabled=(st.session_state.pagina_atual >= PAGINA_MAXIMA)):
+            st.session_state.pagina_atual += 1
 
+    # Exibir página atual
+    st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
 
 else:
     # Caso o DataFrame esteja vazio
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
 
+st.subheader("Gráficos")
 # Opções disponíveis
 opcoes = [
     "Discurso (Ódio/Não Ódio)",
