@@ -5,6 +5,7 @@ import plotly.express as px
 import nltk
 from wordcloud import WordCloud, STOPWORDS
 import datetime as dt
+from datetime import datetime
 
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
@@ -49,8 +50,6 @@ data_fim_default = data_max.date() if pd.notnull(data_max) else None
 
 # Filtros
 st.subheader("Filtros")
-import streamlit as st
-from datetime import datetime
 
 # Valores padrão para as datas
 data_inicio_default = datetime(2017, 9, 1).strftime('%d/%m/%Y')  # 01/12/2024
@@ -119,42 +118,25 @@ data_filtered = dados[
     (dados["emocao"].isin(filtro_emocao))
 ]
 
-import streamlit as st
-
-# Configurar os títulos das colunas para a tabela
-colunas_legiveis = {
-    "hora_postagem": "Data e Hora em que a Publicação foi feita",
-    "usuario": "Usuário",
-    "resultado_analise": "Resultado da Análise do Discurso",
-    "emocao": "Emoção Predominante",
-    "upvotes": "Likes",
-    "comentarios": "Comentários",
-    "texto": "Publicação"
-}
-
-# Verificar se todas as colunas do dicionário estão presentes no DataFrame
-colunas_existentes = [coluna for coluna in colunas_legiveis if coluna in data_filtered.columns]
-
 # Configuração inicial de paginação
 if "pagina_atual" not in st.session_state:
     st.session_state.pagina_atual = 1
 
-# Quantidade de itens por página
-ITENS_POR_PAGINA = 10
+# Quantidade de itens por página (agora 400 publicações por página)
+ITENS_POR_PAGINA = 400
 
 # Configuração para limitar a navegação
 PAGINA_MINIMA = 1
-PAGINA_MAXIMA = 31
+PAGINA_MAXIMA = (len(data_filtered) + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA  # Determinar o número de páginas com base no total de publicações
 
 # Verificar se o DataFrame filtrado não está vazio
 if not data_filtered.empty:
     # Número total de páginas dentro do limite
     total_itens = len(data_filtered)
-    total_paginas = min(PAGINA_MAXIMA, (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA)
 
     # Ajustar a página atual para estar no intervalo permitido
     st.session_state.pagina_atual = max(
-        PAGINA_MINIMA, min(st.session_state.pagina_atual, total_paginas)
+        PAGINA_MINIMA, min(st.session_state.pagina_atual, PAGINA_MAXIMA)
     )
 
     # Instruções para o usuário
@@ -164,7 +146,7 @@ if not data_filtered.empty:
         #### Dicas de Uso:
         - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
         - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
-        - Cada página exibe até **10 publicações**.
+        - Cada página exibe até **400 publicações**.
         - Navegação limitada às páginas **1 a 31**.
         - Clique no **campo** que deseja visualizar para verificar todos os dados do mesmo.
         """
@@ -173,13 +155,13 @@ if not data_filtered.empty:
     # Cálculo de índices de acordo com a página atual
     inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
     fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
-    tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes].rename(columns=colunas_legiveis)
+    tabela_pagina = data_filtered.iloc[inicio:fim]
 
     # Exibir a tabela formatada com largura maior
     st.dataframe(
         tabela_pagina,
         use_container_width=True,  # Largura total da tela
-        height=350,  # Altura adequada para 10 linhas
+        height=350,  # Altura adequada para 400 linhas
     )
 
     # Botões de navegação
@@ -213,6 +195,7 @@ opcoes = [
     "Frequência por usuário",
     "Palavras Mais Comuns"
 ]
+
 
 # Multiselect com a opção "Todos" adicionada
 visualizacoes = st.multiselect(
