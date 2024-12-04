@@ -1,15 +1,7 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import plotly.express as px
-import nltk
-from wordcloud import WordCloud, STOPWORDS
 import datetime as dt
 from datetime import datetime
-
-# Baixar os recursos necessários para o NLTK
-nltk.download('punkt')
-nltk.download('stopwords')
 
 # Carregar os dados do CSV
 caminho_arquivo = "publicacoes_analizadas.csv"
@@ -17,7 +9,7 @@ caminho_arquivo = "publicacoes_analizadas.csv"
 def carregar_dados(caminho_arquivo):
     try:
         dados = pd.read_csv(caminho_arquivo)
-        colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto"]
+        colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto", "link"]
         colunas_faltando = [col for col in colunas_necessarias if col not in dados.columns]
         if colunas_faltando:
             st.error(f"As colunas ausentes são: {colunas_faltando}. Verifique o arquivo CSV.")
@@ -148,7 +140,7 @@ if not data_filtered.empty:
         - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
         - Cada página exibe até **400 publicações**.
         - Navegação limitada às páginas **1 a 31**.
-        - Clique no **campo** que deseja visualizar para verificar todos os dados do mesmo.
+        - Clique no **campo de Link** para visualizar a publicação completa.
         """
     )
 
@@ -157,9 +149,12 @@ if not data_filtered.empty:
     fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
     tabela_pagina = data_filtered.iloc[inicio:fim]
 
-    # Exibir a tabela formatada com largura maior
+    # Adicionar o link clicável à coluna 'link'
+    tabela_pagina['link_clicavel'] = tabela_pagina['link'].apply(lambda x: f"[Clique para ver a publicação]({x})")
+
+    # Exibir a tabela com a coluna de links clicáveis
     st.dataframe(
-        tabela_pagina,
+        tabela_pagina[['hora_postagem_formatada', 'texto', 'link_clicavel', 'resultado_analise', 'emocao', 'upvotes', 'comentarios']],
         use_container_width=True,  # Largura total da tela
         height=350,  # Altura adequada para 400 linhas
     )
@@ -178,12 +173,9 @@ if not data_filtered.empty:
     # Exibir página atual
     st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
 
-    # Links na coluna de texto para redirecionar ao conteúdo
-    for i, row in tabela_pagina.iterrows():
-        texto_publicacao = row["texto"]
-        # Aqui substituímos 'url' por um identificador único ou o índice
-        link = f"[Clique para ver a publicação {i}]({row['link']})"
-        st.markdown(link)
+else:
+    # Caso o DataFrame esteja vazio
+    st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
 
 # Opções disponíveis
 opcoes = [
