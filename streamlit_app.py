@@ -5,13 +5,14 @@ import plotly.express as px
 import nltk
 from wordcloud import WordCloud, STOPWORDS
 import datetime as dt
-from datetime import datetime
 
 # Baixar os recursos necessários para o NLTK
 nltk.download('punkt')
 nltk.download('stopwords')
 
-# Função para carregar os dados do CSV
+# Carregar os dados do CSV
+caminho_arquivo = "publicacoes.csv"
+
 def carregar_dados(caminho_arquivo):
     try:
         dados = pd.read_csv(caminho_arquivo)
@@ -27,178 +28,211 @@ def carregar_dados(caminho_arquivo):
         st.error(f"Ocorreu um erro ao carregar o arquivo: {e}")
     return None
 
-# Função principal de processamento
-def main():
-    # Título
-    st.title("Análise de Discurso de Ódio no Reddit")
+dados = carregar_dados(caminho_arquivo)
+if dados is None:
+    st.stop()
 
-    # Instrução para o upload do arquivo
-    st.subheader("Submeta aqui o seu arquivo CSV para análise do discurso")
-    uploaded_file = st.file_uploader("Escolha o arquivo CSV", type=["csv"])
+# Configuração do layout e título
+st.title("Análise de Discurso de Ódio no Reddit através do ChatGPT")
 
-    # Esconde a aplicação até que o CSV seja enviado
-    if uploaded_file is not None:
-        # Carregar o CSV enviado pelo usuário
-        dados = pd.read_csv(uploaded_file)
-        
-        # Verifica se as colunas necessárias estão presentes
-        colunas_necessarias = ["resultado_analise", "emocao", "hora_postagem", "upvotes", "comentarios", "texto"]
-        colunas_faltando = [col for col in colunas_necessarias if col not in dados.columns]
-        
-        if colunas_faltando:
-            st.error(f"As colunas ausentes são: {colunas_faltando}. Verifique o arquivo CSV.")
-            return
+dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")
+dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")
+dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
+dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
+    lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
+)
 
-        # Processamento dos dados
-        dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")
-        dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")
-        dados["engajamento"] = dados["upvotes"] + dados["comentarios"]
-        dados["eh_discurso_odio"] = dados["resultado_analise"].apply(
-            lambda x: "Discurso de Ódio" if x != "não é discurso de ódio" else "Não é Discurso de Ódio"
-        )
+data_min = dados["hora_postagem"].min()
+data_max = dados["hora_postagem"].max()
+data_inicio_default = data_min.date() if pd.notnull(data_min) else None
+data_fim_default = data_max.date() if pd.notnull(data_max) else None
 
-        # Filtros
-        st.subheader("Filtros")
+# Filtros
+st.subheader("Filtros")
+import streamlit as st
+from datetime import datetime
 
-        data_min = dados["hora_postagem"].min()
-        data_max = dados["hora_postagem"].max()
-        data_inicio_default = data_min.date() if pd.notnull(data_min) else None
-        data_fim_default = data_max.date() if pd.notnull(data_max) else None
+# Valores padrão para as datas
+data_inicio_default = datetime(2017, 9, 1).strftime('%d/%m/%Y')  # 01/12/2024
+data_fim_default = datetime(2024, 12, 31).strftime('%d/%m/%Y')  # 31/12/2024
+data_min = datetime(2024, 1, 1)
+data_max = datetime(2024, 12, 31)
 
-        # Filtros de data
-        data_inicio_str = st.text_input("Data Inicial", value=data_inicio_default)
-        data_fim_str = st.text_input("Data Final", value=data_fim_default)
+col1, col2 = st.columns(2)
 
-        try:
-            data_inicio = datetime.strptime(data_inicio_str, '%d/%m/%Y').date()
-            data_fim = datetime.strptime(data_fim_str, '%d/%m/%Y').date()
-        except ValueError:
-            st.error("Por favor, insira uma data válida no formato dd/mm/aaaa")
-            return
+with col1:
+    data_inicio_str = st.text_input(
+        "Data Inicial",
+        value=data_inicio_default,
+        key="data_inicio"
+    )
+    try:
+        data_inicio = datetime.strptime(data_inicio_str, '%d/%m/%Y').date()
+    except ValueError:
+        st.error("Por favor, insira uma data válida no formato dd/mm/aaaa")
+        data_inicio = None
 
-        # Filtros de análise de discurso
-        filtro_discurso = st.multiselect(
-            "Escolha o tipo de discurso que deseja visualizar",
-            options=["Todos"] + list(dados["resultado_analise"].unique()),
-            default=["Todos"]
-        )
+with col2:
+    data_fim_str = st.text_input(
+        "Data Final",
+        value=data_fim_default,
+        key="data_fim"
+    )
+    try:
+        data_fim = datetime.strptime(data_fim_str, '%d/%m/%Y').date()
+    except ValueError:
+        st.error("Por favor, insira uma data válida no formato dd/mm/aaaa")
+        data_fim = None
 
-        # Filtros de emoção
-        filtro_emocao = st.multiselect(
-            "Escolha o tipo de emoção que deseja visualizar",
-            options=["Todas"] + list(dados["emocao"].unique()),
-            default=["Todas"]
-        )
+col3, col4 = st.columns(2)
 
-        # Aplicando filtros
-        data_filtered = dados[
-            (dados["hora_postagem"].dt.date >= data_inicio) &
-            (dados["hora_postagem"].dt.date <= data_fim) &
-            (dados["resultado_analise"].isin(filtro_discurso)) &
-            (dados["emocao"].isin(filtro_emocao))
-        ]
-        
-        # Verificar se todas as colunas do dicionário estão presentes no DataFrame
-        colunas_legiveis = ["resultado_analise", "emocao", "hora_postagem_formatada", "engajamento", "texto"]
-        colunas_existentes = [coluna for coluna in colunas_legiveis if coluna in data_filtered.columns]
+with col3:
+    filtro_discurso = st.multiselect(
+        "Escolha o tipo de discurso que deseja visualizar",
+        options=["Todos"] + list(dados["resultado_analise"].unique()),
+        default=[],
+        key="filtro_discurso"
+    )
+    if "Todos" in filtro_discurso:
+        filtro_discurso = list(dados["resultado_analise"].unique())
 
-        # Configuração inicial de paginação
-        if "pagina_atual" not in st.session_state:
-            st.session_state.pagina_atual = 1
+with col4:
+    filtro_emocao = st.multiselect(
+        "Escolha o tipo de emoção que deseja visualizar",
+        options=["Todas"] + list(dados["emocao"].unique()),
+        default=[],
+        key="filtro_emocao"
+    )
+    if "Todas" in filtro_emocao:
+        filtro_emocao = list(dados["emocao"].unique())
 
-        # Quantidade de itens por página
-        ITENS_POR_PAGINA = 10
+# Verificação se os filtros foram preenchidos
+if not data_inicio or not data_fim or not filtro_discurso or not filtro_emocao:
+    st.warning("Preencha todos os filtros para prosseguir.")
+    st.stop()
 
-        # Configuração para limitar a navegação
-        PAGINA_MINIMA = 1
-        PAGINA_MAXIMA = 31
+# Aplicação de filtros
+data_filtered = dados[
+    (dados["hora_postagem"].dt.date >= data_inicio) &
+    (dados["hora_postagem"].dt.date <= data_fim) &
+    (dados["resultado_analise"].isin(filtro_discurso)) &
+    (dados["emocao"].isin(filtro_emocao))
+]
 
-        # Verificar se o DataFrame filtrado não está vazio
-        if not data_filtered.empty:
-            # Número total de páginas dentro do limite
-            total_itens = len(data_filtered)
-            total_paginas = min(PAGINA_MAXIMA, (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA)
+import streamlit as st
 
-            # Ajustar a página atual para estar no intervalo permitido
-            st.session_state.pagina_atual = max(
-                PAGINA_MINIMA, min(st.session_state.pagina_atual, total_paginas)
-            )
+# Configurar os títulos das colunas para a tabela
+colunas_legiveis = {
+    "hora_postagem": "Data e Hora em que a Publicação foi feita",
+    "usuario": "Usuário",
+    "resultado_analise": "Resultado da Análise do Discurso",
+    "emocao": "Emoção Predominante",
+    "upvotes": "Likes",
+    "comentarios": "Comentários",
+    "texto": "Publicação"
+}
 
-            # Instruções para o usuário
-            st.markdown(
-                """
-                ### Publicações Filtradas
-                #### Dicas de Uso:
-                - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
-                - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
-                - Cada página exibe até **10 publicações**.
-                - Navegação limitada às páginas **1 a 31**.
-                - Clique no **campo** que deseja visualizar para verificar todos os dados do mesmo.
-                """
-            )
+# Verificar se todas as colunas do dicionário estão presentes no DataFrame
+colunas_existentes = [coluna for coluna in colunas_legiveis if coluna in data_filtered.columns]
 
-            # Cálculo de índices de acordo com a página atual
-            inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
-            fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
-            tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes]
+# Configuração inicial de paginação
+if "pagina_atual" not in st.session_state:
+    st.session_state.pagina_atual = 1
 
-            # Exibir a tabela formatada com largura maior
-            st.dataframe(
-                tabela_pagina,
-                use_container_width=True,  # Largura total da tela
-                height=350,  # Altura adequada para 10 linhas
-            )
+# Quantidade de itens por página
+ITENS_POR_PAGINA = 10
 
-            # Botões de navegação
-            col1, col2, col3 = st.columns([1, 2, 1])
+# Configuração para limitar a navegação
+PAGINA_MINIMA = 1
+PAGINA_MAXIMA = 31
 
-            with col1:
-                if st.button("Anterior", disabled=(st.session_state.pagina_atual <= PAGINA_MINIMA)):
-                    st.session_state.pagina_atual -= 1
+# Verificar se o DataFrame filtrado não está vazio
+if not data_filtered.empty:
+    # Número total de páginas dentro do limite
+    total_itens = len(data_filtered)
+    total_paginas = min(PAGINA_MAXIMA, (total_itens + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA)
 
-            with col3:
-                if st.button("Próximo", disabled=(st.session_state.pagina_atual >= PAGINA_MAXIMA)):
-                    st.session_state.pagina_atual += 1
+    # Ajustar a página atual para estar no intervalo permitido
+    st.session_state.pagina_atual = max(
+        PAGINA_MINIMA, min(st.session_state.pagina_atual, total_paginas)
+    )
 
-            # Exibir página atual
-            st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
+    # Instruções para o usuário
+    st.markdown(
+        """
+        ### Publicações Filtradas
+        #### Dicas de Uso:
+        - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
+        - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
+        - Cada página exibe até **10 publicações**.
+        - Navegação limitada às páginas **1 a 31**.
+        - Clique no **campo** que deseja visualizar para verificar todos os dados do mesmo.
+        """
+    )
 
-        st.subheader("Gráficos")
-        # Opções disponíveis
-        opcoes = [
-            "Discurso (Ódio/Não Ódio)",
-            "Tipos de Discurso de Ódio",
-            "Emoções",
-            "Quantidade de Comentários",
-            "Visualizações",
-            "Likes (Upvotes)",
-            "Frequência por tipo de discurso",
-            "Frequência por usuário",
-            "Palavras Mais Comuns"
-        ]
+    # Cálculo de índices de acordo com a página atual
+    inicio = (st.session_state.pagina_atual - 1) * ITENS_POR_PAGINA
+    fim = min(inicio + ITENS_POR_PAGINA, total_itens)  # Garantir que não ultrapasse o limite
+    tabela_pagina = data_filtered.iloc[inicio:fim][colunas_existentes].rename(columns=colunas_legiveis)
 
-        # Mensagem inicial até que o arquivo seja enviado
-        st.write("Por favor, envie um arquivo CSV para começar a análise.")
+    # Exibir a tabela formatada com largura maior
+    st.dataframe(
+        tabela_pagina,
+        use_container_width=True,  # Largura total da tela
+        height=350,  # Altura adequada para 10 linhas
+    )
 
-        # Multiselect com a opção "Todos" adicionada
-        visualizacoes = st.multiselect(
-            "Escolha uma ou mais opções",
-            ["Todos"] + opcoes  # "Todos" adicionado
-        )
+    # Botões de navegação
+    col1, col2, col3 = st.columns([1, 2, 1])
 
-        # Lógica para tratar a seleção de "Todos"
-        if "Todos" in visualizacoes:
-            visualizacoes = opcoes  # Seleciona todas as opções
+    with col1:
+        if st.button("Anterior", disabled=(st.session_state.pagina_atual <= PAGINA_MINIMA)):
+            st.session_state.pagina_atual -= 1
 
-        def aplicar_estilo(fig):
-            fig.update_layout(
-                plot_bgcolor="black",
-                paper_bgcolor="black",
-                font=dict(color="white"),
-                title_font=dict(size=18, family="Arial, sans-serif", color="white"),
-                margin=dict(t=40, b=40, l=40, r=40)
-            )
-            return fig
+    with col3:
+        if st.button("Próximo", disabled=(st.session_state.pagina_atual >= PAGINA_MAXIMA)):
+            st.session_state.pagina_atual += 1
+
+    # Exibir página atual
+    st.text(f"Página {st.session_state.pagina_atual} de {PAGINA_MAXIMA}")
+
+else:
+    # Caso o DataFrame esteja vazio
+    st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
+
+st.subheader("Gráficos")
+# Opções disponíveis
+opcoes = [
+    "Discurso (Ódio/Não Ódio)",
+    "Tipos de Discurso de Ódio",
+    "Emoções",
+    "Quantidade de Comentários",
+    "Visualizações",
+    "Likes (Upvotes)",
+    "Frequência por tipo de discurso",
+    "Frequência por usuário",
+    "Palavras Mais Comuns"
+]
+
+# Multiselect com a opção "Todos" adicionada
+visualizacoes = st.multiselect(
+    "Escolha uma ou mais opções",
+    ["Todos"] + opcoes  # "Todos" adicionado
+)
+
+# Lógica para tratar a seleção de "Todos"
+if "Todos" in visualizacoes:
+    visualizacoes = opcoes  # Seleciona todas as opções
+
+def aplicar_estilo(fig):
+    fig.update_layout(
+        plot_bgcolor="black",
+        paper_bgcolor="black",
+        font=dict(color="white"),
+        title_font=dict(size=18, family="Arial, sans-serif", color="white"),
+        margin=dict(t=40, b=40, l=40, r=40)
+    )
+    return fig
 
 if "Discurso (Ódio/Não Ódio)" in visualizacoes:
     contagem_odio = data_filtered["eh_discurso_odio"].value_counts()
