@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -34,7 +33,7 @@ if dados is None:
     st.stop()
 
 # Configuração do layout e título
-st.title("Análise de Discurso de Ódio no Reddit com ChatGPT")
+st.title("Análise de Discurso de Ódio no Reddit através do ChatGPT")
 
 dados["hora_postagem"] = pd.to_datetime(dados["hora_postagem"], errors="coerce")
 dados["hora_postagem_formatada"] = dados["hora_postagem"].dt.strftime("%d/%m/%Y %H:%M:%S")
@@ -50,24 +49,40 @@ data_fim_default = data_max.date() if pd.notnull(data_max) else None
 
 # Filtros
 st.subheader("Filtros")
+import streamlit as st
+from datetime import datetime
+
+# Valores padrão para as datas
+data_inicio_default = datetime(2017, 9, 1).strftime('%d/%m/%Y')  # 01/12/2024
+data_fim_default = datetime(2024, 12, 31).strftime('%d/%m/%Y')  # 31/12/2024
+data_min = datetime(2024, 1, 1)
+data_max = datetime(2024, 12, 31)
+
 col1, col2 = st.columns(2)
+
 with col1:
-    data_inicio = st.date_input(
+    data_inicio_str = st.text_input(
         "Data Inicial",
         value=data_inicio_default,
-        min_value=data_min.date(),
-        max_value=data_max.date(),
         key="data_inicio"
     )
+    try:
+        data_inicio = datetime.strptime(data_inicio_str, '%d/%m/%Y').date()
+    except ValueError:
+        st.error("Por favor, insira uma data válida no formato dd/mm/aaaa")
+        data_inicio = None
+
 with col2:
-    data_fim = st.date_input(
+    data_fim_str = st.text_input(
         "Data Final",
         value=data_fim_default,
-        min_value=data_min.date(),
-        max_value=data_max.date(),
         key="data_fim"
     )
-
+    try:
+        data_fim = datetime.strptime(data_fim_str, '%d/%m/%Y').date()
+    except ValueError:
+        st.error("Por favor, insira uma data válida no formato dd/mm/aaaa")
+        data_fim = None
 
 col3, col4 = st.columns(2)
 
@@ -93,7 +108,7 @@ with col4:
 
 # Verificação se os filtros foram preenchidos
 if not data_inicio or not data_fim or not filtro_discurso or not filtro_emocao:
-    st.warning("Preencha todos os filtros para continuar.")
+    st.warning("Preencha todos os filtros para prosseguir.")
     st.stop()
 
 # Aplicação de filtros
@@ -185,25 +200,29 @@ else:
     # Caso o DataFrame esteja vazio
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
 
-# Visualizações
-st.subheader("Visualizações")
+st.subheader("Gráficos")
+# Opções disponíveis
+opcoes = [
+    "Discurso (Ódio/Não Ódio)",
+    "Tipos de Discurso de Ódio",
+    "Emoções",
+    "Quantidade de Comentários",
+    "Visualizações",
+    "Likes (Upvotes)",
+    "Frequência por tipo de discurso",
+    "Frequência por usuário",
+    "Palavras Mais Comuns"
+]
+
+# Multiselect com a opção "Todos" adicionada
 visualizacoes = st.multiselect(
-    "Escolha uma ou mais opções",  # Texto de escolha em português
-    [
-        "Discurso (Ódio/Não Ódio)",
-        "Tipos de Discurso de Ódio",
-        "Emoções",
-        "Quantidade de Comentários",
-        "Visualizações",
-        "Likes (Upvotes)",
-        "Frequência por tipo de discurso",
-        "Frequência por usuário",
-        "Palavras Mais Comuns"
-    ]
+    "Escolha uma ou mais opções",
+    ["Todos"] + opcoes  # "Todos" adicionado
 )
 
-# Gráficos selecionados
-st.subheader("Visualizações")
+# Lógica para tratar a seleção de "Todos"
+if "Todos" in visualizacoes:
+    visualizacoes = opcoes  # Seleciona todas as opções
 
 def aplicar_estilo(fig):
     fig.update_layout(
@@ -325,39 +344,74 @@ if "Frequência por tipo de discurso" in visualizacoes:
     
     # Exibir o gráfico
     st.plotly_chart(fig3)
-
-# Visualizações por Tipo de Discurso de Ódio
+if "Likes (Upvotes)" in visualizacoes:
+    # Agrupar e calcular a média de upvotes
+    try:
+        media_upvotes = data_filtered.groupby("resultado_analise")["upvotes"].mean().reset_index()
+        media_upvotes.columns = ["Tipo de Discurso", "Média de Likes"]  # Manter como "Upvotes"
+        
+        # Verificar se há dados
+        if not media_upvotes.empty:
+            # Criar o gráfico de barras
+            fig5 = px.bar(
+                media_upvotes,
+                x="Tipo de Discurso",
+                y="Média de Likes",  # Usar "Média de Upvotes" na exibição
+                title="Média de Likes por Tipo de Discurso de Ódio",
+                color="Tipo de Discurso",
+                text_auto=True
+            )
+            fig5 = aplicar_estilo(fig5)  # Aplicar estilo, se necessário
+            st.plotly_chart(fig5)  # Exibir o gráfico no Streamlit
+        else:
+            st.write("Não há dados de upvotes para os tipos de discurso de ódio.")
+    except KeyError as e:
+        st.error(f"Ocorreu um erro com a coluna de dados: {e}")
+        
 if "Visualizações" in visualizacoes:
-    # Filtrar os dados para excluir "não é discurso de ódio"
-    data_odio = data_filtered[data_filtered['resultado_analise'] != 'não é discurso de ódio']
-    
-    # Verificar se há dados após o filtro
-    if not data_odio.empty:
-        visualizacoes_por_tipo = data_odio.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
-        fig_visualizacoes_tipo = px.line(
-            visualizacoes_por_tipo,
-            x="resultado_analise",
-            y="visualizacoes",
-            title="Visualizações por Tipo de Discurso de Ódio",
-            labels={"resultado_analise": "Tipo de Discurso de Ódio", "visualizacoes": "Total de Visualizações"},
-            color_discrete_sequence=px.colors.qualitative.Bold
-        )
+    # Agrupar os dados por tipo de análise, incluindo "não é discurso de ódio"
+    visualizacoes_por_tipo = data_filtered.groupby("resultado_analise")["visualizacoes"].sum().reset_index()
 
-        # Estilo e layout com fundo preto
-        fig_visualizacoes_tipo.update_traces(mode="lines+markers", line=dict(width=3))
-        fig_visualizacoes_tipo.update_layout(
-            plot_bgcolor="black",
-            paper_bgcolor="black",
-            font=dict(color="white"),
-            xaxis=dict(title="Tipos de Discurso de Ódio", showgrid=False),
-            yaxis=dict(title="Visualizações", showgrid=True, gridcolor="gray"),
-            title=dict(font=dict(size=20)),
-            legend=dict(title="Tipos", font=dict(color="white"))
-        )
-        aplicar_estilo(fig_visualizacoes_tipo)
-        st.plotly_chart(fig_visualizacoes_tipo)
-    else:
-        st.write("Não há dados de discurso de ódio para exibir.")
+    # Certificar-se de que todas as categorias (incluindo 'não é discurso de ódio') estão presentes
+    tipos_discurso = ["não é discurso de ódio", "racismo", "homofobia", "machismo", "sexismo"]  # Adicione os tipos desejados aqui
+
+    # Garantir que todos os tipos de discurso apareçam, mesmo os sem dados
+    for tipo in tipos_discurso:
+        if tipo not in visualizacoes_por_tipo["resultado_analise"].values:
+            # Criar um DataFrame temporário para o tipo ausente
+            temp_df = pd.DataFrame({"resultado_analise": [tipo], "visualizacoes": [0]})
+            # Concatenar o DataFrame original com o novo DataFrame
+            visualizacoes_por_tipo = pd.concat([visualizacoes_por_tipo, temp_df], ignore_index=True)
+
+    # Ordenar as barras em ordem decrescente de visualizações
+    visualizacoes_por_tipo = visualizacoes_por_tipo.sort_values("visualizacoes", ascending=False)
+
+    # Criar gráfico de barras para visualizações por tipo de discurso
+    fig_visualizacoes_tipo = px.bar(
+        visualizacoes_por_tipo,
+        x="resultado_analise",
+        y="visualizacoes",
+        title="Visualizações por Tipo de Discurso",
+        labels={"resultado_analise": "Resultado da Análise", "visualizacoes": "Total de Visualizações"},
+        color=None,  # Remover a diferenciação por cor
+        color_discrete_sequence=["#1f77b4"]  # Aplicar uma cor única
+    )
+
+    # Ajustes de estilo e layout
+    fig_visualizacoes_tipo.update_layout(
+        plot_bgcolor="black",
+        paper_bgcolor="black",
+        font=dict(color="white"),
+        xaxis=dict(title="Tipos de Discurso", showgrid=False),
+        yaxis=dict(title="Visualizações", showgrid=True, gridcolor="gray"),
+        title=dict(font=dict(size=20)),
+        showlegend=False  # Remover a legenda
+    )
+
+    # Aplicar estilo customizado
+    aplicar_estilo(fig_visualizacoes_tipo)
+    st.plotly_chart(fig_visualizacoes_tipo)
+
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import streamlit as st
