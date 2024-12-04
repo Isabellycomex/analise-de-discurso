@@ -181,14 +181,10 @@ if not data_filtered.empty:
     # Links na coluna de texto para redirecionar ao conteúdo
     for i, row in tabela_pagina.iterrows():
         texto_publicacao = row["texto"]
-        link = f"[Clique para ver a publicação {i}]({row['url']})"  # Supondo que você tenha uma coluna 'url' com o link direto
+        # Aqui substituímos 'url' por um identificador único ou o índice
+        link = f"[Clique para ver a publicação {i}]({# URL da publicação aqui ou alguma outra coluna identificadora})"
         st.markdown(link)
 
-else:
-    # Caso o DataFrame esteja vazio
-    st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
-
-st.subheader("Gráficos")
 # Opções disponíveis
 opcoes = [
     "Discurso (Ódio/Não Ódio)",
