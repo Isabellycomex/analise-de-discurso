@@ -144,7 +144,7 @@ ITENS_POR_PAGINA = 10
 
 # Configuração para limitar a navegação
 PAGINA_MINIMA = 1
-PAGINA_MAXIMA = 41
+PAGINA_MAXIMA = 31
 
 # Verificar se o DataFrame filtrado não está vazio
 if not data_filtered.empty:
@@ -165,7 +165,7 @@ if not data_filtered.empty:
         - Use os botões **Próximo** e **Anterior** para navegar entre as páginas.
         - Role a tabela para **baixo** ou para os **lados** para ver mais detalhes das publicações.
         - Cada página exibe até **10 publicações**.
-        - Navegação limitada às páginas **1 a 41**.
+        - Navegação limitada às páginas **1 a 31**.
         - Clique no **campo** que deseja visualizar para verificar todos os dados do mesmo.
         """
     )
@@ -200,7 +200,7 @@ else:
     # Caso o DataFrame esteja vazio
     st.error("Nenhuma publicação encontrada com os filtros selecionados. Ajuste os filtros e tente novamente.")
 
-st.subheader("Gráficos")
+st.subheader("Visualizações")
 # Opções disponíveis
 opcoes = [
     "Discurso (Ódio/Não Ódio)",
