@@ -11,7 +11,7 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 # Carregar os dados do CSV
-caminho_arquivo = "publicacoes.csv"
+caminho_arquivo = "publicacoes_analizadas.csv"
 
 def carregar_dados(caminho_arquivo):
     try:
